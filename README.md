@@ -40,7 +40,7 @@ Application.run({
 })
 ```
 
-with ef.js
+### with ef.js
 
 App.eft
 
@@ -59,8 +59,8 @@ App.eft
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import {document, domImpl} from 'dominative'
-import {setDOMImpl} from 'ef-core'
+import { domImpl } from 'dominative'
+import { setDOMImpl } from 'ef-core'
 import App from 'App.eft'
 
 setDOMImpl(domImpl)
