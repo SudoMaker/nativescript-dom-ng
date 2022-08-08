@@ -1,10 +1,9 @@
 {
   "name": "dominative",
   "amdName": "dominative",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "Minimally viable DOM Document implementation for NativeScript.",
   "main": "src/dominative.js",
-  "type": "module",
   "scripts": {},
   "keywords": [
     "dom",
@@ -18,8 +17,8 @@
   "license": "MIT",
   "bugs": "https://github.com/ClassicOldSong/dominative/issues",
   "homepage": "https://github.com/ClassicOldSong/dominative",
-  "devDependencies": {
-    "@utls/undom-ef": "^0.2.0"
+  "dependencies": {
+    "@utls/undom-ef": "^0.2.3"
   },
   "peerDependencies": {
     "@nativescript/core": "^8.2.0"

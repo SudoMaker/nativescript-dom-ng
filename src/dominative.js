@@ -1,6 +1,6 @@
 import * as nativeViews from './native-views/index.js'
-import * as makers from './native-views/maker.js'
-import {createEnvironment, Event, isNode} from '@utls/undom-ef'
+import * as makers from './native-views/makers.js'
+import {createEnvironment, isNode} from '@utls/undom-ef'
 
 /*
 const NODE_TYPES = {
@@ -58,7 +58,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	onAddEventListener(type, handler, options) {
 		if (!this.__isNative) return
 		if (options && options.efInternal && !this.__dominative_eventHandlers[type]) {
-			this.__dominative_eventHandlers[type] = () => this.dispatchEvent(new Event(type))
+			this.__dominative_eventHandlers[type] = () => this.dispatchEvent(new scope.Event(type))
 			this.onAddEventListener(type, this.__dominative_eventHandlers[type])
 			return
 		}
@@ -89,5 +89,4 @@ const domImpl = {
 	isNode
 }
 
-export default document
 export { document, domImpl, nativeViews, makers }
