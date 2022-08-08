@@ -44,7 +44,7 @@ export const makeListView = named(
 		}
 
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			let currentArr = this.__childList
 			let refIndex = ref && currentArr.indexOf(ref) || currentArr.length
@@ -74,7 +74,7 @@ export const makeListView = named(
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemoveChild(child)
 
 			let currentArr = this.__childList
 			let childIndex = currentArr.indexOf(child)

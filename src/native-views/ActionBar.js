@@ -5,7 +5,7 @@ export const makeActionBar = named(
 	'ActionBar', 'ActionBar', ActionBar,
 	_ => class ActionBarElement extends makeView(_) {
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			if (child instanceof NavigationButton) {
 				if (this.navigationButton && this.navigationButton.__undom_isNode) this.navigationButton.remove()
@@ -32,7 +32,7 @@ export const makeActionBar = named(
 		}
 
 		onRemovChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemovedChild(child)
 
 			if (child instanceof NavigationButton && child === this.navigationButton) {
 				this.navigationButton = null

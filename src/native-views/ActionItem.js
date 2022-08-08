@@ -5,7 +5,7 @@ export const makeActionItem = named(
 	'ActionItem', 'ActionItem', ActionItem,
 	_ => class ActionItemElement extends makeView(_) {
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			if (child instanceof ViewBase) {
 				this.actionView = child
@@ -15,7 +15,7 @@ export const makeActionItem = named(
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemoveChild(child)
 
 			if (child === this.actionView) this.actionView = null
 

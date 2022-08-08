@@ -14,7 +14,7 @@ export const makeFrame = named(
 		}
 
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			if (child instanceof PageBase) {
 				this.navigate({ create: () => child, clearHistory: true })

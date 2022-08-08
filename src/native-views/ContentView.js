@@ -5,7 +5,7 @@ export const makeContentView = named(
 	'ContentView', 'ContentView', ContentView,
 	_ => class ContentViewElement extends makeView(_) {
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			this.content = child
 
@@ -13,7 +13,7 @@ export const makeContentView = named(
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemoveChild(child)
 
 			this.content = null
 

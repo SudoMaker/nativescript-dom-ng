@@ -6,7 +6,7 @@ export const makeSegmentedBar = named(
 	'SegmentedBar', 'SegmentedBar', SegmentedBar,
 	_ => class SegmentedBarElement extends makeView(_) {
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 			if (!(child instanceof SegmentedBarItem)) return
 
 			if (ref && !(ref instanceof SegmentedBarItem)) ref = null
@@ -17,7 +17,7 @@ export const makeSegmentedBar = named(
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemoveChild(child)
 			if (!(child instanceof SegmentedBarItem)) return
 
 			removeFromArrayProp(this, 'items', child)

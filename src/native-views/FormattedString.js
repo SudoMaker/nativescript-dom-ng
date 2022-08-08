@@ -6,7 +6,7 @@ export const makeFormattedString = named(
 	'FormattedString', 'FormattedString', FormattedString,
 	_ => class FormattedStringElement extends makeView(_) {
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
 
 			if (!(child instanceof Span)) return
 			if (ref && !(ref instanceof Span)) ref = null
@@ -17,7 +17,7 @@ export const makeFormattedString = named(
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return
+			if (!child.__isNative) return super.onRemoveChild(child)
 			if (!(child instanceof Span)) return
 
 			removeFromArrayProp(this, 'spans', child)
