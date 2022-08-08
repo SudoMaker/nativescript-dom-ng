@@ -12,11 +12,11 @@
     "{N}",
     "NativeScript"
   ],
-  "repository": "ClassicOldSong/dominative",
+  "repository": "SudoMaker/dominative",
   "author": "Yukino Song <yukino@yuki.network>",
   "license": "MIT",
-  "bugs": "https://github.com/ClassicOldSong/dominative/issues",
-  "homepage": "https://github.com/ClassicOldSong/dominative",
+  "bugs": "https://github.com/SudoMaker/dominative/issues",
+  "homepage": "https://github.com/SudoMaker/dominative",
   "dependencies": {
     "@utls/undom-ef": "^0.2.3"
   },
