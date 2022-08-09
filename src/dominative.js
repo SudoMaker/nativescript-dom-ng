@@ -100,4 +100,4 @@ const domImpl = {
 	isNode
 }
 
-export { document, domImpl, nativeViews, pseudoElements, makers }
+export { document, domImpl, nativeViews, pseudoElements, makers, registerElement }
