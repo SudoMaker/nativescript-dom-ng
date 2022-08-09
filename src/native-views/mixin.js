@@ -1,23 +1,6 @@
 import { ViewBase, LayoutBase, TextBase, EditableTextBase, FormattedString } from '@nativescript/core'
 import { isAndroid, isIOS } from '@nativescript/core/platform'
-import { resolvePath } from './helper.js'
-
-// eslint-disable-next-line max-params
-const named = (name, baseClassName, baseClass, creator) => {
-	const key = `__dominative_is${name}`
-	const errMsg = `${name} element must be subclass of ${baseClassName}`
-	const allowSelf = name === baseClassName
-
-	return (_ = baseClass, ...args) => {
-		if (_ && _.prototype[key]) return _
-
-		if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(errMsg)
-
-		const createdClass = creator(_, ...args)
-		createdClass.prototype[key] = true
-		return createdClass
-	}
-}
+import { named, resolvePath } from '../utils.js'
 
 const makeView = named(
 	'View', 'ViewBase', ViewBase,

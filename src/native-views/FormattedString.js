@@ -1,6 +1,6 @@
 import { FormattedString, Span } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
-import { addToArrayProp, removeFromArrayProp } from './helper.js'
+import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
 export const makeFormattedString = named(
 	'FormattedString', 'FormattedString', FormattedString,

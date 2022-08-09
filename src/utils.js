@@ -1,6 +1,30 @@
 import { ObservableArray } from '@nativescript/core'
 
 // eslint-disable-next-line max-params
+const named = (name, baseClassName, baseClass, creator) => {
+	const key = `__dominative_is${name}`
+	const errMsg = `${name} element must be subclass of ${baseClassName}`
+	const allowSelf = name === baseClassName
+
+	return (_ = baseClass, ...args) => {
+		if (_ && _.prototype[key]) return _
+
+		if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(errMsg)
+
+		const createdClass = creator(_, ...args)
+		createdClass.prototype[key] = true
+		return createdClass
+	}
+}
+
+const resolvePath = (pathStr, base) => {
+	const pathArr = pathStr.split('.')
+	const key = pathArr.pop()
+	base = pathArr.reduce((prev, key) => base[key], base)
+	return [base, key]
+}
+
+// eslint-disable-next-line max-params
 const addToArrayProp = (node, key, item, ref) => {
 	if (!node[key]) node[key] = []
 
@@ -34,11 +58,9 @@ const removeFromArrayProp = (node, key, item) => {
 	}
 }
 
-const resolvePath = (pathStr, base) => {
-	const pathArr = pathStr.split('.')
-	const key = pathArr.pop()
-	base = pathArr.reduce((prev, key) => base[key], base)
-	return [base, key]
+export {
+	named,
+	resolvePath,
+	addToArrayProp,
+	removeFromArrayProp
 }
-
-export { addToArrayProp, removeFromArrayProp, resolvePath }

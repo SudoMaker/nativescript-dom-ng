@@ -1,5 +1,6 @@
 import * as nativeViews from './native-views/index.js'
 import * as makers from './native-views/makers.js'
+import * as pseudoElements from './pesudo-elements/index.js'
 import {createEnvironment, isNode} from '@utls/undom-ef'
 
 /*
@@ -28,37 +29,43 @@ const {scope, createDocument, registerElement} = createEnvironment({
 			this.parentNode.updateText()
 		}
 	},
-	onCreateNode(nodeType) {
-		if (nodeType === 1) {
+	onCreateNode() {
+		if (this.nodeType === 1 && this.__isNative) {
 			// eslint-disable-next-line camelcase
 			this.__dominative_eventHandlers = {}
 		}
 	},
 	onInsertBefore(child, ref) {
-		if (!this.__isNative) return
+		if (!this.__isNative && !this.__isPesudoElement) return
 		while (ref && !ref.__isNative) ref = ref.nextSibling
 		this.onInsertChild(child, ref)
+		if (child.__isPesudoElement) child.onBeingInserted(this)
 	},
 	onRemoveChild(child) {
-		if (!this.__isNative) return
+		if (!this.__isNative && !this.__isPesudoElement) return
 		this.onRemoveChild(child)
+		if (child.__isPesudoElement) child.onBeingRemoved(this)
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!this.__isNative) return
+		if (!this.__isNative && !this.__isPesudoElement) return
 		this.onSetAttributeNS(ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!this.__isNative) return
+		if (!this.__isNative && !this.__isPesudoElement) return
 		this.onGetAttributeNS(ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!this.__isNative) return
+		if (!this.__isNative && !this.__isPesudoElement) return
 		this.onRemoveAttributeNS(ns, name)
 	},
 	onAddEventListener(type, handler, options) {
 		if (!this.__isNative) return
 		if (options && options.efInternal && !this.__dominative_eventHandlers[type]) {
-			this.__dominative_eventHandlers[type] = () => this.dispatchEvent(new scope.Event(type))
+			this.__dominative_eventHandlers[type] = (data) => {
+				const event = new scope.Event(type)
+				event.data = data
+				this.dispatchEvent(event)
+			}
 			this.onAddEventListener(type, this.__dominative_eventHandlers[type])
 			return
 		}
@@ -81,6 +88,10 @@ for (let [key, val] of Object.entries(nativeViews)) {
 	registerElement(key, val)
 }
 
+for (let [key, val] of Object.entries(pseudoElements)) {
+	registerElement(key, val)
+}
+
 const document = createDocument()
 
 const domImpl = {
@@ -89,4 +100,4 @@ const domImpl = {
 	isNode
 }
 
-export { document, domImpl, nativeViews, makers }
+export { document, domImpl, nativeViews, pseudoElements, makers }
