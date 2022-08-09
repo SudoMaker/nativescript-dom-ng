@@ -45,7 +45,7 @@ Application.run({
 App.eft
 
 ```efml
->Frame
+>Frame#root
 	>Page
 		>ActionBar
 			#title = Hello World!
