@@ -3,7 +3,7 @@ import { resolvePath } from '../utils.js'
 export class PseudoBase {
 	/* eslint-disable class-methods-use-this, no-empty-function */
 	constructor() {
-		this.__isPesudoElement = true
+		this.__isPseudoElement = true
 	}
 
 	onInsertChild() {}

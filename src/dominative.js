@@ -36,26 +36,26 @@ const {scope, createDocument, registerElement} = createEnvironment({
 		}
 	},
 	onInsertBefore(child, ref) {
-		if (!this.__isNative && !this.__isPesudoElement) return
+		if (!this.__isNative && !this.__isPseudoElement) return
 		while (ref && !ref.__isNative) ref = ref.nextSibling
 		this.onInsertChild(child, ref)
-		if (child.__isPesudoElement) child.onBeingInserted(this)
+		if (child.__isPseudoElement) child.onBeingInserted(this)
 	},
 	onRemoveChild(child) {
-		if (!this.__isNative && !this.__isPesudoElement) return
+		if (!this.__isNative && !this.__isPseudoElement) return
 		this.onRemoveChild(child)
-		if (child.__isPesudoElement) child.onBeingRemoved(this)
+		if (child.__isPseudoElement) child.onBeingRemoved(this)
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!this.__isNative && !this.__isPesudoElement) return
+		if (!this.__isNative && !this.__isPseudoElement) return
 		this.onSetAttributeNS(ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!this.__isNative && !this.__isPesudoElement) return
+		if (!this.__isNative && !this.__isPseudoElement) return
 		this.onGetAttributeNS(ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!this.__isNative && !this.__isPesudoElement) return
+		if (!this.__isNative && !this.__isPseudoElement) return
 		this.onRemoveAttributeNS(ns, name)
 	},
 	onAddEventListener(type, handler, options) {
