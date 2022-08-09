@@ -19,11 +19,20 @@ export default class Prop extends PseudoBase {
 		this.setPropOnParent(this.parent)
 	}
 
+	get class() {
+		return `${this.key}:${this.type}`
+	}
+	set class(val) {
+		const [key, type] = val.split(':')
+		this.key = key
+		this.type = type
+	}
+
 	get type() {
-		return this.__type
+		return this.__type || 'single'
 	}
 	set type(val) {
-		if (!val) return
+		if (val !== 'array') return
 		if (this.__type) return
 		this.__type = val
 

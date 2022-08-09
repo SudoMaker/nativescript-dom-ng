@@ -1,9 +1,10 @@
 import { RootLayout } from '@nativescript/core'
-import { named, makeLayout } from "./mixin.js"
+import { named } from './mixin.js'
+import { makeGridLayout } from './GridLayout.js'
 
 export const makeRootLayout = named(
 	'RootLayout', 'RootLayout', RootLayout,
-	_ => class RootLayoutElement extends makeLayout(_) {}
+	_ => class RootLayoutElement extends makeGridLayout(_) {}
 )
 
 export default makeRootLayout()

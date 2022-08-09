@@ -1,7 +1,7 @@
 {
   "name": "dominative",
   "amdName": "dominative",
-  "version": "0.0.1-alpha.7",
+  "version": "0.0.1-alpha.8",
   "description": "Minimally viable DOM Document implementation for NativeScript.",
   "main": "src/dominative.js",
   "scripts": {},
