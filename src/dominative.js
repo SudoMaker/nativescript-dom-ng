@@ -26,7 +26,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 		if (this.nodeType === 8) {
 			if (!silent) console.log('[DOM COMMENT]', data)
 		} else if (this.nodeType === 3 && this.parentNode && this.parentNode.__isNative && this.parentNode.__dominative_isText) {
-			this.parentNode.updateText()
+			this.parentNode.__dominative_updateText()
 		}
 	},
 	onCreateNode() {

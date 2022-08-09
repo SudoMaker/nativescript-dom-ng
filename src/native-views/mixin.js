@@ -116,19 +116,15 @@ const makeText = named(
 			}
 		}
 
-		updateText() {
-			return this.__dominative_updateText()
-		}
-
 		onInsertChild(child, ref) {
 			super.onInsertChild(child, ref)
 			if (child instanceof FormattedString) this.formattedText = child
-			if (child.nodeType === 3) this.updateText()
+			if (child.nodeType === 3) this.__dominative_updateText()
 		}
 		onRemoveChild(child) {
 			super.onRemoveChild(child)
 			if (child instanceof FormattedString) this.formattedText = null
-			if (child.nodeType === 3) this.updateText()
+			if (child.nodeType === 3) this.__dominative_updateText()
 		}
 	}
 )
