@@ -1,6 +1,6 @@
 import * as nativeViews from './native-views/index.js'
 import * as makers from './native-views/makers.js'
-import * as pseudoElements from './pesudo-elements/index.js'
+import * as pseudoElements from './pseudo-elements/index.js'
 import {createEnvironment, isNode} from '@utls/undom-ef'
 
 /*
@@ -69,7 +69,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 			this.onAddEventListener(type, this.__dominative_eventHandlers[type])
 			return
 		}
-		this.onAddEventListener(type, handler)
+		this.onAddEventListener(type, handler, options)
 		return true
 	},
 	onRemoveEventListener(type, handler, options) {
@@ -80,7 +80,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 				delete this.__dominative_eventHandlers[type]
 			}
 		}
-		this.onRemoveEventListener(type, handler)
+		this.onRemoveEventListener(type, handler, options)
 	}
 })
 

@@ -31,7 +31,7 @@ export const makeActionBar = named(
 			super.onInsertChild(child, ref)
 		}
 
-		onRemovChild(child) {
+		onRemoveChild(child) {
 			if (!child.__isNative) return super.onRemovedChild(child)
 
 			if (child instanceof NavigationButton && child === this.navigationButton) {

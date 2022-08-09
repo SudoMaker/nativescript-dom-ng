@@ -27,11 +27,11 @@ const makeView = named(
 		onInsertChild() {}
 		onRemoveChild() {}
 
-		onAddEventListener(type, handler) {
-			super.addEventListener(type, handler)
+		onAddEventListener(type, handler, options) {
+			super.addEventListener(type, handler, options)
 		}
-		onRemoveEventListener(type, handler) {
-			super.removeEventListener(type, handler)
+		onRemoveEventListener(type, handler, options) {
+			super.removeEventListener(type, handler, options)
 		}
 
 		onSetAttributeNS(ns, name, value) {

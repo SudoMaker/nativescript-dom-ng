@@ -1,8 +1,8 @@
 import { ObservableArray } from '@nativescript/core'
-import { PesudoBase } from './base.js'
+import { PseudoBase } from './base.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export default class Prop extends PesudoBase {
+export default class Prop extends PseudoBase {
 	constructor(key, type) {
 		super()
 		this.key = key
