@@ -1,5 +1,9 @@
-import { ListView } from '@nativescript/core'
+import { ListView, ContentView, ViewBase } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
+import { addToArrayProp, removeFromArrayProp } from '../utils.js'
+
+class DummyContentView extends ContentView {}
+const defaultItemTemplate = () => new DummyContentView()
 
 const updateList = (self) => {
 	/* eslint-disable camelcase */
@@ -11,25 +15,20 @@ const updateList = (self) => {
 	}, 0)
 }
 
-export class ListViewItem {
-	constructor(view, data, handleUpdate) {
-		this.view = view
-		this.data = data
-		this.handleUpdate = handleUpdate
-	}
-}
-
 const handleItemLoading = (self, data) => {
-	const itemIndex = data.index
 	if (!self.items) return
+	const itemIndex = data.index
 
 	let item = null
 	if (self.items.getItem) item = self.items.getItem(itemIndex)
 	else item = self.items[itemIndex]
 
-	if (item instanceof ListViewItem) {
-		if (item.view && item.view !== data.view) data.view = item.view
-		if (item.handleUpdate) item.handleUpdate(itemIndex, item.data)
+	if (item instanceof ViewBase && data.view instanceof DummyContentView) {
+		if (!item.parent) data.view.content = item
+		else if (item.parent instanceof DummyContentView) {
+			item.parent.content = null
+			data.view.content = item
+		}
 	}
 }
 
@@ -39,58 +38,30 @@ export const makeListView = named(
 		constructor(...args) {
 			super(...args)
 			this.items = []
-			this.__childList = []
+			this.itemTemplate = defaultItemTemplate
 			super.addEventListener(ListView.itemLoadingEvent, data => handleItemLoading(this, data))
 		}
 
 		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+			if (
+				this.itemTemplate !== defaultItemTemplate ||
+				!child.__isNative ||
+				(ref && !ref.__isNative)
+			) return super.onInsertChild(child, ref)
 
-			let currentArr = this.__childList
-			let refIndex = ref && currentArr.indexOf(ref) || currentArr.length
-			if (refIndex < 0) refIndex = currentArr.length
-			currentArr.splice(refIndex, 0, child)
-
-			if (Array.isArray(this.items)) {
-				currentArr = this.items
-				refIndex = currentArr.length
-				if (ref) {
-					refIndex -= 1
-					while (refIndex >= 0) {
-						const currentItem = currentArr[refIndex]
-						if ((currentItem instanceof ListViewItem) && currentItem.view === ref) break
-						refIndex -= 1
-					}
-				}
-
-				if (refIndex < 0) refIndex = currentArr.length
-
-				const item = new ListViewItem(child, null, child.__handleListUpdate)
-				currentArr.splice(refIndex, 0, item)
-			}
+			addToArrayProp(this, 'items', child, ref)
 
 			super.onInsertChild(child, ref)
 			updateList(this)
 		}
 
 		onRemoveChild(child) {
-			if (!child.__isNative) return super.onRemoveChild(child)
+			if (
+				this.itemTemplate !== defaultItemTemplate ||
+				!child.__isNative
+			) return super.onRemoveChild(child)
 
-			let currentArr = this.__childList
-			let childIndex = currentArr.indexOf(child)
-			if (childIndex >= 0) currentArr.splice(childIndex, 1)
-
-			if (Array.isArray(this.items)) {
-				currentArr = this.items
-				childIndex = currentArr.length - 1
-				while (childIndex >= 0) {
-					const currentItem = currentArr[childIndex]
-					if ((currentItem instanceof ListViewItem) && currentItem.view === child) break
-					childIndex -= 1
-				}
-
-				if (childIndex >= 0) currentArr.splice(childIndex, 1)
-			}
+			removeFromArrayProp(this, 'items', child)
 
 			super.onRemoveChild(child)
 			updateList(this)
