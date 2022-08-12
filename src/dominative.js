@@ -60,7 +60,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	},
 	onAddEventListener(type, handler, options) {
 		if (!this.__isNative) return
-		if (options && (options.efInternal || options.mode === 'DOM') && !this.__dominative_eventHandlers[type]) {
+		if (options && options.mode === 'DOM' && !this.__dominative_eventHandlers[type]) {
 			this.__dominative_eventHandlers[type] = function(data) {
 				let target = data.object
 				while (target && !target.__undom_isNode) target = target.parent
@@ -77,7 +77,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	},
 	onRemoveEventListener(type, handler, options) {
 		if (!this.__isNative) return
-		if (options && (options.efInternal || options.mode === 'DOM') && this.__dominative_eventHandlers[type]) {
+		if (options && options.mode === 'DOM' && this.__dominative_eventHandlers[type]) {
 			if (this.__undom_eventHandlers[type] && !this.__undom_eventHandlers[type].length) {
 				handler = this.__dominative_eventHandlers[type]
 				delete this.__dominative_eventHandlers[type]
