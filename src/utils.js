@@ -6,12 +6,12 @@ const named = (name, baseClassName, baseClass, creator) => {
 	const errMsg = `${name} element must be subclass of ${baseClassName}`
 	const allowSelf = name === baseClassName
 
-	return (_ = baseClass, ...args) => {
+	return (_ = baseClass, force) => {
 		if (_ && _.prototype[key]) return _
 
-		if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(errMsg)
+		if (!force && (allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(errMsg)
 
-		const createdClass = creator(_, ...args)
+		const createdClass = creator(_, force)
 		createdClass.prototype[key] = true
 		return createdClass
 	}

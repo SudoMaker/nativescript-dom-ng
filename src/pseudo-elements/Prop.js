@@ -2,11 +2,12 @@ import { ObservableArray } from '@nativescript/core'
 import { PseudoBase } from './base.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export default class Prop extends PseudoBase {
+export class PropBase extends PseudoBase {
 	constructor(key, type) {
 		super()
 		this.key = key
 		this.type = type
+		this.__role = 'Prop'
 	}
 
 	get key() {
@@ -57,29 +58,6 @@ export default class Prop extends PseudoBase {
 		return this.__parent
 	}
 
-	onInsertChild(child, ref) {
-		if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
-
-		if (this.type === 'array') {
-			addToArrayProp(this, '__value', child, ref)
-			if (this.key && this.parent) addToArrayProp(this.parent, this.key, child, ref)
-		} else {
-			this.value = child
-		}
-
-		super.onInsertChild(child, ref)
-	}
-	onRemoveChild(child) {
-		if (!child.__isNative || child.__isPesudoElement) return super.onRemoveChild(child)
-
-		if (this.type === 'array') {
-			removeFromArrayProp(this, '__value', child)
-			if (this.key && this.parent) removeFromArrayProp(this.parent, this.key, child)
-		} else if (this.value === child) this.value = null
-
-		super.onRemoveChild(child)
-	}
-
 	onBeingInserted(parent) {
 		this.__parent = parent
 		this.setPropOnParent(parent)
@@ -95,7 +73,6 @@ export default class Prop extends PseudoBase {
 		if (parent !== this.parent) {
 			if (this.type === 'array' && parent[this.key] instanceof ObservableArray) parent[this.key].length = 0
 			else parent[this.key] = null
-
 			return
 		}
 
@@ -103,5 +80,30 @@ export default class Prop extends PseudoBase {
 			parent[this.key].length = 0
 			parent[this.key].push(...this.__value)
 		} else parent[this.key] = this.__value
+	}
+}
+
+export default class Prop extends PropBase {
+	onInsertChild(child, ref) {
+		if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+
+		if (this.type === 'array') {
+			addToArrayProp(this, '__value', child, ref)
+			if (this.key && this.parent) addToArrayProp(this.parent, this.key, child, ref)
+		} else {
+			this.value = child
+		}
+
+		super.onInsertChild(child, ref)
+	}
+	onRemoveChild(child) {
+		if (!child.__isNative) return super.onRemoveChild(child)
+
+		if (this.type === 'array') {
+			removeFromArrayProp(this, '__value', child)
+			if (this.key && this.parent) removeFromArrayProp(this.parent, this.key, child)
+		} else if (this.value === child) this.value = null
+
+		super.onRemoveChild(child)
 	}
 }
