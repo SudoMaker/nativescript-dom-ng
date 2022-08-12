@@ -1,27 +1,54 @@
 import { PropBase } from './Prop.js'
 
-const cloneElement = (element) => {
-	if (!element.__undom_isNode) return
-	const children = element.childNodes.map(cloneElement)
-	const clonedElement = new element.constructor()
-	if (element.nodeType === 1) {
-		const attrs = element.attributes
-		for (let {ns, name, value} of attrs) {
-			clonedElement.setAttributeNS(ns, name, value)
-		}
+const cloneNode = (node) => {
+	if (!node.__undom_isNode) return
+	const clonedNode = new node.constructor()
+	return clonedNode
+}
 
-		if (element.__dominative_eventHandlers) {
-			for (let [type, handler] of Object.entries(element.__dominative_eventHandlers)) {
-				clonedElement.addEventListener(type, handler)
-			}
-		}
-	} else if (element.nodeType === 3 || element.nodeType === 8) {
-		clonedElement.nodeValue = element.nodeValue
+const hydrateNode = (source, target) => {
+	if (!source.__undom_isNode || !target.__undom_isNode) return
+	if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot hydrate different nodes!')
+
+	const targetChildren = target.childNodes.slice()
+	for (let i of targetChildren) i.remove()
+
+	const newChildNodeSet = []
+	for (let i in source.childNodes) {
+		let targetNode = targetChildren[i]
+		const sourceNode = source.childNodes[i]
+		if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodeSet.push(hydrateNode(sourceNode, cloneNode(sourceNode)))
+		else newChildNodeSet.push(hydrateNode(sourceNode, targetNode))
 	}
 
-	for (let i of children) clonedElement.appendChild(i)
+	if (source.nodeType === 1) {
+		const sourceAttrs = source.attributes
+		for (let {ns, name, value} of sourceAttrs) {
+			target.setAttributeNS(ns, name, value)
+		}
 
-	return clonedElement
+		if (source.__dominative_eventHandlers) {
+			for (let [type, sourceHandler] of Object.entries(source.__dominative_eventHandlers)) {
+				const targetHandler = target.__dominative_eventHandlers[type]
+				if (targetHandler) {
+					// eslint-disable-next-line max-depth, no-continue
+					if (targetHandler === sourceHandler) continue
+					else target.removeEventListener(type, targetHandler)
+				}
+
+				target.addEventListener(type, sourceHandler)
+			}
+
+			// eslint-disable-next-line camelcase
+			target.__dominative_eventHandlers = Object.assign({}, source.__dominative_eventHandlers)
+		}
+	} else if (source.nodeType === 3 || source.nodeType === 8) {
+		target.nodeValue = source.nodeValue
+	}
+
+	for (let i of newChildNodeSet) target.appendChild(i)
+
+	return target
 }
 
 export default class Template extends PropBase {
@@ -48,9 +75,14 @@ export default class Template extends PropBase {
 		this.__content = val
 	}
 
+	hydrate(clonedNode) {
+		if (!this.__content) return
+		return hydrateNode(this.__content, clonedNode)
+	}
+
 	clone() {
 		if (!this.__content) return null
-		return cloneElement(this.__content)
+		return this.hydrate(cloneNode(this.__content))
 	}
 
 	onInsertChild(child, ref) {

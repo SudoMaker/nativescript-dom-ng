@@ -74,7 +74,7 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	},
 	onRemoveEventListener(type, handler, options) {
 		if (!this.__isNative) return
-		if (options && (options.efInternal || options.initiator === 'DOM') && this.__dominative_eventHandlers[type]) {
+		if (options && (options.efInternal || options.mode === 'DOM') && this.__dominative_eventHandlers[type]) {
 			if (this.__undom_eventHandlers[type] && !this.__undom_eventHandlers[type].length) {
 				handler = this.__dominative_eventHandlers[type]
 				delete this.__dominative_eventHandlers[type]

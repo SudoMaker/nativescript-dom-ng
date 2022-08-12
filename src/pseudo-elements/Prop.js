@@ -14,6 +14,7 @@ export class PropBase extends PseudoBase {
 		return this.__key
 	}
 	set key(val) {
+		if (this.__key === val) return
 		const oldKey = this.__key
 		if (this.parent && oldKey) this.parent[oldKey] = null
 		this.__key = val
@@ -33,8 +34,8 @@ export class PropBase extends PseudoBase {
 		return this.__type || 'single'
 	}
 	set type(val) {
-		if (val !== 'array') return
 		if (this.__type) return
+		if (val !== 'array') return
 		this.__type = val
 
 		if (val === 'array') {
