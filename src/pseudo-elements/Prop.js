@@ -72,12 +72,12 @@ export class PropBase extends PseudoBase {
 		if (!this.key) return
 		if (!this.parent) return
 		if (parent !== this.parent) {
-			if (this.type === 'array' && parent[this.key] instanceof ObservableArray) parent[this.key].length = 0
+			if (Array.isArray(this.__value) && parent[this.key] instanceof ObservableArray) parent[this.key].length = 0
 			else parent[this.key] = null
 			return
 		}
 
-		if (this.type === 'array' && parent[this.key] instanceof ObservableArray) {
+		if (Array.isArray(this.__value) && parent[this.key] instanceof ObservableArray) {
 			parent[this.key].length = 0
 			parent[this.key].push(...this.__value)
 		} else parent[this.key] = this.__value
@@ -86,9 +86,9 @@ export class PropBase extends PseudoBase {
 
 export default class Prop extends PropBase {
 	onInsertChild(child, ref) {
-		if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+		if (!(child.__isPseudoElement && child.__role === 'Template') && (!child.__isNative || (ref && !ref.__isNative))) return super.onInsertChild(child, ref)
 
-		if (this.type === 'array') {
+		if (Array.isArray(this.__value)) {
 			addToArrayProp(this, '__value', child, ref)
 			if (this.key && this.parent) addToArrayProp(this.parent, this.key, child, ref)
 		} else {
@@ -98,7 +98,7 @@ export default class Prop extends PropBase {
 		super.onInsertChild(child, ref)
 	}
 	onRemoveChild(child) {
-		if (!child.__isNative) return super.onRemoveChild(child)
+		if (!(child instanceof PropBase) && !child.__isNative) return super.onRemoveChild(child)
 
 		if (this.type === 'array') {
 			removeFromArrayProp(this, '__value', child)

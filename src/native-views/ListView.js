@@ -16,6 +16,7 @@ const updateList = (self) => {
 }
 
 const handleItemLoading = (self, data) => {
+	if (self.itemTemplate !== defaultItemTemplate) return
 	if (!self.items) return
 	const itemIndex = data.index
 
@@ -38,8 +39,25 @@ export const makeListView = named(
 		constructor(...args) {
 			super(...args)
 			this.items = []
-			this.itemTemplate = defaultItemTemplate
-			super.addEventListener(ListView.itemLoadingEvent, data => handleItemLoading(this, data))
+			this.__defaultItemLoadingHandler = data => handleItemLoading(this, data)
+			super.itemTemplate = defaultItemTemplate
+			super.addEventListener(ListView.itemLoadingEvent, this.__defaultItemLoadingHandler)
+		}
+
+		get itemTemplate() {
+			return super.itemTemplate
+		}
+		set itemTemplate(val) {
+			super.itemTemplate = val
+			super.removeEventListener(ListView.itemLoadingEvent, this.__defaultItemLoadingHandler)
+		}
+
+		get itemTemplates() {
+			return super.itemTemplates
+		}
+		set itemTemplates(val) {
+			super.itemTemplates = val
+			this.itemTemplate = null
 		}
 
 		onInsertChild(child, ref) {

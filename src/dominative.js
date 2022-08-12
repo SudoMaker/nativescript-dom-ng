@@ -60,11 +60,14 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	},
 	onAddEventListener(type, handler, options) {
 		if (!this.__isNative) return
-		if (options && options.efInternal && !this.__dominative_eventHandlers[type]) {
-			this.__dominative_eventHandlers[type] = (data) => {
+		if (options && (options.efInternal || options.mode === 'DOM') && !this.__dominative_eventHandlers[type]) {
+			this.__dominative_eventHandlers[type] = function(data) {
+				let target = data.object
+				while (target && !target.__undom_isNode) target = target.parent
+				if (!target) return
 				const event = new scope.Event(type)
 				event.data = data
-				this.dispatchEvent(event)
+				target.dispatchEvent(event)
 			}
 			this.onAddEventListener(type, this.__dominative_eventHandlers[type])
 			return
