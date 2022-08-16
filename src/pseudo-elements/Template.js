@@ -1,4 +1,5 @@
 import { PropBase } from './Prop.js'
+import * as symbol from '../symbols.js'
 
 const cloneNode = (node) => {
 	if (!node.__undom_isNode) return
@@ -6,16 +7,16 @@ const cloneNode = (node) => {
 	return clonedNode
 }
 
-const hydrateNode = (source, target) => {
-	if (!source.__undom_isNode || !target.__undom_isNode) throw new TypeError('[DOMiNATIVE] Can only hydrate undom nodes!')
-	if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot hydrate different type of nodes!')
+const hydrate = (source, target) => {
+	if (!source.__undom_isNode || !target.__undom_isNode) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
+	if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot patch different type of nodes!')
 
 	const newChildNodes = []
 	for (let i in source.childNodes) {
 		const targetNode = target.childNodes[i]
 		const sourceNode = source.childNodes[i]
-		if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodes.push(hydrateNode(sourceNode, cloneNode(sourceNode)))
-		else newChildNodes.push(hydrateNode(sourceNode, targetNode))
+		if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodes.push(hydrate(sourceNode, cloneNode(sourceNode)))
+		else newChildNodes.push(hydrate(sourceNode, targetNode))
 	}
 
 	if (source.nodeType === 1) {
@@ -27,16 +28,16 @@ const hydrateNode = (source, target) => {
 		target.nodeValue = source.nodeValue
 	}
 
-	if (source.__dominative_eventHandlers) {
-		const targetHandlers = target.__dominative_eventHandlers
+	if (source[symbol.eventHandlers]) {
+		const targetHandlers = target[symbol.eventHandlers]
 		for (let [type, targetHandler] of Object.entries(targetHandlers)) {
 			target.removeEventListener(type, targetHandler)
 		}
-		for (let [type, sourceHandler] of Object.entries(source.__dominative_eventHandlers)) {
+		for (let [type, sourceHandler] of Object.entries(source[symbol.eventHandlers])) {
 			target.addEventListener(type, sourceHandler)
 		}
 		/* eslint-disable camelcase */
-		target.__dominative_eventHandlers = Object.assign({}, source.__dominative_eventHandlers)
+		target[symbol.eventHandlers] = Object.assign({}, source[symbol.eventHandlers])
 	}
 
 	target.__undom_eventHandlers = Object.assign({}, source.__undom_eventHandlers)
@@ -48,12 +49,32 @@ const hydrateNode = (source, target) => {
 	return target
 }
 
+function defaultPatch(clonedNode) {
+	if (!this.__content) return
+	return hydrate(this.__content, clonedNode)
+}
+
+function defaultCreateView() {
+	if (!this.__content) return null
+	return hydrate(this.__content, cloneNode(this.__content))
+}
+
 export default class Template extends PropBase {
 	/* eslint-disable class-methods-use-this */
 	constructor(key) {
 		super(key)
-		this.__role = 'Template'
+		this[symbol.role] = 'Template'
 		this.__value = () => this.createView()
+		this.__patch = defaultPatch
+		this.__createView = defaultCreateView
+		this.__createViewInternal = () => {
+			const createdView = this.__createView()
+			createdView.__dominative_fromTemplate = this
+			createdView.__dominative_patchView = (index, item) => {
+				if (this.patch) this.patch(createdView, index, item)
+			}
+			return createdView
+		}
 	}
 
 	set type(val) {
@@ -68,35 +89,41 @@ export default class Template extends PropBase {
 		return this.__content
 	}
 	set content(val) {
-		if (!val.__isNative) return
+		if (!val[symbol.isNative]) return
 		this.__content = val
 	}
 
-	hydrate(clonedNode) {
-		if (!this.__content) return
-		return hydrateNode(this.__content, clonedNode)
+	get patch() {
+		return this.__patch
+	}
+	set patch(val) {
+		if (typeof val !== 'function') return
+		this.__patch = val
 	}
 
-	createView() {
-		if (!this.__content) return null
-		return this.hydrate(cloneNode(this.__content))
+	get createView() {
+		return this.__createViewInternal
+	}
+	set createView(val) {
+		if (typeof val !== 'function') return
+		this.__createView = val
 	}
 
-	onInsertChild(child, ref) {
-		if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+	[symbol.onInsertChild](child, ref) {
+		if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
 		this.content = child
 
-		super.onInsertChild(child, ref)
+		super[symbol.onInsertChild](child, ref)
 	}
 
-	onRemoveChild(child) {
-		if (!child.__isNative) return super.onRemoveChild(child)
+	[symbol.onRemoveChild](child) {
+		if (!child[symbol.isNative]) return super[symbol.onRemoveChild](child)
 		if (child === this.content) this.content = null
 
-		super.onRemoveChild(child)
+		super[symbol.onRemoveChild](child)
 	}
 
-	setPropOnParent(parent) {
-		if (!(parent instanceof PropBase)) return super.setPropOnParent(parent)
+	[symbol.setPropOnParent](parent) {
+		if (!(parent instanceof PropBase)) return super[symbol.setPropOnParent](parent)
 	}
 }

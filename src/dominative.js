@@ -1,6 +1,7 @@
 import * as nativeViews from './native-views/index.js'
 import * as makers from './native-views/makers.js'
 import * as pseudoElements from './pseudo-elements/index.js'
+import * as symbol from './symbols.js'
 import {createEnvironment, isNode} from '@utls/undom-ef'
 
 /*
@@ -25,43 +26,51 @@ const {scope, createDocument, registerElement} = createEnvironment({
 	onSetData(data) {
 		if (this.nodeType === 8) {
 			if (!silent) console.log('[DOM COMMENT]', data)
-		} else if (this.nodeType === 3 && this.parentNode && this.parentNode.__isNative && this.parentNode.__dominative_isText) {
-			this.parentNode.__dominative_updateText()
+		} else if (this.nodeType === 3 && this.parentNode && this.parentNode[symbol.isNative] && this.parentNode.__dominative_isText) {
+			this.parentNode[symbol.updateText]()
 		}
 	},
 	onCreateNode() {
-		if (this.nodeType === 1 && this.__isNative) {
+		if (this.nodeType === 1 && this[symbol.isNative]) {
 			// eslint-disable-next-line camelcase
-			this.__dominative_eventHandlers = {}
+			this[symbol.eventHandlers] = {}
 		}
 	},
 	onInsertBefore(child, ref) {
-		if (!this.__isNative && !this.__isPseudoElement) return
-		while (ref && !ref.__isNative) ref = ref.nextSibling
-		this.onInsertChild(child, ref)
-		if (child.__isPseudoElement) child.onBeingInserted(this)
+		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		if (ref) {
+			const childNodes = ref.parentNode.childNodes
+			let refIndex = childNodes.indexOf(ref)
+			while (ref && !ref[symbol.isNative]) {
+				refIndex += 1
+				ref = childNodes[refIndex]
+			}
+			if (!ref) ref = null
+		}
+		this[symbol.onInsertChild](child, ref)
+		if (child[symbol.isPseudoElement]) child[symbol.onBeingInserted](this)
 	},
 	onRemoveChild(child) {
-		if (!this.__isNative && !this.__isPseudoElement) return
-		this.onRemoveChild(child)
-		if (child.__isPseudoElement) child.onBeingRemoved(this)
+		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		this[symbol.onRemoveChild](child)
+		if (child[symbol.isPseudoElement]) child[symbol.onBeingRemoved](this)
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!this.__isNative && !this.__isPseudoElement) return
-		this.onSetAttributeNS(ns, name, value)
+		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		this[symbol.onSetAttributeNS](ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!this.__isNative && !this.__isPseudoElement) return
-		this.onGetAttributeNS(ns, name, updateValue)
+		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		this[symbol.onGetAttributeNS](ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!this.__isNative && !this.__isPseudoElement) return
-		this.onRemoveAttributeNS(ns, name)
+		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		this[symbol.onRemoveAttributeNS](ns, name)
 	},
 	onAddEventListener(type, handler, options) {
-		if (!this.__isNative) return
-		if (options && options.mode === 'DOM' && !this.__dominative_eventHandlers[type]) {
-			this.__dominative_eventHandlers[type] = function(data) {
+		if (!this[symbol.isNative]) return
+		if (options && options.mode === 'DOM' && !this[symbol.eventHandlers][type]) {
+			this[symbol.eventHandlers][type] = function(data) {
 				let target = data.object
 				while (target && !target.__undom_isNode) target = target.parent
 				if (!target) return
@@ -69,21 +78,21 @@ const {scope, createDocument, registerElement} = createEnvironment({
 				event.data = data
 				target.dispatchEvent(event)
 			}
-			this.onAddEventListener(type, this.__dominative_eventHandlers[type])
+			this[symbol.onAddEventListener](type, this[symbol.eventHandlers][type])
 			return
 		}
-		this.onAddEventListener(type, handler, options)
+		this[symbol.onAddEventListener](type, handler, options)
 		return true
 	},
 	onRemoveEventListener(type, handler, options) {
-		if (!this.__isNative) return
-		if (options && options.mode === 'DOM' && this.__dominative_eventHandlers[type]) {
+		if (!this[symbol.isNative]) return
+		if (options && options.mode === 'DOM' && this[symbol.eventHandlers][type]) {
 			if (this.__undom_eventHandlers[type] && !this.__undom_eventHandlers[type].length) {
-				handler = this.__dominative_eventHandlers[type]
-				delete this.__dominative_eventHandlers[type]
+				handler = this[symbol.eventHandlers][type]
+				delete this[symbol.eventHandlers][type]
 			}
 		}
-		this.onRemoveEventListener(type, handler, options)
+		this[symbol.onRemoveEventListener](type, handler, options)
 	}
 })
 
@@ -103,4 +112,4 @@ const domImpl = {
 	isNode
 }
 
-export { document, domImpl, nativeViews, pseudoElements, makers, registerElement }
+export { document, domImpl, nativeViews, pseudoElements, makers, registerElement, symbol }

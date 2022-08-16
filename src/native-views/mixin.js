@@ -1,6 +1,7 @@
 import { ViewBase, LayoutBase, TextBase, EditableTextBase, FormattedString } from '@nativescript/core'
 import { isAndroid, isIOS } from '@nativescript/core/platform'
 import { named, resolvePath } from '../utils.js'
+import * as symbol from '../symbols.js'
 
 const makeView = named(
 	'View', 'ViewBase', ViewBase,
@@ -8,56 +9,44 @@ const makeView = named(
 		/* eslint-disable class-methods-use-this, no-empty-function */
 		constructor(...args) {
 			super(...args)
-			this.__isNative = true
-			this.__role = 'View'
+			this[symbol.isNative] = true
+			this[symbol.role] = 'View'
 		}
 
-		get _nsClassName() {
-			return super.className
-		}
+		[symbol.onInsertChild]() {}
+		[symbol.onRemoveChild]() {}
 
-		set _nsClassName(val) {
-			super.className = val
-		}
-
-		get _nsParentNode() {
-			return super.parentNode
-		}
-
-		onInsertChild() {}
-		onRemoveChild() {}
-
-		onAddEventListener(type, handler, options) {
+		[symbol.onAddEventListener](type, handler, options) {
 			super.addEventListener(type, handler, options)
 		}
-		onRemoveEventListener(type, handler, options) {
+		[symbol.onRemoveEventListener](type, handler, options) {
 			super.removeEventListener(type, handler, options)
 		}
 
-		onSetAttributeNS(ns, name, value) {
+		[symbol.onSetAttributeNS](ns, name, value) {
 			if (ns) return
 			if (isAndroid && name.startsWith('ios.')) return
 			if (isIOS && name.startsWith('android.')) return
 
 			if (name === 'class') {
-				this._nsClassName = value
+				super.className = value
 				return
 			}
 			const [base, key] = resolvePath(name, this)
 			base[key] = value
 		}
 
-		onGetAttributeNS(ns, name, updateValue) {
+		[symbol.onGetAttributeNS](ns, name, updateValue) {
 			if (ns) return
 			if (name === 'class') {
-				updateValue(this._nsClassName)
+				updateValue(super.className)
 				return
 			}
 			const [base, key] = resolvePath(name, this)
 			updateValue(base[key])
 		}
 
-		onRemoveAttributeNS(ns, name) {
+		[symbol.onRemoveAttributeNS](ns, name) {
 			// eslint-disable-next-line no-void
 			this.setAttributeNS(ns, name, void(0))
 		}
@@ -69,11 +58,11 @@ const makeLayout = named(
 	_ => class SubLayout extends makeView(_) {
 		constructor(...args) {
 			super(...args)
-			this.__role = 'Layout'
+			this[symbol.role] = 'Layout'
 		}
 
-		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return
+		[symbol.onInsertChild](child, ref) {
+			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return
 
 			if (ref) {
 				const refIndex = this.getChildIndex(ref)
@@ -82,30 +71,31 @@ const makeLayout = named(
 				super.addChild(child)
 			}
 
-			super.onInsertChild(child, ref)
+			super[symbol.onInsertChild](child, ref)
 		}
 
-		onRemoveChild(child) {
-			if (!child.__isNative) return
+		[symbol.onRemoveChild](child) {
+			if (!child[symbol.isNative]) return
 
 			super.removeChild(child)
 
-			super.onRemoveChild(child)
+			super[symbol.onRemoveChild](child)
 		}
 	}
 )
 
 const makeText = named(
 	'Text', 'TextBase', TextBase,
-	_ => class extends makeView(_) {
+	_ => class SubText extends makeView(_) {
 		constructor(...args) {
 			super(...args)
-			this.__role = 'Text'
+			this[symbol.role] = 'Text'
 
 			let textUpdating = false
 			// eslint-disable-next-line camelcase
-			this.__dominative_updateText = () => {
+			this[symbol.updateText] = () => {
 				if (textUpdating) return
+				textUpdating = true
 				setTimeout(() => {
 					super.text = this.childNodes
 						.filter(i => i.nodeType === 3)
@@ -116,25 +106,25 @@ const makeText = named(
 			}
 		}
 
-		onInsertChild(child, ref) {
-			super.onInsertChild(child, ref)
+		[symbol.onInsertChild](child, ref) {
+			super[symbol.onInsertChild](child, ref)
 			if (child instanceof FormattedString) this.formattedText = child
-			if (child.nodeType === 3) this.__dominative_updateText()
+			if (child.nodeType === 3) this[symbol.updateText]()
 		}
-		onRemoveChild(child) {
-			super.onRemoveChild(child)
+		[symbol.onRemoveChild](child) {
+			super[symbol.onRemoveChild](child)
 			if (child instanceof FormattedString) this.formattedText = null
-			if (child.nodeType === 3) this.__dominative_updateText()
+			if (child.nodeType === 3) this[symbol.updateText]()
 		}
 	}
 )
 
 const makeEditableText = named(
 	'EditableText', 'EditableTextBase', EditableTextBase,
-	_ => class extends makeText(_) {
+	_ => class SubEditableText extends makeText(_) {
 		constructor(...args) {
 			super(...args)
-			this.__role = 'EditableText'
+			this[symbol.role] = 'EditableText'
 		}
 	}
 )

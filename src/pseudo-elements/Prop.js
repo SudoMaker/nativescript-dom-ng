@@ -1,13 +1,14 @@
 import { ObservableArray } from '@nativescript/core'
 import { PseudoBase } from './base.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
+import * as symbol from '../symbols.js'
 
 export class PropBase extends PseudoBase {
 	constructor(key, type) {
 		super()
 		this.key = key
 		this.type = type
-		this.__role = 'Prop'
+		this[symbol.role] = 'Prop'
 	}
 
 	get key() {
@@ -18,7 +19,7 @@ export class PropBase extends PseudoBase {
 		const oldKey = this.__key
 		if (this.parent && oldKey) this.parent[oldKey] = null
 		this.__key = val
-		this.setPropOnParent(this.parent)
+		this[symbol.setPropOnParent](this.parent)
 	}
 
 	get class() {
@@ -43,7 +44,7 @@ export class PropBase extends PseudoBase {
 			else this.__value = []
 		}
 
-		this.setPropOnParent(this.parent)
+		this[symbol.setPropOnParent](this.parent)
 	}
 
 	get value() {
@@ -52,23 +53,23 @@ export class PropBase extends PseudoBase {
 	}
 	set value(val) {
 		this.__value = val
-		this.setPropOnParent(this.parent)
+		this[symbol.setPropOnParent](this.parent)
 	}
 
 	get parent() {
 		return this.__parent
 	}
 
-	onBeingInserted(parent) {
+	[symbol.onBeingInserted](parent) {
 		this.__parent = parent
-		this.setPropOnParent(parent)
+		this[symbol.setPropOnParent](parent)
 	}
-	onBeingRemoved(parent) {
+	[symbol.onBeingRemoved](parent) {
 		this.__parent = null
-		this.setPropOnParent(parent)
+		this[symbol.setPropOnParent](parent)
 	}
 
-	setPropOnParent(parent) {
+	[symbol.setPropOnParent](parent) {
 		if (!this.key) return
 		if (!this.parent) return
 		if (parent !== this.parent) {
@@ -85,8 +86,8 @@ export class PropBase extends PseudoBase {
 }
 
 export default class Prop extends PropBase {
-	onInsertChild(child, ref) {
-		if (!(child.__isPseudoElement && child.__role === 'Template') && (!child.__isNative || (ref && !ref.__isNative))) return super.onInsertChild(child, ref)
+	[symbol.onInsertChild](child, ref) {
+		if (!(child[symbol.isPseudoElement] && child[symbol.role] === 'Template') && (!child[symbol.isNative] || (ref && !ref[symbol.isNative]))) return super[symbol.onInsertChild](child, ref)
 
 		if (Array.isArray(this.__value)) {
 			addToArrayProp(this, '__value', child, ref)
@@ -95,16 +96,17 @@ export default class Prop extends PropBase {
 			this.value = child
 		}
 
-		super.onInsertChild(child, ref)
+		super[symbol.onInsertChild](child, ref)
 	}
-	onRemoveChild(child) {
-		if (!(child instanceof PropBase) && !child.__isNative) return super.onRemoveChild(child)
+
+	[symbol.onRemoveChild](child) {
+		if (!(child instanceof PropBase) && !child[symbol.isNative]) return super[symbol.onRemoveChild](child)
 
 		if (this.type === 'array') {
 			removeFromArrayProp(this, '__value', child)
 			if (this.key && this.parent) removeFromArrayProp(this.parent, this.key, child)
 		} else if (this.value === child) this.value = null
 
-		super.onRemoveChild(child)
+		super[symbol.onRemoveChild](child)
 	}
 }

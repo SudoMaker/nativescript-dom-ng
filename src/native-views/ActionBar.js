@@ -1,11 +1,12 @@
 import { ActionBar, ActionItem, NavigationButton } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
+import * as symbol from '../symbols.js'
 
 export const makeActionBar = named(
 	'ActionBar', 'ActionBar', ActionBar,
 	_ => class ActionBarElement extends makeView(_) {
-		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+		[symbol.onInsertChild](child, ref) {
+			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
 
 			if (child instanceof NavigationButton) {
 				if (this.navigationButton && this.navigationButton.__undom_isNode) this.navigationButton.remove()
@@ -28,11 +29,11 @@ export const makeActionBar = named(
 				} else this.actionItems.addItem(child)
 			}
 
-			super.onInsertChild(child, ref)
+			super[symbol.onInsertChild](child, ref)
 		}
 
-		onRemoveChild(child) {
-			if (!child.__isNative) return super.onRemovedChild(child)
+		[symbol.onRemoveChild](child) {
+			if (!child[symbol.isNative]) return super[symbol.onRemoveChild](child)
 
 			if (child instanceof NavigationButton && child === this.navigationButton) {
 				this.navigationButton = null
@@ -40,7 +41,7 @@ export const makeActionBar = named(
 				this.actionItems.removeItem(child)
 			}
 
-			super.onRemovedChild(child)
+			super[symbol.onRemoveChild](child)
 		}
 	}
 )

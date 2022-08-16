@@ -1,23 +1,24 @@
 import { ContentView } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
+import * as symbol from '../symbols.js'
 
 export const makeContentView = named(
 	'ContentView', 'ContentView', ContentView,
 	_ => class ContentViewElement extends makeView(_) {
-		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+		[symbol.onInsertChild](child, ref) {
+			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
 
 			this.content = child
 
-			super.onInsertChild(child, ref)
+			super[symbol.onInsertChild](child, ref)
 		}
 
-		onRemoveChild(child) {
-			if (!child.__isNative) return super.onRemoveChild(child)
+		[symbol.onRemoveChild](child) {
+			if (!child[symbol.isNative]) return super[symbol.onRemoveChild](child)
 
 			this.content = null
 
-			super.onRemoveChild(child)
+			super[symbol.onRemoveChild](child)
 		}
 	}
 )

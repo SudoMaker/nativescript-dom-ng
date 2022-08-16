@@ -1,11 +1,12 @@
 import { Page, ActionBar } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
+import * as symbol from '../symbols.js'
 
 export const makePage = named(
 	'Page', 'Page', Page,
 	_ => class PageElement extends makeView(_) {
-		onInsertChild(child, ref) {
-			if (!child.__isNative || (ref && !ref.__isNative)) return super.onInsertChild(child, ref)
+		[symbol.onInsertChild](child, ref) {
+			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
 
 			if (child instanceof ActionBar) {
 				this.actionBar = child
@@ -13,7 +14,7 @@ export const makePage = named(
 				this.content = child
 			}
 
-			super.onInsertChild(child, ref)
+			super[symbol.onInsertChild](child, ref)
 		}
 	}
 )

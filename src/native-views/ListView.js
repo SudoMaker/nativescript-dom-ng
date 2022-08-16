@@ -1,17 +1,18 @@
 import { ListView, ContentView, ViewBase } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
+import * as symbol from '../symbols.js'
 
 class DummyContentView extends ContentView {}
 const defaultItemTemplate = () => new DummyContentView()
 
 const updateList = (self) => {
 	/* eslint-disable camelcase */
-	if (self.__dominative_listViewUpdating) return
-	self.__dominative_listViewUpdating = true
+	if (self[symbol.listUpdating]) return
+	self[symbol.listUpdating] = true
 	setTimeout(() => {
 		self.refresh()
-		self.__dominative_listViewUpdating = false
+		self[symbol.listUpdating] = false
 	}, 0)
 }
 
@@ -60,28 +61,28 @@ export const makeListView = named(
 			this.itemTemplate = null
 		}
 
-		onInsertChild(child, ref) {
+		[symbol.onInsertChild](child, ref) {
 			if (
 				this.itemTemplate !== defaultItemTemplate ||
-				!child.__isNative ||
-				(ref && !ref.__isNative)
-			) return super.onInsertChild(child, ref)
+				!child[symbol.isNative] ||
+				(ref && !ref[symbol.isNative])
+			) return super[symbol.onInsertChild](child, ref)
 
 			addToArrayProp(this, 'items', child, ref)
 
-			super.onInsertChild(child, ref)
+			super[symbol.onInsertChild](child, ref)
 			updateList(this)
 		}
 
-		onRemoveChild(child) {
+		[symbol.onRemoveChild](child) {
 			if (
 				this.itemTemplate !== defaultItemTemplate ||
-				!child.__isNative
-			) return super.onRemoveChild(child)
+				!child[symbol.isNative]
+			) return super[symbol.onRemoveChild](child)
 
 			removeFromArrayProp(this, 'items', child)
 
-			super.onRemoveChild(child)
+			super[symbol.onRemoveChild](child)
 			updateList(this)
 		}
 	}
