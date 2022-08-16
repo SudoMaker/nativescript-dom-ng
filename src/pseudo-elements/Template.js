@@ -1,5 +1,16 @@
+import { ContentView } from '@nativescript/core'
 import { PropBase } from './Prop.js'
+import { document } from '../dom.js'
 import * as symbol from '../symbols.js'
+
+export class TemplateWrapperView extends ContentView {
+	constructor(template) {
+		super()
+		this.style.padding = '0, 0, 0, 0'
+		this.style.margin = '0, 0, 0, 0'
+		this[symbol.template] = template
+	}
+}
 
 const cloneNode = (node) => {
 	if (!node.__undom_isNode) return
@@ -8,8 +19,10 @@ const cloneNode = (node) => {
 }
 
 const hydrate = (source, target) => {
-	if (!source.__undom_isNode || !target.__undom_isNode) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
-	if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot patch different type of nodes!')
+	if (process.env.NODE_ENV !== 'production') {
+		if (!source.__undom_isNode || !target.__undom_isNode) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
+		if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot patch different type of nodes!')
+	}
 
 	const newChildNodes = []
 	for (let i in source.childNodes) {
@@ -49,14 +62,9 @@ const hydrate = (source, target) => {
 	return target
 }
 
-function defaultPatch(clonedNode) {
-	if (!this.__content) return
-	return hydrate(this.__content, clonedNode)
-}
-
-function defaultCreateView() {
-	if (!this.__content) return null
-	return hydrate(this.__content, cloneNode(this.__content))
+const defaultCreateView = (self) => {
+	if (!self.__content) return null
+	return hydrate(self.__content, cloneNode(self.__content))
 }
 
 export default class Template extends PropBase {
@@ -65,16 +73,6 @@ export default class Template extends PropBase {
 		super(key)
 		this[symbol.role] = 'Template'
 		this.__value = () => this.createView()
-		this.__patch = defaultPatch
-		this.__createView = defaultCreateView
-		this.__createViewInternal = () => {
-			const createdView = this.__createView()
-			createdView.__dominative_fromTemplate = this
-			createdView.__dominative_patchView = (index, item) => {
-				if (this.patch) this.patch(createdView, index, item)
-			}
-			return createdView
-		}
 	}
 
 	set type(val) {
@@ -82,6 +80,7 @@ export default class Template extends PropBase {
 	}
 
 	set value(val) {
+		if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Cannot set value of a Template.')
 		return
 	}
 
@@ -93,24 +92,35 @@ export default class Template extends PropBase {
 		this.__content = val
 	}
 
-	get patch() {
-		return this.__patch
-	}
-	set patch(val) {
-		if (typeof val !== 'function') return
-		this.__patch = val
+	patch({view, index, item, data}) {
+		if (!view.__undom_isNode) return
+		const event = document.createEvent('itemLoading')
+		event.view = view
+		event.index = index
+		event.item = item
+		event.data = data
+		this.dispatchEvent(event)
+		if (event.patched) return event.view
+		else return hydrate(this.content, view)
 	}
 
-	get createView() {
-		return this.__createViewInternal
-	}
-	set createView(val) {
-		if (typeof val !== 'function') return
-		this.__createView = val
+	createView() {
+		if (!this.__undom_isNode) return
+		const wrapper = new TemplateWrapperView(this)
+		const event = document.createEvent('createView')
+		this.dispatchEvent(event)
+		if (event.view) wrapper.content = event.view
+		else wrapper.content = defaultCreateView(this)
+		return wrapper
 	}
 
 	[symbol.onInsertChild](child, ref) {
 		if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
+		if (this.content) {
+			if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Template can have only one child.')
+			return super[symbol.onInsertChild](child, ref)
+		}
+
 		this.content = child
 
 		super[symbol.onInsertChild](child, ref)

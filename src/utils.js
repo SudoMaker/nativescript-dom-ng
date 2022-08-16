@@ -3,16 +3,27 @@ import { ObservableArray } from '@nativescript/core'
 // eslint-disable-next-line max-params
 const named = (name, baseClassName, baseClass, creator) => {
 	const key = `__dominative_is${name}`
-	const errMsg = `${name} element must be subclass of ${baseClassName}`
 	const allowSelf = name === baseClassName
 
-	return (_ = baseClass, force) => {
-		if (_ && _.prototype[key]) return _
+	return (_ = baseClass, options) => {
+		let force = false
+		if (options && options.force) force = true
 
-		if (!force && (allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(errMsg)
+		if (_ && _.prototype[key]) {
+			if (force && process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] ${_.name} is already a ${name} element, forcing to extend once.`)
+			else return _
+		}
 
-		const createdClass = creator(_, force)
-		createdClass.prototype[key] = true
+		if (process.env.NODE_ENV !== 'production') {
+			if (force) console.warn(`[DOMiNATIVE] Force making ${_.name} element based on ${baseClassName}.`)
+			else if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(`[DOMiNATIVE] ${name} element must be subclass of ${baseClassName}, but got ${_.name}.`)
+		}
+
+		const createdClass = creator(_, options)
+		Object.defineProperty(createdClass.prototype, key, {
+			value: true,
+			enumerable: false
+		})
 		return createdClass
 	}
 }

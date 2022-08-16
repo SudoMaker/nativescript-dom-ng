@@ -37,6 +37,7 @@ import { makeStackLayout } from './StackLayout.js'
 import { makeSwitch } from './Switch.js'
 import { makeTabView } from './TabView.js'
 import { makeTabViewItem } from './TabViewItem.js'
+import { makeTemplateReceiver } from './TemplateReceiver.js'
 import { makeTextField } from './TextField.js'
 import { makeTextView } from './TextView.js'
 import { makeTimePicker } from './TimePicker.js'
@@ -81,6 +82,7 @@ export {
 	makeSwitch,
 	makeTabView,
 	makeTabViewItem,
+	makeTemplateReceiver,
 	makeTextField,
 	makeTextView,
 	makeTimePicker,
