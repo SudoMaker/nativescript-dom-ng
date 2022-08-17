@@ -179,6 +179,9 @@ Share mostly from `Prop`. Differences are listed below:
 
 `createView`: Triggered when creating view from the template. Set created view to `event.view`. If not set, view will be created by cloning the template.
 
+**Note:**
+
+`Template` element could only have one element child. If you'd like to have multiple children in a template, just use a different type of view or layout as the only child and insert your other contents inside.
 
 ## KeyedTemplates
 
