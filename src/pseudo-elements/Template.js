@@ -76,6 +76,7 @@ export default class Template extends PropBase {
 	}
 
 	set type(val) {
+		if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Cannot set type of a Template.')
 		return
 	}
 

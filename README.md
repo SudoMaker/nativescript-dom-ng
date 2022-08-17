@@ -115,3 +115,108 @@ Application.run({
 })
 
 ```
+
+## Register Elements
+
+```js
+import { RadSideDrawer } from 'nativescript-ui-sidedrawer'
+import { RadListView } from 'nativescript-ui-listview'
+import { registerElement, makers } from 'dominative'
+
+// If you cannot determin what the component is based on, you can register it directly.
+registerElement('RadSideDrawer', RadSideDrawer)
+// Register with a specific type by using a pre-defined maker. Usually we check for inheritance, but with force we can make magic happen
+registerElement('RadListView', makers.makeListView(RadListView, {force: true}))
+```
+
+## Pseudo Elements
+
+Pseudo elements are not real elements, but they appear as DOM elements to help organize composition.
+
+### Prop
+
+Helper to put it's child/children to it's parent node's property by key
+
+**Attributes:**
+
+`key: String`: **RW** The prop name to set on parent.
+
+`type: <'array'|'single'>`: **RW** Property type, could be an array prop or a single object prop.
+
+`value: any`: **RW** Value to be set to parent. Usually children of this current node. Don't touch unless you know what you're doing.
+
+`parent: Element`: **R** Parent node of this node.
+
+`class: String`: **RW** Helper to set `key` and `type`, could be `key:type` or `multi.level.key:type`
+
+**Events:**
+
+None.
+
+### Template
+
+A `Template` element holds a template to be replicated later, or can create views programmatically.
+
+**Attributes:**
+
+Share mostly from `Prop`. Differences are listed below:
+
+`key: String`: **RW** Same form `Prop`, also serves the key name of a `KeyedTemplate`
+
+`type: 'single'`: **R** Should not be able to set `type` on a `Template`.
+
+`value: Function<T extends ViewBase>`: **R** Same as `createView`.
+
+`content: <T extends ViewBase>`: **RW** The single child of this node. Don't touch unless you know what you're doing.
+
+`patch: Function<T extends ViewBase>(PatchOptions)`: **R** Method to patch an existing clone.
+
+`createView: Function<T extends ViewBase>`: **R** Function to create view from this template.
+
+**Events:**
+
+`itemLoading`: Triggered when patching. Set `event.patched` to true to skip default patching method, set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`.
+
+`createView`: Triggered when creating view from the template. Set created view to `event.view`. If not set, view will be created by cloning the template.
+
+
+## KeyedTemplates
+
+By simpling putting `Template`s inside an array `Prop` we could set up an KeyedTemplate.
+
+Example:
+
+```html
+<ListView itemTemplateSelector="$item % 2 ? 'odd' : 'even'">
+	<Prop key="itemTemplates" type="array">
+		<Template key="odd">
+			<Label text="odd"/>
+		</Template>
+		<Template key="even">
+			<Label text="even"/>
+		</Template>
+	</Prop>
+</ListView>
+```
+
+## Template Handling for Custom Components
+
+TBD
+
+## Caveats
+
+### Event Handling
+
+Since NativeScript uses `addEventListener` and `removeEventListener` as event handling method names as well as HTML DOM which are causes naming conflicts, we should tell DOMiNATIVE to register event handlers as DOM behavior by explicitly adding a third option:
+
+```js
+element.addEventListener('someEvent', callback, {mode: 'DOM'})
+```
+
+without the `mode: 'DOM'` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
+
+In DOM mode, your event callback function will receive a DOM-like Event object instead of the NativeScript `data` object. The original `data` object will be placed at `event.data` in most cases.
+
+## License
+
+MIT
