@@ -1,6 +1,8 @@
 import { ContentView } from '@nativescript/core'
+import { isNode, symbol as undomSymbol } from '@utls/undom-ef'
 import { PropBase } from './Prop.js'
 import { document } from '../dom.js'
+import { reAssignObject } from '../utils.js'
 import * as symbol from '../symbols.js'
 
 export class TemplateWrapperView extends ContentView {
@@ -13,14 +15,13 @@ export class TemplateWrapperView extends ContentView {
 }
 
 const cloneNode = (node) => {
-	if (!node.__undom_isNode) return
-	const clonedNode = new node.constructor()
-	return clonedNode
+	if (!isNode(node)) return
+	return new node.constructor()
 }
 
 const hydrate = (source, target) => {
 	if (process.env.NODE_ENV !== 'production') {
-		if (!source.__undom_isNode || !target.__undom_isNode) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
+		if (!isNode(source) || !isNode(target)) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
 		if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot patch different type of nodes!')
 	}
 
@@ -49,11 +50,10 @@ const hydrate = (source, target) => {
 		for (let [type, sourceHandler] of Object.entries(source[symbol.eventHandlers])) {
 			target.addEventListener(type, sourceHandler)
 		}
-		/* eslint-disable camelcase */
-		target[symbol.eventHandlers] = Object.assign({}, source[symbol.eventHandlers])
+		reAssignObject(target[symbol.eventHandlers], source[symbol.eventHandlers])
 	}
 
-	target.__undom_eventHandlers = Object.assign({}, source.__undom_eventHandlers)
+	reAssignObject(target[undomSymbol.eventHandlers], source[undomSymbol.eventHandlers])
 
 	const targetChildren = target.childNodes.slice()
 	for (let i of targetChildren) i.remove()
@@ -94,7 +94,7 @@ export default class Template extends PropBase {
 	}
 
 	patch({view, index, item, data}) {
-		if (!view.__undom_isNode) return
+		if (!isNode(view)) return
 		const event = document.createEvent('itemLoading')
 		event.view = view
 		event.index = index
@@ -106,7 +106,7 @@ export default class Template extends PropBase {
 	}
 
 	createView() {
-		if (!this.__undom_isNode) return
+		if (!isNode(this)) return
 		const wrapper = new TemplateWrapperView(this)
 		const event = document.createEvent('createView')
 		this.dispatchEvent(event)

@@ -1,5 +1,4 @@
-
-import { createEnvironment, isNode } from '@utls/undom-ef'
+import { createEnvironment, isNode, symbol as undomSymbol } from '@utls/undom-ef'
 import * as symbol from './symbols.js'
 
 /*
@@ -30,8 +29,7 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 	},
 	onCreateNode() {
 		if (this.nodeType === 1 && this[symbol.isNative]) {
-			// eslint-disable-next-line camelcase
-			this[symbol.eventHandlers] = {}
+			Object.defineProperty(this, symbol.eventHandlers, { value: {} })
 		}
 	},
 	onInsertBefore(child, ref) {
@@ -70,14 +68,14 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 		if (options && options.mode === 'DOM' && !this[symbol.eventHandlers][type]) {
 			this[symbol.eventHandlers][type] = function(data) {
 				let target = data.object
-				while (target && !target.__undom_isNode) target = target.parent
+				while (target && !isNode(target)) target = target.parent
 				if (!target) return
 				const event = new scope.Event(type)
 				event.data = data
 				target.dispatchEvent(event)
 			}
 			this[symbol.onAddEventListener](type, this[symbol.eventHandlers][type])
-			return
+			return false
 		}
 		this[symbol.onAddEventListener](type, handler, options)
 		return true
@@ -85,12 +83,15 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 	onRemoveEventListener(type, handler, options) {
 		if (!this[symbol.isNative]) return
 		if (options && options.mode === 'DOM' && this[symbol.eventHandlers][type]) {
-			if (this.__undom_eventHandlers[type] && !this.__undom_eventHandlers[type].length) {
+			if (this[undomSymbol.eventHandlers][type] && !this[undomSymbol.eventHandlers][type].length) {
 				handler = this[symbol.eventHandlers][type]
 				delete this[symbol.eventHandlers][type]
 			}
+			this[symbol.onRemoveEventListener](type, handler, options)
+			return false
 		}
 		this[symbol.onRemoveEventListener](type, handler, options)
+		return true
 	}
 })
 

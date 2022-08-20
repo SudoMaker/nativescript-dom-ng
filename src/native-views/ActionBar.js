@@ -1,4 +1,5 @@
 import { ActionBar, ActionItem, NavigationButton } from '@nativescript/core'
+import { isNode } from '@utls/undom-ef'
 import { named, makeView } from './mixin.js'
 import * as symbol from '../symbols.js'
 
@@ -9,7 +10,7 @@ export const makeActionBar = named(
 			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
 
 			if (child instanceof NavigationButton) {
-				if (this.navigationButton && this.navigationButton.__undom_isNode) this.navigationButton.remove()
+				if (this.navigationButton && isNode(this.navigationButton)) this.navigationButton.remove()
 				this.navigationButton = child
 			} else if (child instanceof ActionItem) {
 				if (ref instanceof ActionItem) {

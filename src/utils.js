@@ -1,7 +1,7 @@
 import { ObservableArray } from '@nativescript/core'
 
 // eslint-disable-next-line max-params
-const named = (name, baseClassName, baseClass, creator) => {
+const named = (name, baseClassName, baseClass, extender) => {
 	const key = `__dominative_is${name}`
 	const allowSelf = name === baseClassName
 
@@ -19,12 +19,11 @@ const named = (name, baseClassName, baseClass, creator) => {
 			else if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(`[DOMiNATIVE] ${name} element must be subclass of ${baseClassName}, but got ${_.name}.`)
 		}
 
-		const createdClass = creator(_, options)
-		Object.defineProperty(createdClass.prototype, key, {
-			value: true,
-			enumerable: false
+		const extendedClass = extender(_, options)
+		Object.defineProperty(extendedClass.prototype, key, {
+			value: true
 		})
-		return createdClass
+		return extendedClass
 	}
 }
 
@@ -69,9 +68,15 @@ const removeFromArrayProp = (node, key, item) => {
 	}
 }
 
+const reAssignObject = (target, source) => {
+	for (let i of Object.keys(target)) delete target[i]
+	Object.assign(target, source)
+}
+
 export {
 	named,
 	resolvePath,
 	addToArrayProp,
-	removeFromArrayProp
+	removeFromArrayProp,
+	reAssignObject
 }

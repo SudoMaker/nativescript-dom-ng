@@ -27,8 +27,8 @@ export class PropBase extends PseudoBase {
 	}
 	set class(val) {
 		const [key, type] = val.split(':')
-		this.key = key
-		this.type = type
+		if (key) this.key = key
+		if (type) this.type = type
 	}
 
 	get type() {
