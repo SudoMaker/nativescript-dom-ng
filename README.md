@@ -204,7 +204,38 @@ Example:
 
 ## Template Handling for Custom Components
 
-TBD
+There's a special maker caller `makeTemplateReceiver`, which you can use when the NativeScript component accepts templates.
+
+Example:
+
+```js
+import { RadListView } from 'nativescript-ui-listview'
+import { registerElement, makers } from 'dominative'
+
+registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
+	templateProps: ['itemTemplate'],
+	loadingEvents: ['itemLoading']
+}))
+```
+
+`templateProps: Array<String>`: Props that accepts a template. Do not write keyed template props.
+
+`loadingEvents: Array<String>`: Events that will fire on the component when items loading.
+
+## Helper(s)
+
+```js
+import { aliasTagName } from 'dominative'
+
+const tagNameConverter = (CamelCaseName) => {
+	// ...whatever your transformatino code here
+	// This is useful when your framework/renderer doesn't support document.createElement with uppercase letters.
+	return transformedName
+}
+
+// Convert all built-in tag names
+aliasTagName(tagNameConverter)
+```
 
 ## Caveats
 
@@ -214,6 +245,7 @@ Since NativeScript uses `addEventListener` and `removeEventListener` as event ha
 
 ```js
 element.addEventListener('someEvent', callback, {mode: 'DOM'})
+element.removeEventListener('someEvent', callback, {mode: 'DOM'})
 ```
 
 without the `mode: 'DOM'` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
