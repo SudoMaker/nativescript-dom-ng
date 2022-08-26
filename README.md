@@ -185,7 +185,7 @@ Share mostly from `Prop`. Differences are listed below:
 
 ## KeyedTemplates
 
-By simpling putting `Template`s inside an array `Prop` we could set up an KeyedTemplate.
+By simpling putting `Template`s inside an array `Prop` we could set up a KeyedTemplate.
 
 Example:
 

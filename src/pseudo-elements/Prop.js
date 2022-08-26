@@ -6,8 +6,8 @@ import * as symbol from '../symbols.js'
 export class PropBase extends PseudoBase {
 	constructor(key, type) {
 		super()
-		this.key = key
-		this.type = type
+		if (key) this.key = key
+		if (type) this.type = type
 		this[symbol.role] = 'Prop'
 	}
 

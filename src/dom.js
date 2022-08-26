@@ -22,7 +22,7 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 	preserveClassNameOnRegister: true,
 	onSetData(data) {
 		if (this.nodeType === 8) {
-			if (!silent) console.log('[DOM COMMENT]', data)
+			if (!silent) console.log('[DOMiNATIVE][DOM COMMENT]', data)
 		} else if (this.nodeType === 3 && this.parentNode && this.parentNode[symbol.isNative] && this.parentNode.__dominative_isText) {
 			this.parentNode[symbol.updateText]()
 		}
