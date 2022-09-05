@@ -2,7 +2,7 @@ import { ObservableArray } from '@nativescript/core'
 
 // eslint-disable-next-line max-params
 const named = (name, baseClassName, baseClass, extender) => {
-	const key = `__dominative_is${name}`
+	const key = `__dominative_is_${name}`
 	const allowSelf = name === baseClassName
 
 	return (_ = baseClass, options) => {
