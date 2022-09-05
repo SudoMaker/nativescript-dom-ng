@@ -116,6 +116,12 @@ Application.run({
 
 ```
 
+### with [React](https://reactjs.org) + react-dom
+
+[Playground](https://stackblitz.com/edit/nativescript-stackblitz-templates-zeazui?file=package.json,src%2Fappi.tsx) - by [Ammar Ahmed](https://github.com/ammarahm-ed)
+
+**Note:** This demo might have some issues with Chrome. Use Firefox if necessary.
+
 ## Register Elements
 
 ```js
@@ -228,7 +234,7 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 import { aliasTagName } from 'dominative'
 
 const tagNameConverter = (CamelCaseName) => {
-	// ...whatever your transformatino code here
+	// ...whatever your transformation code here
 	// This is useful when your framework/renderer doesn't support document.createElement with uppercase letters.
 	return transformedName
 }
