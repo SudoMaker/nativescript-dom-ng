@@ -1,5 +1,5 @@
 import { ContentView } from '@nativescript/core'
-import { isNode, symbol as undomSymbol } from '@utls/undom-ef'
+import { isNode, isElement, symbol as undomSymbol } from '@utls/undom-ef'
 import { PropBase } from './Prop.js'
 import { document } from '../dom.js'
 import { reAssignObject } from '../utils.js'
@@ -25,19 +25,24 @@ const hydrate = (source, target) => {
 		if (target && (source.constructor !== target.constructor)) throw new TypeError('[DOMiNATIVE] Cannot patch different type of nodes!')
 	}
 
-	const newChildNodes = []
-	for (let i in source.childNodes) {
-		const targetNode = target.childNodes[i]
-		const sourceNode = source.childNodes[i]
-		if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodes.push(hydrate(sourceNode, cloneNode(sourceNode)))
-		else newChildNodes.push(hydrate(sourceNode, targetNode))
-	}
+	if (isElement(source)) {
+		const newChildNodes = []
+		const targetChildren = target.childNodes.slice()
+		const sourceChildren = source.childNodes.slice()
+		for (let i in sourceChildren) {
+			const targetNode = targetChildren[i]
+			const sourceNode = sourceChildren[i]
+			if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodes.push(hydrate(sourceNode, cloneNode(sourceNode)))
+			else newChildNodes.push(hydrate(sourceNode, targetNode))
+		}
 
-	if (source.nodeType === 1) {
 		const sourceAttrs = source.attributes
 		for (let {ns, name, value} of sourceAttrs) {
 			target.setAttributeNS(ns, name, value)
 		}
+
+		for (let i of targetChildren) i.remove()
+		for (let i of newChildNodes) target.appendChild(i)
 	} else if (source.nodeType === 3 || source.nodeType === 8) {
 		target.nodeValue = source.nodeValue
 	}
@@ -54,10 +59,6 @@ const hydrate = (source, target) => {
 	}
 
 	reAssignObject(target[undomSymbol.eventHandlers], source[undomSymbol.eventHandlers])
-
-	const targetChildren = target.childNodes.slice()
-	for (let i of targetChildren) i.remove()
-	for (let i of newChildNodes) target.appendChild(i)
 
 	return target
 }

@@ -33,34 +33,29 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 		}
 	},
 	onInsertBefore(child, ref) {
-		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
-		if (ref) {
-			const childNodes = ref.parentNode.childNodes
-			let refIndex = childNodes.indexOf(ref)
-			while (ref && !ref[symbol.isNative]) {
-				refIndex += 1
-				ref = childNodes[refIndex]
-			}
-			if (!ref) ref = null
+		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
+		while (ref && !ref[symbol.isNative]) {
+			ref = ref.nextElementSibling
 		}
+		if (!ref) ref = null
 		this[symbol.onInsertChild](child, ref)
 		if (child[symbol.isPseudoElement]) child[symbol.onBeingInserted](this)
 	},
 	onRemoveChild(child) {
-		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
 		this[symbol.onRemoveChild](child)
 		if (child[symbol.isPseudoElement]) child[symbol.onBeingRemoved](this)
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
 		this[symbol.onSetAttributeNS](ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
 		this[symbol.onGetAttributeNS](ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!this[symbol.isNative] && !this[symbol.isPseudoElement]) return
+		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
 		this[symbol.onRemoveAttributeNS](ns, name)
 	},
 	onAddEventListener(type, handler, options) {
