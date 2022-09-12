@@ -1,14 +1,13 @@
 import { ObservableArray } from '@nativescript/core'
 import { PseudoBase } from './base.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
-import * as symbol from '../symbols.js'
 
 export class PropBase extends PseudoBase {
 	constructor(key, type) {
 		super()
 		if (key) this.key = key
 		if (type) this.type = type
-		this[symbol.role] = 'Prop'
+		this.__dominative_role = 'Prop'
 	}
 
 	get key() {
@@ -19,7 +18,7 @@ export class PropBase extends PseudoBase {
 		const oldKey = this.__key
 		if (this.parent && oldKey) this.parent[oldKey] = null
 		this.__key = val
-		this[symbol.setPropOnParent](this.parent)
+		this.__dominative_setPropOnParent(this.parent)
 	}
 
 	get class() {
@@ -44,7 +43,7 @@ export class PropBase extends PseudoBase {
 			else this.__value = []
 		}
 
-		this[symbol.setPropOnParent](this.parent)
+		this.__dominative_setPropOnParent(this.parent)
 	}
 
 	get value() {
@@ -53,23 +52,23 @@ export class PropBase extends PseudoBase {
 	}
 	set value(val) {
 		this.__value = val
-		this[symbol.setPropOnParent](this.parent)
+		this.__dominative_setPropOnParent(this.parent)
 	}
 
 	get parent() {
 		return this.__parent
 	}
 
-	[symbol.onBeingInserted](parent) {
+	__dominative_onBeingInserted(parent) {
 		this.__parent = parent
-		this[symbol.setPropOnParent](parent)
+		this.__dominative_setPropOnParent(parent)
 	}
-	[symbol.onBeingRemoved](parent) {
+	__dominative_onBeingRemoved(parent) {
 		this.__parent = null
-		this[symbol.setPropOnParent](parent)
+		this.__dominative_setPropOnParent(parent)
 	}
 
-	[symbol.setPropOnParent](parent) {
+	__dominative_setPropOnParent(parent) {
 		if (!this.key) return
 		if (!this.parent) return
 		if (parent !== this.parent) {
@@ -86,8 +85,8 @@ export class PropBase extends PseudoBase {
 }
 
 export default class Prop extends PropBase {
-	[symbol.onInsertChild](child, ref) {
-		if (!(child[symbol.isPseudoElement] && child[symbol.role] === 'Template') && (!child[symbol.isNative] || (ref && !ref[symbol.isNative]))) return super[symbol.onInsertChild](child, ref)
+	__dominative_onInsertChild(child, ref) {
+		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'Template') && (!child.__dominative_isNative || (ref && !ref.__dominative_isNative))) return super.__dominative_onInsertChild(child, ref)
 
 		if (Array.isArray(this.__value)) {
 			addToArrayProp(this, '__value', child, ref)
@@ -96,17 +95,17 @@ export default class Prop extends PropBase {
 			this.value = child
 		}
 
-		super[symbol.onInsertChild](child, ref)
+		super.__dominative_onInsertChild(child, ref)
 	}
 
-	[symbol.onRemoveChild](child) {
-		if (!(child instanceof PropBase) && !child[symbol.isNative]) return super[symbol.onRemoveChild](child)
+	__dominative_onRemoveChild(child) {
+		if (!(child instanceof PropBase) && !child.__dominative_isNative) return super.__dominative_onRemoveChild(child)
 
 		if (this.type === 'array') {
 			removeFromArrayProp(this, '__value', child)
 			if (this.key && this.parent) removeFromArrayProp(this.parent, this.key, child)
 		} else if (this.value === child) this.value = null
 
-		super[symbol.onRemoveChild](child)
+		super.__dominative_onRemoveChild(child)
 	}
 }

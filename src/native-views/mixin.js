@@ -1,7 +1,6 @@
 import { ViewBase, LayoutBase, TextBase, EditableTextBase, FormattedString } from '@nativescript/core'
 import { isAndroid, isIOS } from '@nativescript/core/platform'
 import { named, resolvePath } from '../utils.js'
-import * as symbol from '../symbols.js'
 
 const makeView = named(
 	'View', 'ViewBase', ViewBase,
@@ -9,21 +8,21 @@ const makeView = named(
 		/* eslint-disable class-methods-use-this, no-empty-function */
 		constructor(...args) {
 			super(...args)
-			this[symbol.isNative] = true
-			this[symbol.role] = 'View'
+			this.__dominative_isNative = true
+			this.__dominative_role = 'View'
 		}
 
-		[symbol.onInsertChild]() {}
-		[symbol.onRemoveChild]() {}
+		__dominative_onInsertChild() {}
+		__dominative_onRemoveChild() {}
 
-		[symbol.onAddEventListener](type, handler, options) {
+		__dominative_onAddEventListener(type, handler, options) {
 			super.addEventListener(type, handler, options)
 		}
-		[symbol.onRemoveEventListener](type, handler, options) {
+		__dominative_onRemoveEventListener(type, handler, options) {
 			super.removeEventListener(type, handler, options)
 		}
 
-		[symbol.onSetAttributeNS](ns, name, value) {
+		__dominative_onSetAttributeNS(ns, name, value) {
 			if (ns) return
 			if (isAndroid && name.startsWith('ios.')) return
 			if (isIOS && name.startsWith('android.')) return
@@ -36,7 +35,7 @@ const makeView = named(
 			base[key] = value
 		}
 
-		[symbol.onGetAttributeNS](ns, name, updateValue) {
+		__dominative_onGetAttributeNS(ns, name, updateValue) {
 			if (ns) return
 			if (name === 'class') {
 				updateValue(super.className)
@@ -46,7 +45,7 @@ const makeView = named(
 			updateValue(base[key])
 		}
 
-		[symbol.onRemoveAttributeNS](ns, name) {
+		__dominative_onRemoveAttributeNS(ns, name) {
 			// eslint-disable-next-line no-void
 			this.setAttributeNS(ns, name, void(0))
 		}
@@ -58,11 +57,11 @@ const makeLayout = named(
 	_ => class SubLayout extends makeView(_) {
 		constructor(...args) {
 			super(...args)
-			this[symbol.role] = 'Layout'
+			this.__dominative_role = 'Layout'
 		}
 
-		[symbol.onInsertChild](child, ref) {
-			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return
+		__dominative_onInsertChild(child, ref) {
+			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return
 
 			if (ref) {
 				const refIndex = this.getChildIndex(ref)
@@ -71,15 +70,15 @@ const makeLayout = named(
 				super.addChild(child)
 			}
 
-			super[symbol.onInsertChild](child, ref)
+			super.__dominative_onInsertChild(child, ref)
 		}
 
-		[symbol.onRemoveChild](child) {
-			if (!child[symbol.isNative]) return
+		__dominative_onRemoveChild(child) {
+			if (!child.__dominative_isNative) return
 
 			super.removeChild(child)
 
-			super[symbol.onRemoveChild](child)
+			super.__dominative_onRemoveChild(child)
 		}
 	}
 )
@@ -89,11 +88,11 @@ const makeText = named(
 	_ => class SubText extends makeView(_) {
 		constructor(...args) {
 			super(...args)
-			this[symbol.role] = 'Text'
+			this.__dominative_role = 'Text'
 
 			let textUpdating = false
 			// eslint-disable-next-line camelcase
-			this[symbol.updateText] = () => {
+			this.__dominative_updateText = () => {
 				if (textUpdating) return
 				textUpdating = true
 				setTimeout(() => {
@@ -106,15 +105,15 @@ const makeText = named(
 			}
 		}
 
-		[symbol.onInsertChild](child, ref) {
-			super[symbol.onInsertChild](child, ref)
+		__dominative_onInsertChild(child, ref) {
+			super.__dominative_onInsertChild(child, ref)
 			if (child instanceof FormattedString) this.formattedText = child
-			if (child.nodeType === 3) this[symbol.updateText]()
+			if (child.nodeType === 3) this.__dominative_updateText()
 		}
-		[symbol.onRemoveChild](child) {
-			super[symbol.onRemoveChild](child)
+		__dominative_onRemoveChild(child) {
+			super.__dominative_onRemoveChild(child)
 			if (child instanceof FormattedString) this.formattedText = null
-			if (child.nodeType === 3) this[symbol.updateText]()
+			if (child.nodeType === 3) this.__dominative_updateText()
 		}
 	}
 )
@@ -124,7 +123,7 @@ const makeEditableText = named(
 	_ => class SubEditableText extends makeText(_) {
 		constructor(...args) {
 			super(...args)
-			this[symbol.role] = 'EditableText'
+			this.__dominative_role = 'EditableText'
 		}
 	}
 )

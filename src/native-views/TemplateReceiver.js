@@ -1,7 +1,6 @@
 import { ViewBase } from '@nativescript/core'
 import { named } from './mixin.js'
 import { TemplateWrapperView } from '../pseudo-elements/Template.js'
-import * as symbol from '../symbols.js'
 
 export const defaultItemTemplate = () => new TemplateWrapperView()
 
@@ -17,9 +16,9 @@ const handleItemLoading = (self, data) => {
 	if (self.items.getItem) item = self.items.getItem(itemIndex)
 	else item = self.items[itemIndex]
 
-	if (wrapper[symbol.template]) {
+	if (wrapper.__dominative_template) {
 		const oldView = wrapper.content
-		const newView = wrapper[symbol.template].patch({
+		const newView = wrapper.__dominative_template.patch({
 			view: oldView,
 			index: itemIndex,
 			item,
@@ -32,11 +31,8 @@ const handleItemLoading = (self, data) => {
 	}
 
 	if (self.itemTemplate === defaultItemTemplate && item instanceof ViewBase) {
-		if (!item.parent) wrapper.content = item
-		else if (item.parent instanceof TemplateWrapperView) {
-			item.parent.content = null
-			wrapper.content = item
-		}
+		if (item.parent instanceof TemplateWrapperView) item.parent.content = null
+		wrapper.content = item
 	}
 }
 

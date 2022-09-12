@@ -1,29 +1,28 @@
 import { TabView, TabViewItem } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
-import * as symbol from '../symbols.js'
 
 export const makeTabView = named(
 	'TabView', 'TabView', TabView,
 	_ => class TabViewElement extends makeView(_) {
-		[symbol.onInsertChild](child, ref) {
-			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
+		__dominative_onInsertChild(child, ref) {
+			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 			if (!(child instanceof TabViewItem)) return
 
 			if (ref && !(ref instanceof TabViewItem)) ref = null
 
 			addToArrayProp(this, 'items', child, ref)
 
-			super[symbol.onInsertChild](child, ref)
+			super.__dominative_onInsertChild(child, ref)
 		}
 
-		[symbol.onRemoveChild](child) {
-			if (!child[symbol.isNative]) return
-			if (!(child instanceof TabViewItem)) return super[symbol.onRemoveChild](child)
+		__dominative_onRemoveChild(child) {
+			if (!child.__dominative_isNative) return
+			if (!(child instanceof TabViewItem)) return super.__dominative_onRemoveChild(child)
 
 			removeFromArrayProp(this, 'items', child)
 
-			super[symbol.onRemoveChild](child)
+			super.__dominative_onRemoveChild(child)
 		}
 	}
 )

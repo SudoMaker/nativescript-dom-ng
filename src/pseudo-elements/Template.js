@@ -3,14 +3,13 @@ import { isNode, isElement, symbol as undomSymbol } from '@utls/undom-ef'
 import { PropBase } from './Prop.js'
 import { document } from '../dom.js'
 import { reAssignObject } from '../utils.js'
-import * as symbol from '../symbols.js'
 
 export class TemplateWrapperView extends ContentView {
 	constructor(template) {
 		super()
 		this.style.padding = '0, 0, 0, 0'
 		this.style.margin = '0, 0, 0, 0'
-		this[symbol.template] = template
+		this.__dominative_template = template
 	}
 }
 
@@ -47,15 +46,15 @@ const hydrate = (source, target) => {
 		target.nodeValue = source.nodeValue
 	}
 
-	if (source[symbol.eventHandlers]) {
-		const targetHandlers = target[symbol.eventHandlers]
+	if (source.__dominative_eventHandlers) {
+		const targetHandlers = target.__dominative_eventHandlers
 		for (let [type, targetHandler] of Object.entries(targetHandlers)) {
 			target.removeEventListener(type, targetHandler)
 		}
-		for (let [type, sourceHandler] of Object.entries(source[symbol.eventHandlers])) {
+		for (let [type, sourceHandler] of Object.entries(source.__dominative_eventHandlers)) {
 			target.addEventListener(type, sourceHandler)
 		}
-		reAssignObject(target[symbol.eventHandlers], source[symbol.eventHandlers])
+		reAssignObject(target.__dominative_eventHandlers, source.__dominative_eventHandlers)
 	}
 
 	reAssignObject(target[undomSymbol.eventHandlers], source[undomSymbol.eventHandlers])
@@ -72,7 +71,7 @@ export default class Template extends PropBase {
 	/* eslint-disable class-methods-use-this */
 	constructor(key) {
 		super(key)
-		this[symbol.role] = 'Template'
+		this.__dominative_role = 'Template'
 		this.__value = () => this.createView()
 	}
 
@@ -90,7 +89,7 @@ export default class Template extends PropBase {
 		return this.__content
 	}
 	set content(val) {
-		if (!val[symbol.isNative]) return
+		if (!val.__dominative_isNative) return
 		this.__content = val
 	}
 
@@ -116,26 +115,26 @@ export default class Template extends PropBase {
 		return wrapper
 	}
 
-	[symbol.onInsertChild](child, ref) {
-		if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
+	__dominative_onInsertChild(child, ref) {
+		if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 		if (this.content) {
 			if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Template can have only one child.')
-			return super[symbol.onInsertChild](child, ref)
+			return super.__dominative_onInsertChild(child, ref)
 		}
 
 		this.content = child
 
-		super[symbol.onInsertChild](child, ref)
+		super.__dominative_onInsertChild(child, ref)
 	}
 
-	[symbol.onRemoveChild](child) {
-		if (!child[symbol.isNative]) return super[symbol.onRemoveChild](child)
+	__dominative_onRemoveChild(child) {
+		if (!child.__dominative_isNative) return super.__dominative_onRemoveChild(child)
 		if (child === this.content) this.content = null
 
-		super[symbol.onRemoveChild](child)
+		super.__dominative_onRemoveChild(child)
 	}
 
-	[symbol.setPropOnParent](parent) {
-		if (!(parent instanceof PropBase)) return super[symbol.setPropOnParent](parent)
+	__dominative_setPropOnParent(parent) {
+		if (!(parent instanceof PropBase)) return super.__dominative_setPropOnParent(parent)
 	}
 }

@@ -1,13 +1,12 @@
 import { ActionBar, ActionItem, NavigationButton } from '@nativescript/core'
 import { isNode } from '@utls/undom-ef'
 import { named, makeView } from './mixin.js'
-import * as symbol from '../symbols.js'
 
 export const makeActionBar = named(
 	'ActionBar', 'ActionBar', ActionBar,
 	_ => class ActionBarElement extends makeView(_) {
-		[symbol.onInsertChild](child, ref) {
-			if (!child[symbol.isNative] || (ref && !ref[symbol.isNative])) return super[symbol.onInsertChild](child, ref)
+		__dominative_onInsertChild(child, ref) {
+			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
 			if (child instanceof NavigationButton) {
 				if (this.navigationButton && isNode(this.navigationButton)) this.navigationButton.remove()
@@ -30,11 +29,11 @@ export const makeActionBar = named(
 				} else this.actionItems.addItem(child)
 			}
 
-			super[symbol.onInsertChild](child, ref)
+			super.__dominative_onInsertChild(child, ref)
 		}
 
-		[symbol.onRemoveChild](child) {
-			if (!child[symbol.isNative]) return super[symbol.onRemoveChild](child)
+		__dominative_onRemoveChild(child) {
+			if (!child.__dominative_isNative) return super.__dominative_onRemoveChild(child)
 
 			if (child instanceof NavigationButton && child === this.navigationButton) {
 				this.navigationButton = null
@@ -42,7 +41,7 @@ export const makeActionBar = named(
 				this.actionItems.removeItem(child)
 			}
 
-			super[symbol.onRemoveChild](child)
+			super.__dominative_onRemoveChild(child)
 		}
 	}
 )

@@ -2,7 +2,6 @@ import { ListView, ObservableArray } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 import { defaultItemTemplate, makeTemplateReceiver } from './TemplateReceiver.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
-import * as symbol from '../symbols.js'
 
 export const makeListView = named(
 	'ListView', 'ListView', ListView,
@@ -15,27 +14,28 @@ export const makeListView = named(
 			this.items = new ObservableArray()
 		}
 
-		[symbol.onInsertChild](child, ref) {
+		__dominative_onInsertChild(child, ref) {
 			if (
 				this.itemTemplate !== defaultItemTemplate ||
-				!child[symbol.isNative] ||
-				(ref && !ref[symbol.isNative])
-			) return super[symbol.onInsertChild](child, ref)
+				!child.__dominative_isNative ||
+				(ref && !ref.__dominative_isNative)
+			) return super.__dominative_onInsertChild(child, ref)
 
 			addToArrayProp(this, 'items', child, ref)
 
-			super[symbol.onInsertChild](child, ref)
+
+			super.__dominative_onInsertChild(child, ref)
 		}
 
-		[symbol.onRemoveChild](child) {
+		__dominative_onRemoveChild(child) {
 			if (
 				this.itemTemplate !== defaultItemTemplate ||
-				!child[symbol.isNative]
-			) return super[symbol.onRemoveChild](child)
+				!child.__dominative_isNative
+			) return super.__dominative_onRemoveChild(child)
 
 			removeFromArrayProp(this, 'items', child)
 
-			super[symbol.onRemoveChild](child)
+			super.__dominative_onRemoveChild(child)
 		}
 	}
 )

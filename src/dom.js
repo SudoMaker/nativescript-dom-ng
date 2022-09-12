@@ -1,5 +1,4 @@
 import { createEnvironment, isNode, symbol as undomSymbol } from '@utls/undom-ef'
-import * as symbol from './symbols.js'
 
 /*
 const NODE_TYPES = {
@@ -23,45 +22,45 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 	onSetData(data) {
 		if (this.nodeType === 8) {
 			if (!silent) console.log('[DOMiNATIVE][DOM COMMENT]', data)
-		} else if (this.nodeType === 3 && this.parentNode && this.parentNode[symbol.isNative] && this.parentNode.__dominative_is_Text) {
-			this.parentNode[symbol.updateText]()
+		} else if (this.nodeType === 3 && this.parentNode && this.parentNode.__dominative_isNative && this.parentNode.__dominative_is_Text) {
+			this.parentNode.__dominative_updateText()
 		}
 	},
 	onCreateNode() {
-		if (this.nodeType === 1 && this[symbol.isNative]) {
-			Object.defineProperty(this, symbol.eventHandlers, { value: {} })
+		if (this.nodeType === 1 && this.__dominative_isNative) {
+			Object.defineProperty(this, '__dominative_eventHandlers', { value: {} })
 		}
 	},
 	onInsertBefore(child, ref) {
-		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
-		while (ref && !ref[symbol.isNative]) {
+		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		while (ref && !ref.__dominative_isNative) {
 			ref = ref.nextElementSibling
 		}
 		if (!ref) ref = null
-		this[symbol.onInsertChild](child, ref)
-		if (child[symbol.isPseudoElement]) child[symbol.onBeingInserted](this)
+		this.__dominative_onInsertChild(child, ref)
+		if (child.__dominative_isPseudoElement) child.__dominative_onBeingInserted(this)
 	},
 	onRemoveChild(child) {
-		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
-		this[symbol.onRemoveChild](child)
-		if (child[symbol.isPseudoElement]) child[symbol.onBeingRemoved](this)
+		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		this.__dominative_onRemoveChild(child)
+		if (child.__dominative_isPseudoElement) child.__dominative_onBeingRemoved(this)
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
-		this[symbol.onSetAttributeNS](ns, name, value)
+		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		this.__dominative_onSetAttributeNS(ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
-		this[symbol.onGetAttributeNS](ns, name, updateValue)
+		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		this.__dominative_onGetAttributeNS(ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!(this[symbol.isNative] || this[symbol.isPseudoElement])) return
-		this[symbol.onRemoveAttributeNS](ns, name)
+		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		this.__dominative_onRemoveAttributeNS(ns, name)
 	},
 	onAddEventListener(type, handler, options) {
-		if (!this[symbol.isNative]) return
-		if (options && options.mode === 'DOM' && !this[symbol.eventHandlers][type]) {
-			this[symbol.eventHandlers][type] = function(data) {
+		if (!this.__dominative_isNative) return
+		if (options && options.mode === 'DOM' && !this.__dominative_eventHandlers[type]) {
+			this.__dominative_eventHandlers[type] = function(data) {
 				let target = data.object
 				while (target && !isNode(target)) target = target.parent
 				if (!target) return
@@ -69,23 +68,23 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 				event.data = data
 				target.dispatchEvent(event)
 			}
-			this[symbol.onAddEventListener](type, this[symbol.eventHandlers][type])
+			this.__dominative_onAddEventListener(type, this.__dominative_eventHandlers[type])
 			return false
 		}
-		this[symbol.onAddEventListener](type, handler, options)
+		this.__dominative_onAddEventListener(type, handler, options)
 		return true
 	},
 	onRemoveEventListener(type, handler, options) {
-		if (!this[symbol.isNative]) return
-		if (options && options.mode === 'DOM' && this[symbol.eventHandlers][type]) {
+		if (!this.__dominative_isNative) return
+		if (options && options.mode === 'DOM' && this.__dominative_eventHandlers[type]) {
 			if (this[undomSymbol.eventHandlers][type] && !this[undomSymbol.eventHandlers][type].length) {
-				handler = this[symbol.eventHandlers][type]
-				delete this[symbol.eventHandlers][type]
+				handler = this.__dominative_eventHandlers[type]
+				delete this.__dominative_eventHandlers[type]
 			}
-			this[symbol.onRemoveEventListener](type, handler, options)
+			this.__dominative_onRemoveEventListener(type, handler, options)
 			return false
 		}
-		this[symbol.onRemoveEventListener](type, handler, options)
+		this.__dominative_onRemoveEventListener(type, handler, options)
 		return true
 	}
 })
