@@ -1,5 +1,5 @@
 import { ContentView } from '@nativescript/core'
-import { isNode, isElement, symbol as undomSymbol } from '@utls/undom-ef'
+import { isNode, isElement } from '@utls/undom-ef'
 import { PropBase } from './Prop.js'
 import { document } from '../dom.js'
 import { reAssignObject } from '../utils.js'
@@ -57,7 +57,7 @@ const hydrate = (source, target) => {
 		reAssignObject(target.__dominative_eventHandlers, source.__dominative_eventHandlers)
 	}
 
-	reAssignObject(target[undomSymbol.eventHandlers], source[undomSymbol.eventHandlers])
+	reAssignObject(target.__undom_eventHandlers, source.__undom_eventHandlers)
 
 	return target
 }

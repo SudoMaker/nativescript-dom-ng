@@ -15,6 +15,9 @@ const makeView = named(
 		__dominative_onInsertChild() {}
 		__dominative_onRemoveChild() {}
 
+		__dominative_onSetTextContent() {}
+		__dominative_onGetTextContent() {}
+
 		__dominative_onAddEventListener(type, handler, options) {
 			super.addEventListener(type, handler, options)
 		}
@@ -95,14 +98,21 @@ const makeText = named(
 			this.__dominative_updateText = () => {
 				if (textUpdating) return
 				textUpdating = true
+				// to workaround iOS rendering bug
+				if (!this.parent && !super.text) super.text = ' '
 				setTimeout(() => {
-					super.text = this.childNodes
-						.filter(i => i.nodeType === 3)
-						.map(i => i.textContent)
-						.join('')
+					super.text = this.textContent
 					textUpdating = false
-				})
+				}, 0)
 			}
+		}
+
+		__dominative_onSetTextContent(val) {
+			super.text = val
+		}
+		__dominative_onGetTextContent() {
+			if (this.firstChild) return
+			return super.text
 		}
 
 		__dominative_onInsertChild(child, ref) {

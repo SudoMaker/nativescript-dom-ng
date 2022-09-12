@@ -23,7 +23,6 @@ export const makeListView = named(
 
 			addToArrayProp(this, 'items', child, ref)
 
-
 			super.__dominative_onInsertChild(child, ref)
 		}
 

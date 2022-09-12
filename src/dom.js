@@ -1,4 +1,4 @@
-import { createEnvironment, isNode, symbol as undomSymbol } from '@utls/undom-ef'
+import { createEnvironment, isNode } from '@utls/undom-ef'
 
 /*
 const NODE_TYPES = {
@@ -9,7 +9,8 @@ const NODE_TYPES = {
 	ENTITY_REFERENCE_NODE: 5,
 	PROCESSING_INSTRUCTION_NODE: 7,
 	COMMENT_NODE: 8,
-	DOCUMENT_NODE: 9
+	DOCUMENT_NODE: 9,
+	DOCUMENT_FRAGMENT: 11
 }
 */
 
@@ -32,18 +33,30 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 		}
 	},
 	onInsertBefore(child, ref) {
+		if (child.nodeType === 11 || child.nodeType === 8) return
 		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+
 		while (ref && !ref.__dominative_isNative) {
 			ref = ref.nextElementSibling
 		}
 		if (!ref) ref = null
+
 		this.__dominative_onInsertChild(child, ref)
 		if (child.__dominative_isPseudoElement) child.__dominative_onBeingInserted(this)
 	},
 	onRemoveChild(child) {
+		if (child.nodeType === 11 || child.nodeType === 8) return
 		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
 		this.__dominative_onRemoveChild(child)
 		if (child.__dominative_isPseudoElement) child.__dominative_onBeingRemoved(this)
+	},
+	onSetTextContent(val) {
+		if (!this.__dominative_isNative) return
+		this.__dominative_onSetTextContent(val)
+	},
+	onGetTextContent() {
+		if (!this.__dominative_isNative) return
+		return this.__dominative_onGetTextContent()
 	},
 	onSetAttributeNS(ns, name, value) {
 		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
@@ -77,7 +90,7 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 	onRemoveEventListener(type, handler, options) {
 		if (!this.__dominative_isNative) return
 		if (options && options.mode === 'DOM' && this.__dominative_eventHandlers[type]) {
-			if (this[undomSymbol.eventHandlers][type] && !this[undomSymbol.eventHandlers][type].length) {
+			if (this.__undom_eventHandlers[type] && !this.__undom_eventHandlers[type].length) {
 				handler = this.__dominative_eventHandlers[type]
 				delete this.__dominative_eventHandlers[type]
 			}
