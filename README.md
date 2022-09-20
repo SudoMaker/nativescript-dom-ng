@@ -13,7 +13,9 @@
 
 Via npm:
 
-`npm install dominative`
+`npm install dominative @utls/undom-ef`
+
+**Note:** `undom-ef` is now a peer dependency, you have to install it manually.
 
 
 ---
