@@ -5,7 +5,7 @@ const named = (name, baseClassName, baseClass, extender) => {
 	const key = `__dominative_is_${name}`
 	const allowSelf = name === baseClassName
 
-	return (_ = baseClass, options) => {
+	const maker = (_ = baseClass, options) => {
 		let force = false
 		if (options && options.force) force = true
 
@@ -23,8 +23,11 @@ const named = (name, baseClassName, baseClass, extender) => {
 		Object.defineProperty(extendedClass.prototype, key, {
 			value: true
 		})
+
 		return extendedClass
 	}
+
+	return maker
 }
 
 const resolvePath = (pathStr, base) => {
