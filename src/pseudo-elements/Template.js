@@ -13,11 +13,6 @@ export class TemplateWrapperView extends ContentView {
 	}
 }
 
-const cloneNode = (node) => {
-	if (!isNode(node)) return
-	return new node.constructor()
-}
-
 const hydrate = (source, target) => {
 	if (process.env.NODE_ENV !== 'production') {
 		if (!isNode(source) || !isNode(target)) throw new TypeError('[DOMiNATIVE] Can only patch undom nodes!')
@@ -25,23 +20,25 @@ const hydrate = (source, target) => {
 	}
 
 	if (isElement(source)) {
-		const newChildNodes = []
-		const targetChildren = target.childNodes.slice()
-		const sourceChildren = source.childNodes.slice()
-		for (let i in sourceChildren) {
-			const targetNode = targetChildren[i]
-			const sourceNode = sourceChildren[i]
-			if (!targetNode || targetNode.constructor !== sourceNode.constructor) newChildNodes.push(hydrate(sourceNode, cloneNode(sourceNode)))
-			else newChildNodes.push(hydrate(sourceNode, targetNode))
+		let sourceNode = source.firstChild
+		let targetNode = target.firstChild
+		while (sourceNode) {
+			if (!targetNode || targetNode.constructor !== sourceNode.constructor) {
+				const newChild = hydrate(sourceNode, sourceNode.clonedNode())
+				if (targetNode) targetNode.replaceWith(newChild)
+				else target.appendChild(newChild)
+			} else {
+				hydrate(sourceNode, targetNode)
+			}
+
+			sourceNode = sourceNode.nextSibling
+			if (targetNode) targetNode = targetNode.nextSibling
 		}
 
-		const sourceAttrs = source.attributes
-		for (let {ns, name, value} of sourceAttrs) {
-			target.setAttributeNS(ns, name, value)
+		while (targetNode) {
+			targetNode.remove()
+			targetNode = targetNode.nextSibling
 		}
-
-		for (let i of targetChildren) i.remove()
-		for (let i of newChildNodes) target.appendChild(i)
 	} else if (source.nodeType === 3 || source.nodeType === 8) {
 		target.nodeValue = source.nodeValue
 	}
@@ -64,7 +61,7 @@ const hydrate = (source, target) => {
 
 const defaultCreateView = (self) => {
 	if (!self.__content) return null
-	return hydrate(self.__content, cloneNode(self.__content))
+	return hydrate(self.__content, self.__content.cloneNode())
 }
 
 export default class Template extends PropBase {
