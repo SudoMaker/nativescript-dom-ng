@@ -83,7 +83,7 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 		}
 
 		if (options && options.mode === 'DOM' && !this.__dominative_eventHandlers[domEventType]) {
-			const nativeHandler =	this.__dominative_eventHandlers[domEventType] = function(data) {
+			const nativeHandler =	this.__dominative_eventHandlers[domEventType] = (data) => {
 				if (!silent && (domEventType !== type)) console.warn(`[DOMiNATIVE] Event '${domEventType}' has been redirected to '${type}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
 
 				let target = data.object
