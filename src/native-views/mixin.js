@@ -92,19 +92,10 @@ const makeText = named(
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'Text'
+		}
 
-			let textUpdating = false
-			// eslint-disable-next-line camelcase
-			this.__dominative_updateText = () => {
-				if (textUpdating) return
-				textUpdating = true
-				// to workaround iOS rendering bug
-				if (!this.parent && !super.text) super.text = ' '
-				setTimeout(() => {
-					super.text = this.textContent
-					textUpdating = false
-				}, 0)
-			}
+		__dominative_updateText() {
+			super.text = this.textContent
 		}
 
 		__dominative_onSetTextContent(val) {

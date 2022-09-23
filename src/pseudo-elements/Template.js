@@ -24,7 +24,7 @@ const hydrate = (source, target) => {
 		let targetNode = target.firstChild
 		while (sourceNode) {
 			if (!targetNode || targetNode.constructor !== sourceNode.constructor) {
-				const newChild = hydrate(sourceNode, sourceNode.clonedNode())
+				const newChild = hydrate(sourceNode, sourceNode.cloneNode())
 				if (targetNode) targetNode.replaceWith(newChild)
 				else target.appendChild(newChild)
 			} else {
@@ -92,23 +92,28 @@ export default class Template extends PropBase {
 
 	patch({view, index, item, data}) {
 		if (!isNode(view)) return
+		if (this.__content) return hydrate(this.__content, view)
+
 		const event = document.createEvent('itemLoading')
 		event.view = view
 		event.index = index
 		event.item = item
 		event.data = data
 		this.dispatchEvent(event)
-		if (event.patched) return event.view
-		else return hydrate(this.content, view)
+
+		return event.view || null
 	}
 
 	createView() {
-		if (!isNode(this)) return
 		const wrapper = new TemplateWrapperView(this)
-		const event = document.createEvent('createView')
-		this.dispatchEvent(event)
-		if (event.view) wrapper.content = event.view
-		else wrapper.content = defaultCreateView(this)
+
+		if (this.__content) wrapper.content = defaultCreateView(this)
+		else {
+			const event = document.createEvent('createView')
+			this.dispatchEvent(event)
+			wrapper.content = event.view || null
+		}
+
 		return wrapper
 	}
 

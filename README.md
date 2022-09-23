@@ -147,7 +147,7 @@ registerElement('RadListView', makers.makeListView(RadListView, {force: true}))
 
 ## Pseudo Elements
 
-Pseudo elements are not real elements, but they appear as DOM elements to help organize composition.
+Pseudo elements are not real elements, but they appear as DOM elements to help organizing composition.
 
 ### Prop
 
@@ -191,9 +191,9 @@ Share mostly from `Prop`. Differences are listed below:
 
 **Events:**
 
-`itemLoading`: Triggered when patching. Set `event.patched` to true to skip default patching method, set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`.
+`itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`.
 
-`createView`: Triggered when creating view from the template. Set created view to `event.view`. If not set, view will be created by cloning the template.
+`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template.
 
 **Note:**
 
@@ -220,7 +220,7 @@ Example:
 
 ## Template Handling for Custom Components
 
-There's a special maker caller `makeTemplateReceiver`, which you can use when the NativeScript component accepts templates.
+There's a special maker caller `makeTemplateReceiver`, which you can use when a NativeScript component accepts templates.
 
 Example:
 
@@ -242,7 +242,7 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 ### Event Handling
 
-Since NativeScript uses `addEventListener` and `removeEventListener` as event handling method names as well as HTML DOM which are causes naming conflicts, we should tell DOMiNATIVE to register event handlers as DOM behavior by explicitly adding a third option:
+Since NativeScript uses `addEventListener` and `removeEventListener` as event handling method names as well as HTML DOM which are causing naming conflicts, we should tell DOMiNATIVE to register event handlers as DOM behavior by adding a third option explicitly:
 
 ```js
 element.addEventListener('someEvent', callback, {mode: 'DOM'})
@@ -279,7 +279,7 @@ const tagNameConverter = (PascalCaseName) => {
 aliasTagName(tagNameConverter)
 ```
 
-#### Hardcoded events and props for bi-directional bindings
+#### Hardcoded events and props
 
 Some frameworks work like magic by providing lots of "just works" features that you don't even need to think about what's going on behind. They're actually done by heavily assuming you're on a specific platform - browser, and hardcoded these features to browser specific features.
 
@@ -289,13 +289,16 @@ We have to mimic the events and props they hardcoded in order to make these fram
 import { document } from 'dominative'
 
 const TextFieldElement = document.defaultView.TextField
+const ButtonElement = document.defaultView.Button
 
 TextFieldElement.mapEvent('input', 'inputChange') // This is redirecting event handler registering for 'input' to 'inputChange'
 TextFieldElement.mapProp('value', 'text') // This is redirecting access from 'value' prop to 'text' prop
 
+ButtonElement.mapEvent('click', 'tap') // Redirect 'click' event to 'tap'
+
 const input = document.createElement('TextField')
 input.addEventListener('input', (event) => { // This is actually registered to `inputChange`
-	console.log(event.target.value) // This actually accessed `event.target.text`
+	console.log(event.target.value) // This is actually accessing `event.target.text`
 })
 ```
 
@@ -303,6 +306,11 @@ Then the following code could work:
 
 ```html
 <TextField v-model="userInput"/>
+<!-- 'v-model' hardcoded with `input` or `change` event and `value` or `checked` prop, so we have to provide it with a emulated `input` event and `value` prop -->
+```
+
+```jsx
+<button onClick="onTapHandler"></button> // 'onTapHandler' is actually registered to 'tap', since some frameworks hardcoded "possible" event names so they can know it's an event handler
 ```
 
 **Note:** Mapped events will always be registered with `{mode: 'DOM'}` for frameworks to pick up the correct info they need.
