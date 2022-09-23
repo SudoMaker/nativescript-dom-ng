@@ -124,6 +124,14 @@ Application.run({
 
 **Note:** This demo might have some issues with Chrome. Use Firefox if necessary.
 
+### with [Vue 3](https://vuejs.org/) + runtime-dom
+
+Confirmed working, just need a playground
+
+### with [SolidJS](https://www.solidjs.com/)
+
+Confirmed working, just need a playground
+
 ## Register Elements
 
 ```js
@@ -230,21 +238,6 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
 
-## Helper(s)
-
-```js
-import { aliasTagName } from 'dominative'
-
-const tagNameConverter = (CamelCaseName) => {
-	// ...whatever your transformation code here
-	// This is useful when your framework/renderer doesn't support document.createElement with uppercase letters.
-	return transformedName
-}
-
-// Convert all built-in tag names
-aliasTagName(tagNameConverter)
-```
-
 ## Caveats
 
 ### Event Handling
@@ -259,6 +252,61 @@ element.removeEventListener('someEvent', callback, {mode: 'DOM'})
 without the `mode: 'DOM'` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
 
 In DOM mode, your event callback function will receive a DOM-like Event object instead of the NativeScript `data` object. The original `data` object will be placed at `event.data` in most cases.
+
+### Hardcoding in Frameworks
+
+Frameworks are great, but they're not great when it comes to hardcoded things. We have to invest methods to counter the harm done by those hardcodings.
+
+**Hardcoding is harmful, please do not hardcode.**
+
+#### Always lowercased tag names
+
+Sometimes frameworks are just too thoughtful for you, they translate all your tag names to lowercase when compiling, which means your camelCase or PascalCase tag names won't work as intended.
+
+We can alias our tag names to lowercase if you like:
+
+```js
+import { aliasTagName } from 'dominative'
+
+const tagNameConverter = (PascalCaseName) => {
+	// ...whatever your transformation code here
+	// This is useful when your framework/renderer doesn't support document.createElement with uppercase letters.
+	const transformedName = PascalCaseName.toLowerCase()
+	return transformedName
+}
+
+// Convert all built-in tag names
+aliasTagName(tagNameConverter)
+```
+
+#### Hardcoded events and props for bi-directional bindings
+
+Some frameworks work like magic by providing lots of "just works" features that you don't even need to think about what's going on behind. They're actually done by heavily assuming you're on a specific platform - browser, and hardcoded these features to browser specific features.
+
+We have to mimic the events and props they hardcoded in order to make these frameworks happy:
+
+```js
+import { document } from 'dominative'
+
+const TextFieldElement = document.defaultView.TextField
+
+TextFieldElement.mapEvent('input', 'inputChange') // This is redirecting event handler registering for 'input' to 'inputChange'
+TextFieldElement.mapProp('value', 'text') // This is redirecting access from 'value' prop to 'text' prop
+
+const input = document.createElement('TextField')
+input.addEventListener('input', (event) => { // This is actually registered to `inputChange`
+	console.log(event.target.value) // This actually accessed `event.target.text`
+})
+```
+
+Then the following code could work:
+
+```html
+<TextField v-model="userInput"/>
+```
+
+**Note:** Mapped events will always be registered with `{mode: 'DOM'}` for frameworks to pick up the correct info they need.
+
 
 ## License
 
