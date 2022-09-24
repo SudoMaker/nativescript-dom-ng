@@ -126,7 +126,31 @@ Application.run({
 
 ### with [Vue 3](https://vuejs.org/) + runtime-dom
 
-Confirmed working, just need a playground
+[Playground](https://stackblitz.com/edit/nativescript-dominative-vue-3?file=app/App.vue)
+
+app.js
+```js
+import { Application } from '@nativescript/core'
+import { registerComponents } from 'dominative-vue'
+import { document } from 'dominative'
+import { createApp } from 'vue'
+import App from './App.vue'
+
+const app = createApp(App)
+
+registerComponents(app)
+
+Application.run({
+	create: () => {
+		const frame = document.createElement('Frame')
+
+		app.mount(frame)
+
+		return frame
+	}
+})
+
+```
 
 ### with [SolidJS](https://www.solidjs.com/)
 
