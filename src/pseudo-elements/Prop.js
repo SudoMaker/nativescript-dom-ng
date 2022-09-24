@@ -39,8 +39,10 @@ export class PropBase extends PseudoBase {
 		this.__type = val
 
 		if (val === 'array') {
-			if (this.__value) this.__value = [this.__value]
-			else this.__value = []
+			this.__value = []
+
+			const children = this.childNodes.slice()
+			for (let i of children) this.appendChild(i)
 		}
 
 		this.__dominative_setPropOnParent(this.parent)
@@ -86,11 +88,13 @@ export class PropBase extends PseudoBase {
 
 export default class Prop extends PropBase {
 	__dominative_onInsertChild(child, ref) {
-		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'Template') && (!child.__dominative_isNative || (ref && !ref.__dominative_isNative))) return super.__dominative_onInsertChild(child, ref)
+		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'Template') &&
+			(!child.__dominative_isNative || (ref && !ref.__dominative_isNative))
+		) return super.__dominative_onInsertChild(child, ref)
 
 		if (Array.isArray(this.__value)) {
 			addToArrayProp(this, '__value', child, ref)
-			if (this.key && this.parent) addToArrayProp(this.parent, this.key, child, ref)
+			if (this.key && this.parent && this.__value !== this.parent[this.key]) addToArrayProp(this.parent, this.key, child, ref)
 		} else {
 			this.value = child
 		}
