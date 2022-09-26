@@ -273,7 +273,7 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 ### Element.defineEventOption(eventName: string, option: EventOption)
 
-Define how a event should be initialized.
+Define how a event should be initialized. If an event is defined with `bubbles: true` or `captures: true`, they'll automatically be registered to native at element creation.
 
 Event option:
 
@@ -296,17 +296,6 @@ ButtonElement.defineEventOption('tap', {
 ```
 
 **Note:** Only available with `{mode: 'DOM'}`, see [below](#event-handling).
-
-### Element.defineEmits(...eventNames: string)
-
-Define what events an element will always emit with `{mode: 'DOM'}`, useful when paired with event capturing and bubbling.
-
-Usage:
-
-```js
-const ButtonElement = document.defaultView.Button
-ButtonElement.defineEmits('tap') // `tap` event will be listened automatically upon `createElement` with an empty handler
-```
 
 ### Element.mapEvent(fromEvent: string, toEvent: string)
 

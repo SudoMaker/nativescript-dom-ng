@@ -12,13 +12,12 @@ const makeTweakable = (_) => {
 
 	const eventMap = {}
 	const eventOptionDefinition = {}
-	const emitEvents = new Set()
 
 	class Mappable extends _ {
 		constructor(...args) {
 			super(...args)
-			for (let i of emitEvents) {
-				this.addEventListener(i, dummyFn, {mode: 'DOM'})
+			for (let [type, def] of Object.entries(eventOptionDefinition)) {
+				if (def.bubbles || def.captures) this.addEventListener(type, dummyFn, {mode: 'DOM'})
 			}
 		}
 
@@ -60,10 +59,6 @@ const makeTweakable = (_) => {
 			 *	}
 			**/
 			eventOptionDefinition[type] = option
-		}
-
-		static defineEmit(...types) {
-			for (let i of types) emitEvents.add(i)
 		}
 	}
 
