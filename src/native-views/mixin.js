@@ -25,6 +25,11 @@ const makeView = named(
 			super.removeEventListener(type, handler, options)
 		}
 
+		__dominative_onAddedEventListener() {}
+		__dominative_onRemovedEventListener(type, handler, options) {
+			return this.__dominative_onRemoveEventListener(type, handler, options)
+		}
+
 		__dominative_onSetAttributeNS(ns, name, value) {
 			if (ns) return
 			if (isAndroid && name.startsWith('ios.')) return

@@ -16,7 +16,7 @@ const NODE_TYPES = {
 
 const silent = process.env.NODE_ENV === 'production'
 
-const {scope, createDocument, registerElement: registerDOMElement} = createEnvironment({
+const {scope, document, registerElement: registerDOMElement} = createEnvironment({
 	silent,
 	createBasicElements: false,
 	preserveClassNameOnRegister: true,
@@ -82,26 +82,35 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 			if (!silent) console.warn(`[DOMiNATIVE] Event '${domEventType}' is being registered as '${type}' with mode 'DOM' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
 		}
 
-		if (options && options.mode === 'DOM' && !this.__dominative_eventHandlers[domEventType]) {
-			const nativeHandler =	this.__dominative_eventHandlers[domEventType] = (data) => {
-				if (!silent && (domEventType !== type)) console.warn(`[DOMiNATIVE] Event '${domEventType}' has been redirected to '${type}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
+		if (options && options.mode === 'DOM') {
+			if (!this.__dominative_eventHandlers[domEventType]) {
+				const nativeHandler =	this.__dominative_eventHandlers[domEventType] = (data) => {
+					if (!silent && (domEventType !== type)) console.warn(`[DOMiNATIVE] Event '${domEventType}' has been redirected to '${type}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
 
-				let target = data.object
-				while (target && !isNode(target)) target = target.parent
-				if (!target) return
-				const event = new scope.Event(domEventType)
-				event.data = data
-				target.dispatchEvent(event)
+					let target = data.object
+					while (target && !isNode(target)) target = target.parent
+					if (!target) return
+
+					const eventOption = this.constructor.getEventOption(domEventType)
+					const event = new scope.Event(domEventType, eventOption)
+
+					event.data = data
+					target.dispatchEvent(event)
+				}
+
+				this.__dominative_eventHandlers[domEventType] = nativeHandler
+				this.__dominative_onAddEventListener(type, nativeHandler, options)
 			}
-
-			this.__dominative_eventHandlers[domEventType] = nativeHandler
-			this.__dominative_onAddEventListener(type, nativeHandler, options)
 
 			return false
 		}
 
 		this.__dominative_onAddEventListener(type, handler, options)
 		return true
+	},
+	onAddedEventListener(type, handler, options) {
+		if (!this.__dominative_isNative) return
+		this.__dominative_onAddedEventListener(type, handler, options)
 	},
 	onRemoveEventListener(type, handler, options) {
 		if (!this.__dominative_isNative) return
@@ -110,26 +119,33 @@ const {scope, createDocument, registerElement: registerDOMElement} = createEnvir
 		type = this.constructor.getEventMap(type) || domEventType
 
 		if (domEventType !== type) {
-			if (!options) options = {}
-			options.mode = 'DOM'
 			if (!silent) console.warn(`[DOMiNATIVE] Event '${domEventType}' is being removed as '${type}' with mode 'DOM' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
-		}
-
-		if (options && options.mode === 'DOM' && this.__dominative_eventHandlers[domEventType]) {
-			if (this.__undom_eventHandlers[domEventType] && !this.__undom_eventHandlers[domEventType].length) {
-				handler = this.__dominative_eventHandlers[domEventType]
-				delete this.__dominative_eventHandlers[domEventType]
-			}
-			this.__dominative_onRemoveEventListener(type, handler, options)
 			return false
 		}
 
 		this.__dominative_onRemoveEventListener(type, handler, options)
 		return true
+	},
+	onRemovedEventListener(type, handler, options) {
+		if (!this.__dominative_isNative) return
+
+		const domEventType = type
+		type = this.constructor.getEventMap(type) || domEventType
+
+		if (this.__dominative_eventHandlers[domEventType]) {
+			let proceed = true
+
+			if (this.__undom_eventHandlers.capturePhase[domEventType] && this.__undom_eventHandlers.capturePhase[domEventType].size) proceed = false
+			if (this.__undom_eventHandlers.bubblePhase[domEventType] && this.__undom_eventHandlers.bubblePhase[domEventType].size) proceed = false
+
+			if (proceed) {
+				handler = this.__dominative_eventHandlers[domEventType]
+				delete this.__dominative_eventHandlers[domEventType]
+				this.__dominative_onRemovedEventListener(type, handler, options)
+			}
+		}
 	}
 })
-
-const document = createDocument()
 
 const domImpl = {
 	Node: scope.Node,

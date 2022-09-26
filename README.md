@@ -169,6 +169,9 @@ registerElement('RadSideDrawer', RadSideDrawer)
 registerElement('RadListView', makers.makeListView(RadListView, {force: true}))
 ```
 
+---
+
+
 ## Pseudo Elements
 
 Pseudo elements are not real elements, but they appear as DOM elements to help organizing composition.
@@ -217,7 +220,7 @@ Share mostly from `Prop`. Differences are listed below:
 
 `itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`.
 
-`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template.
+`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template. This event doesn't have `data` prop.
 
 **Note:**
 
@@ -262,6 +265,61 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
 
+
+---
+
+
+## Tweaking
+
+### Element.defineEventOption(eventName: string, option: EventOption)
+
+Define how a event should be initialized.
+
+Event option:
+
+```js
+{
+	bubbles: boolean // should this event bubble, default false
+	captures: boolean // should this event have capture phase, default false
+	cancelable: boolean // should this event be cancelable, defalut true
+}
+```
+
+Usage:
+
+```js
+const ButtonElement = document.defaultView.Button
+ButtonElement.defineEventOption('tap', {
+	bubbles: true,
+	captures: true
+})
+```
+
+**Note:** Only available with `{mode: 'DOM'}`, see [below](#event-handling).
+
+### Element.defineEmits(...eventNames: string)
+
+Define what events an element will always emit with `{mode: 'DOM'}`, useful when paired with event capturing and bubbling.
+
+Usage:
+
+```js
+const ButtonElement = document.defaultView.Button
+ButtonElement.defineEmits('tap') // `tap` event will be listened automatically upon `createElement` with an empty handler
+```
+
+### Element.mapEvent(fromEvent: string, toEvent: string)
+
+See [below](#hardcoded-events-and-props)
+
+### Element.mapProp(fromProp: string, toProp: string)
+
+See [below](#hardcoded-events-and-props)
+
+
+---
+
+
 ## Caveats
 
 ### Event Handling
@@ -273,7 +331,7 @@ element.addEventListener('someEvent', callback, {mode: 'DOM'})
 element.removeEventListener('someEvent', callback, {mode: 'DOM'})
 ```
 
-without the `mode: 'DOM'` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
+without the `{mode: 'DOM'}` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
 
 In DOM mode, your event callback function will receive a DOM-like Event object instead of the NativeScript `data` object. The original `data` object will be placed at `event.data` in most cases.
 
@@ -338,6 +396,9 @@ Then the following code could work:
 ```
 
 **Note:** Mapped events will always be registered with `{mode: 'DOM'}` for frameworks to pick up the correct info they need.
+
+
+---
 
 
 ## License
