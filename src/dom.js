@@ -118,6 +118,7 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 		const proto = Object.getPrototypeOf(thisArg)
 		if (proto === Object.prototype || !proto) return false
 
+		this.__dominative_onRemoveEventListener(...args)
 		return true
 	},
 	onRemovedEventListener(...args) {
