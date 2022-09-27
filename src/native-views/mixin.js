@@ -18,16 +18,14 @@ const makeView = named(
 		__dominative_onSetTextContent() {}
 		__dominative_onGetTextContent() {}
 
-		__dominative_onAddEventListener(type, handler, options) {
-			super.addEventListener(type, handler, options)
-		}
-		__dominative_onRemoveEventListener(type, handler, options) {
-			super.removeEventListener(type, handler, options)
-		}
+		__dominative_onAddEventListener() {}
+		__dominative_onRemoveEventListener() {}
 
-		__dominative_onAddedEventListener() {}
-		__dominative_onRemovedEventListener(type, handler, options) {
-			return this.__dominative_onRemoveEventListener(type, handler, options)
+		__dominative_onAddedEventListener(...args) {
+			return super.addEventListener(...args)
+		}
+		__dominative_onRemovedEventListener(...args) {
+			return super.removeEventListener(...args)
 		}
 
 		__dominative_onSetAttributeNS(ns, name, value) {

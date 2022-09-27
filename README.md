@@ -156,6 +156,10 @@ Application.run({
 
 Confirmed working, just need a playground
 
+
+---
+
+
 ## Register Elements
 
 ```js
@@ -218,9 +222,9 @@ Share mostly from `Prop`. Differences are listed below:
 
 **Events:**
 
-`itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`.
+`itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`. This event doesn't have `__data` prop.
 
-`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template. This event doesn't have `data` prop.
+`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template. This event doesn't have `__data` prop.
 
 **Note:**
 
@@ -295,8 +299,6 @@ ButtonElement.defineEventOption('tap', {
 })
 ```
 
-**Note:** Only available with `{mode: 'DOM'}`, see [below](#event-handling).
-
 ### Element.mapEvent(fromEvent: string, toEvent: string)
 
 See [below](#hardcoded-events-and-props)
@@ -310,19 +312,6 @@ See [below](#hardcoded-events-and-props)
 
 
 ## Caveats
-
-### Event Handling
-
-Since NativeScript uses `addEventListener` and `removeEventListener` as event handling method names as well as HTML DOM which are causing naming conflicts, we should tell DOMiNATIVE to register event handlers as DOM behavior by adding a third option explicitly:
-
-```js
-element.addEventListener('someEvent', callback, {mode: 'DOM'})
-element.removeEventListener('someEvent', callback, {mode: 'DOM'})
-```
-
-without the `{mode: 'DOM'}` option, DOMiNATIVE will pass the event register operation to the original NativeScript implementation.
-
-In DOM mode, your event callback function will receive a DOM-like Event object instead of the NativeScript `data` object. The original `data` object will be placed at `event.data` in most cases.
 
 ### Hardcoding in Frameworks
 
@@ -383,9 +372,6 @@ Then the following code could work:
 ```jsx
 <button onClick="onTapHandler"></button> // 'onTapHandler' is actually registered to 'tap', since some frameworks hardcoded "possible" event names so they can know it's an event handler
 ```
-
-**Note:** Mapped events will always be registered with `{mode: 'DOM'}` for frameworks to pick up the correct info they need.
-
 
 ---
 

@@ -70,78 +70,70 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
 		this.__dominative_onRemoveAttributeNS(ns, name)
 	},
-	onAddEventListener(type, handler, options) {
+	onAddEventListener() {
+		return false
+	},
+	onAddedEventListener(...args) {
 		if (!this.__dominative_isNative) return
 
-		const domEventType = type
-		type = this.constructor.getEventMap(type) || domEventType
+		let [type, , options] = args
 
-		if (domEventType !== type) {
-			if (!options) options = {}
-			options.mode = 'DOM'
-			if (!silent) console.warn(`[DOMiNATIVE] Event '${domEventType}' is being registered as '${type}' with mode 'DOM' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
+		if (!silent) {
+			const nativeEventType = this.constructor.getEventMap(type)
+			if (type !== nativeEventType) console.warn(`[DOMiNATIVE] Event '${type}' is being registered as '${nativeEventType}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
 		}
 
-		if (options && options.mode === 'DOM') {
-			if (!this.__dominative_eventHandlers[domEventType]) {
-				const nativeHandler =	this.__dominative_eventHandlers[domEventType] = (data) => {
-					if (!silent && (domEventType !== type)) console.warn(`[DOMiNATIVE] Event '${domEventType}' has been redirected to '${type}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
+		if (!this.__dominative_eventHandlers[type]) {
+			const nativeHandler =	(data) => {
+				let target = data.object
+				while (target && !isNode(target)) target = target.parent
+				if (!target) return
 
-					let target = data.object
-					while (target && !isNode(target)) target = target.parent
-					if (!target) return
+				const eventOption = this.constructor.getEventOption(type)
+				const event = new scope.Event(type, eventOption)
 
-					const eventOption = this.constructor.getEventOption(domEventType)
-					const event = new scope.Event(domEventType, eventOption)
+				Object.assign(event, data)
 
-					event.data = data
-					target.dispatchEvent(event)
-				}
-
-				this.__dominative_eventHandlers[domEventType] = nativeHandler
-				this.__dominative_onAddEventListener(type, nativeHandler, options)
+				event.__data = data
+				target.dispatchEvent(event)
 			}
 
-			return false
+			const nativeEventType = this.constructor.getEventMap(type)
+
+			this.__dominative_eventHandlers[type] = nativeHandler
+
+			// Add delegate handler, only once
+			this.__dominative_onAddedEventListener(nativeEventType, nativeHandler, options)
+		}
+	},
+	onRemoveEventListener() {
+		return false
+	},
+	onRemovedEventListener(...args) {
+		if (!this.__dominative_isNative) return
+
+		let [type, , options] = args
+
+		if (!silent) {
+			const nativeEventType = this.constructor.getEventMap(type)
+			if (type !== nativeEventType) console.warn(`[DOMiNATIVE] Event '${type}' is being removed as '${nativeEventType}' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
 		}
 
-		this.__dominative_onAddEventListener(type, handler, options)
-		return true
-	},
-	onAddedEventListener(type, handler, options) {
-		if (!this.__dominative_isNative) return
-		this.__dominative_onAddedEventListener(type, handler, options)
-	},
-	onRemoveEventListener(type, handler, options) {
-		if (!this.__dominative_isNative) return
+		const handler = this.__dominative_eventHandlers[type]
 
-		const domEventType = type
-		type = this.constructor.getEventMap(type) || domEventType
-
-		if (domEventType !== type) {
-			if (!silent) console.warn(`[DOMiNATIVE] Event '${domEventType}' is being removed as '${type}' with mode 'DOM' on '${this.localName}'. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
-			return false
-		}
-
-		this.__dominative_onRemoveEventListener(type, handler, options)
-		return true
-	},
-	onRemovedEventListener(type, handler, options) {
-		if (!this.__dominative_isNative) return
-
-		const domEventType = type
-		type = this.constructor.getEventMap(type) || domEventType
-
-		if (this.__dominative_eventHandlers[domEventType]) {
+		if (handler) {
 			let proceed = true
 
-			if (this.__undom_eventHandlers.capturePhase[domEventType] && this.__undom_eventHandlers.capturePhase[domEventType].size) proceed = false
-			if (this.__undom_eventHandlers.bubblePhase[domEventType] && this.__undom_eventHandlers.bubblePhase[domEventType].size) proceed = false
+			if (this.__undom_eventHandlers.capturePhase[type]) proceed = false
+			if (this.__undom_eventHandlers.bubblePhase[type]) proceed = false
 
 			if (proceed) {
-				handler = this.__dominative_eventHandlers[domEventType]
-				delete this.__dominative_eventHandlers[domEventType]
-				this.__dominative_onRemovedEventListener(type, handler, options)
+				const nativeEventType = this.constructor.getEventMap(type)
+
+				delete this.__dominative_eventHandlers[type]
+
+				// Remove delegate handler when no handler presents
+				this.__dominative_onRemovedEventListener(nativeEventType, handler, options)
 			}
 		}
 	}

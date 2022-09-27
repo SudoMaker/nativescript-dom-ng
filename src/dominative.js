@@ -17,12 +17,12 @@ const makeTweakable = (_) => {
 		constructor(...args) {
 			super(...args)
 			for (let [type, def] of Object.entries(eventOptionDefinition)) {
-				if (def.bubbles || def.captures) this.addEventListener(type, dummyFn, {mode: 'DOM'})
+				if (def.bubbles || def.captures) this.addEventListener(type, dummyFn)
 			}
 		}
 
 		static getEventMap(fromEvent) {
-			return eventMap[fromEvent]
+			return eventMap[fromEvent] || fromEvent
 		}
 
 		static getEventOption(type) {
