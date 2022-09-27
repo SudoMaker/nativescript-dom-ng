@@ -1,4 +1,5 @@
 import { createEnvironment, isNode } from '@utls/undom-ef'
+import { Observable } from '@nativescript/core'
 
 /*
 const NODE_TYPES = {
@@ -70,13 +71,22 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
 		this.__dominative_onRemoveAttributeNS(ns, name)
 	},
-	onAddEventListener() {
-		return false
+	onAddEventListener(...args) {
+		const [,, thisArg] = args
+
+		if (!thisArg) return false
+		if (thisArg === true) return false
+
+		const proto = Object.getPrototypeOf(thisArg)
+		if (proto === Object.prototype || !proto) return false
+
+		this.__dominative_onAddEventListener(...args)
+		return true
 	},
 	onAddedEventListener(...args) {
 		if (!this.__dominative_isNative) return
 
-		let [type, , options] = args
+		let [type] = args
 
 		if (!silent) {
 			const nativeEventType = this.constructor.getEventMap(type)
@@ -85,17 +95,10 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 
 		if (!this.__dominative_eventHandlers[type]) {
 			const nativeHandler =	(data) => {
-				let target = data.object
-				while (target && !isNode(target)) target = target.parent
-				if (!target) return
-
 				const eventOption = this.constructor.getEventOption(type)
-				const event = new scope.Event(type, eventOption)
-
-				Object.assign(event, data)
-
-				event.__data = data
-				target.dispatchEvent(event)
+				data.type = type
+				Object.assign(data, eventOption, scope.Event.prototype)
+				this.dispatchEvent(data)
 			}
 
 			const nativeEventType = this.constructor.getEventMap(type)
@@ -103,16 +106,24 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 			this.__dominative_eventHandlers[type] = nativeHandler
 
 			// Add delegate handler, only once
-			this.__dominative_onAddedEventListener(nativeEventType, nativeHandler, options)
+			this.__dominative_onAddedEventListener(nativeEventType, nativeHandler)
 		}
 	},
-	onRemoveEventListener() {
-		return false
+	onRemoveEventListener(...args) {
+		const [,, thisArg] = args
+
+		if (!thisArg) return false
+		if (thisArg === true) return false
+
+		const proto = Object.getPrototypeOf(thisArg)
+		if (proto === Object.prototype || !proto) return false
+
+		return true
 	},
 	onRemovedEventListener(...args) {
 		if (!this.__dominative_isNative) return
 
-		let [type, , options] = args
+		let [type] = args
 
 		if (!silent) {
 			const nativeEventType = this.constructor.getEventMap(type)
@@ -133,7 +144,7 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 				delete this.__dominative_eventHandlers[type]
 
 				// Remove delegate handler when no handler presents
-				this.__dominative_onRemovedEventListener(nativeEventType, handler, options)
+				this.__dominative_onRemovedEventListener(nativeEventType, handler)
 			}
 		}
 	}

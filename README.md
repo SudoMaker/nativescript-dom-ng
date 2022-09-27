@@ -222,9 +222,9 @@ Share mostly from `Prop`. Differences are listed below:
 
 **Events:**
 
-`itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`. This event doesn't have `__data` prop.
+`itemLoading`: Triggered when patching and template has no content. Set `event.view` to change the view of this item. Additional props on `event`: `view`, `index`, `item`, `data`. This event's callback argument doesn't extend from NativeScript's data object.
 
-`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template. This event doesn't have `__data` prop.
+`createView`: Triggered when creating view from the template and template has no content. Set created view to `event.view`. If not set, view will be created by cloning the template. This event's callback argument doesn't extend from NativeScript's data object.
 
 **Note:**
 
