@@ -140,7 +140,7 @@ Application.run({
 
 **Note:** This demo might have some issues with Chrome. Use Firefox if necessary.
 
-### with [Vue 3](https://vuejs.org/) + runtime-dom
+### with [Vue 3](https://vuejs.org/) + runtime-dom + [DOMiNATIVE-Vue](https://github.com/SudoMaker/DOMiNATIVE-Vue)
 
 [Playground](https://stackblitz.com/edit/nativescript-dominative-vue-3?file=app/App.vue)
 
@@ -159,16 +159,44 @@ registerComponents(app)
 Application.run({
 	create: () => {
 		app.mount(document.documentElement)
-
 		return document
 	}
 })
 
 ```
 
-### with [SolidJS](https://www.solidjs.com/)
+### with [SolidJS](https://www.solidjs.com/) + [DOMiNATIVE-Solid](https://github.com/SudoMaker/DOMiNATIVE-Solid)
 
-Confirmed working, just need a playground
+[Playground](https://stackblitz.com/edit/nativescript-dominative-solid?file=app/Fapp.jsx)
+
+app.jsx
+```jsx
+import { Application } from "@nativescript/core"
+import { render } from "dominative-solid"
+import { createSignal } from "solid-js"
+
+const App = () => {
+	const [count, setCount] = createSignal(0)
+	const increment = () => {
+		setCount(c => c + 1)
+	}
+	return <>
+	<actionbar title="Hello, SolidJS!"></actionbar>
+	<stacklayout>
+		<label>You have taapped {count()} time(s)</label>
+		<button class="-primary" on:tap={increment}>Tap me!</button>
+	</stacklayout>
+	</>
+}
+
+const create = () => {
+	render(App, document.documentElement)
+	return document
+}
+
+Application.run({ create })
+
+```
 
 
 ---
