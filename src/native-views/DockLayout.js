@@ -6,4 +6,4 @@ export const makeDockLayout = named(
 	_ => class DockLayoutElement extends makeLayout(_) {}
 )
 
-export default makeDockLayout()
+export default makeDockLayout.master()

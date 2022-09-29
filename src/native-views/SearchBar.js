@@ -6,4 +6,4 @@ export const makeSearchBar = named(
 	_ => class SearchBarElement extends makeView(_) {}
 )
 
-export default makeSearchBar()
+export default makeSearchBar.master()

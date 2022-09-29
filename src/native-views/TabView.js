@@ -27,4 +27,4 @@ export const makeTabView = named(
 	}
 )
 
-export default makeTabView()
+export default makeTabView.master()

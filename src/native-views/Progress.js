@@ -6,4 +6,4 @@ export const makeProgress = named(
 	_ => class ProgressElement extends makeView(_) {}
 )
 
-export default makeProgress()
+export default makeProgress.master()

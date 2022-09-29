@@ -6,4 +6,4 @@ export const makeWebView = named(
 	_ => class WebViewElement extends makeView(_) {}
 )
 
-export default makeWebView()
+export default makeWebView.master()

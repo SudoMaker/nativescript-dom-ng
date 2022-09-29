@@ -6,4 +6,4 @@ export const makeHtmlView = named(
 	_ => class HtmlViewElement extends makeView(_) {}
 )
 
-export default makeHtmlView()
+export default makeHtmlView.master()

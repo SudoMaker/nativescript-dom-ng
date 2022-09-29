@@ -6,4 +6,4 @@ export const makeTimePicker = named(
 	_ => class TimePickerElement extends makeView(_) {}
 )
 
-export default makeTimePicker()
+export default makeTimePicker.master()

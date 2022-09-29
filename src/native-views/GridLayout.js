@@ -6,4 +6,4 @@ export const makeGridLayout = named(
 	_ => class GridLayoutElement extends makeLayout(_) {}
 )
 
-export default makeGridLayout()
+export default makeGridLayout.master()

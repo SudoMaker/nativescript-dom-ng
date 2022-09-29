@@ -6,4 +6,4 @@ export const makePlaceholder = named(
 	_ => class PlaceholderElement extends makeView(_) {}
 )
 
-export default makePlaceholder()
+export default makePlaceholder.master()

@@ -30,17 +30,15 @@ app.js
 import { Application } from '@nativescript/core'
 import { document } from 'dominative'
 
-const frame = document.createElement('Frame')
-const page = document.createElement('Page')
+const page = document.documentElement
 const actionBar = document.createElement('ActionBar')
 
 actionBar.title = 'Hello World!'
 
 page.appendChild(actionBar)
-frame.appendChild(page)
 
 Application.run({
-	create: () => frame
+	create: () => document
 })
 ```
 
@@ -51,30 +49,29 @@ Application.run({
 App.eft
 
 ```efml
->Frame#root
-	>Page
-		>ActionBar
-			#title = Hello World!
-			>ActionBarItem
-				#text = Button
-		>StackLayout
-			>Label
-				.Welcome to the wonderland of ef.native!
+>ActionBar
+	#title = Hello World!
+	>ActionBarItem
+		#text = Button
+>StackLayout
+	>Label
+		.Welcome to the wonderland of ef.native!
 ```
 
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { domImpl } from 'dominative'
+import { domImpl, document } from 'dominative'
 import { setDOMImpl } from 'ef-core'
 import App from 'App.eft'
 
 setDOMImpl(domImpl)
 
 const app = new App()
+app.$mount({target: document.documentElement})
 
 Application.run({
-	create: () => app.$refs.root
+	create: () => document
 })
 ```
 
@@ -85,35 +82,54 @@ Application.run({
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { document } from 'dominative'
+import { register } from 'dominative'
 import { browser, prop, setGlobalCtx, useTags, useElement, build } from 'singui'
 
-global.document = document
+register(global)
 
 setGlobalCtx(browser())
 
 const tags = useTags(false)
 
-const app = () =>
-	build(() => {
-		const { Frame, Page, ActionBar, NavigationButton, ActionItem, StackLayout, Label, Button } = tags
+const app = (target) =>
+	build(({attach}) => {
+		const { ActionBar, NavigationButton, ActionItem, StackLayout, Label, Button } = tags
 
-		let frameElement = null
-
-		Frame(() => {
-			frameElement = useElement()
-			Page(() => {
-				ActionBar(() => {
-					prop.title = 'Hello World!'
-				})
-			})
+		ActionBar(() => {
+			prop.title = 'Hello World!'
 		})
 
-		return frameElement
+		StackLayout(() => {
+			let count = 0
+			let setText = null
+
+			const updateText = () => {
+				setText(`You have tapped ${count} time${count === 1 && 's' || ''}`)
+			}
+
+			Label(() => {
+				setText = prop.$text
+			})
+
+			Button(() => {
+				prop.text = 'Tap me!'
+				on('tap', () => {
+					count += 1
+					updateText()
+				})
+			})
+
+			updateText()
+		})
+
+		attach(target)
 	})
 
 Application.run({
-	create: () => app(),
+	create: () => {
+		app(document.documentElement)
+		return document
+	},
 })
 
 ```
@@ -142,11 +158,9 @@ registerComponents(app)
 
 Application.run({
 	create: () => {
-		const frame = document.createElement('Frame')
+		app.mount(document.documentElement)
 
-		app.mount(frame)
-
-		return frame
+		return document
 	}
 })
 
@@ -200,9 +214,11 @@ Helper to put it's child/children to it's parent node's property by key
 
 None.
 
-### Template
+### ItemTemplate
 
-A `Template` element holds a template to be replicated later, or can create views programmatically.
+**\* `Template` was renamed to `ItemTemplate` to avoid conflict with HTML `template` tag.**
+
+A `ItemTemplate` element holds a template to be replicated later, or can create views programmatically.
 
 **Attributes:**
 
@@ -210,7 +226,7 @@ Share mostly from `Prop`. Differences are listed below:
 
 `key: String`: **RW** Same form `Prop`, also serves the key name of a `KeyedTemplate`
 
-`type: 'single'`: **R** Should not be able to set `type` on a `Template`.
+`type: 'single'`: **R** Should not be able to set `type` on a `ItemTemplate`.
 
 `value: Function<T extends ViewBase>`: **R** Same as `createView`.
 
@@ -228,23 +244,23 @@ Share mostly from `Prop`. Differences are listed below:
 
 **Note:**
 
-`Template` element could only have one element child. If you'd like to have multiple children in a template, just use a different type of view or layout as the only child and insert your other contents inside.
+`ItemTemplate` element could only have one element child. If you'd like to have multiple children in a template, just use a different type of view or layout as the only child and insert your other contents inside.
 
 ## KeyedTemplates
 
-By simpling putting `Template`s inside an array `Prop` we could set up a KeyedTemplate.
+By simpling putting `ItemTemplate`s inside an array `Prop` we could set up a KeyedTemplate.
 
 Example:
 
 ```html
 <ListView itemTemplateSelector="$item % 2 ? 'odd' : 'even'">
 	<Prop key="itemTemplates" type="array">
-		<Template key="odd">
+		<ItemTemplate key="odd">
 			<Label text="odd"/>
-		</Template>
-		<Template key="even">
+		</ItemTemplate>
+		<ItemTemplate key="even">
 			<Label text="even"/>
-		</Template>
+		</ItemTemplate>
 	</Prop>
 </ListView>
 ```

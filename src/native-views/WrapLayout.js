@@ -6,4 +6,4 @@ export const makeWrapLayout = named(
 	_ => class WrapLayoutElement extends makeLayout(_) {}
 )
 
-export default makeWrapLayout()
+export default makeWrapLayout.master()

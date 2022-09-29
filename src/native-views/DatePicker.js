@@ -6,4 +6,4 @@ export const makeDatePicker = named(
 	_ => class DatePickerElement extends makeView(_) {}
 )
 
-export default makeDatePicker()
+export default makeDatePicker.master()

@@ -7,4 +7,4 @@ export const makeScrollView = named(
 	_ => class ScrollViewElement extends makeContentView(_) {}
 )
 
-export default makeScrollView()
+export default makeScrollView.master()

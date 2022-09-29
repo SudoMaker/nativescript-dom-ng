@@ -1,3 +1,4 @@
+import { makeTweakable } from '../utils.js'
 import {
 	makeView,
 	makeLayout,
@@ -45,6 +46,7 @@ import { makeWebView } from './WebView.js'
 import { makeWrapLayout } from './WrapLayout.js'
 
 export {
+	makeTweakable,
 	makeView,
 	makeLayout,
 	makeText,

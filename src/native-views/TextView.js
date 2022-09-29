@@ -6,4 +6,4 @@ export const makeTextView = named(
 	_ => class TextViewElement extends makeEditableText(_) {}
 )
 
-export default makeTextView()
+export default makeTextView.master()

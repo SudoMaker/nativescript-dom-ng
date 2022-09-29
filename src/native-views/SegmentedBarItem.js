@@ -6,4 +6,4 @@ export const makeSegmentedBarItem = named(
 	_ => class SegmentedBarItemElement extends makeView(_) {}
 )
 
-export default makeSegmentedBarItem()
+export default makeSegmentedBarItem.master()

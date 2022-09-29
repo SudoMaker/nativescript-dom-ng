@@ -1,6 +1,6 @@
 import { ViewBase } from '@nativescript/core'
 import { named } from './mixin.js'
-import { TemplateWrapperView } from '../pseudo-elements/Template.js'
+import { TemplateWrapperView } from '../pseudo-elements/ItemTemplate.js'
 
 export const defaultItemTemplate = () => new TemplateWrapperView()
 
@@ -30,7 +30,7 @@ const handleItemLoading = (self, data) => {
 		return
 	}
 
-	if (self.itemTemplate === defaultItemTemplate && item instanceof ViewBase) {
+	if (self.itemTemplate === defaultItemTemplate && item instanceof ViewBase && !item.__dominative_isPseudoElement) {
 		if (item.parent instanceof TemplateWrapperView) item.parent.content = null
 		wrapper.content = item
 	}

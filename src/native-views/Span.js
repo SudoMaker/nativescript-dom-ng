@@ -6,4 +6,4 @@ export const makeSpan = named(
 	_ => class SpanElement extends makeText(_, {force: true}) {}
 )
 
-export default makeSpan()
+export default makeSpan.master()

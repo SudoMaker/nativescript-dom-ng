@@ -46,4 +46,4 @@ export const makeActionBar = named(
 	}
 )
 
-export default makeActionBar()
+export default makeActionBar.master()

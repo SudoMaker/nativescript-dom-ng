@@ -1,7 +1,7 @@
 import { ContentView } from '@nativescript/core'
 import { isNode, isElement } from '@utls/undom-ef'
 import { PropBase } from './Prop.js'
-import { document } from '../dom.js'
+import { createEvent } from '../dom.js'
 import { reAssignObject } from '../utils.js'
 
 export class TemplateWrapperView extends ContentView {
@@ -64,11 +64,11 @@ const defaultCreateView = (self) => {
 	return hydrate(self.__content, self.__content.cloneNode())
 }
 
-export default class Template extends PropBase {
+export default class ItemTemplate extends PropBase {
 	/* eslint-disable class-methods-use-this */
 	constructor(key) {
 		super(key)
-		this.__dominative_role = 'Template'
+		this.__dominative_role = 'ItemTemplate'
 		this.__value = () => this.createView()
 	}
 
@@ -94,7 +94,7 @@ export default class Template extends PropBase {
 		if (!isNode(view)) return
 		if (this.__content) return hydrate(this.__content, view)
 
-		const event = document.createEvent('itemLoading')
+		const event = createEvent('itemLoading')
 		event.view = view
 		event.index = index
 		event.item = item
@@ -109,7 +109,7 @@ export default class Template extends PropBase {
 
 		if (this.__content) wrapper.content = defaultCreateView(this)
 		else {
-			const event = document.createEvent('createView')
+			const event = createEvent('createView')
 			this.dispatchEvent(event)
 			wrapper.content = event.view || null
 		}

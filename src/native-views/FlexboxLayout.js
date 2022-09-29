@@ -6,4 +6,4 @@ export const makeFlexboxLayout = named(
 	_ => class FlexboxLayoutElement extends makeLayout(_) {}
 )
 
-export default makeFlexboxLayout()
+export default makeFlexboxLayout.master()

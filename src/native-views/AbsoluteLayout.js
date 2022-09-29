@@ -6,4 +6,4 @@ export const makeAbsoluteLayout = named(
 	_ => class AbsoluteLayoutElement extends makeLayout(_) {}
 )
 
-export default makeAbsoluteLayout()
+export default makeAbsoluteLayout.master()

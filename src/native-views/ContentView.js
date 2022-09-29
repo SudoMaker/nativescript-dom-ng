@@ -22,4 +22,4 @@ export const makeContentView = named(
 	}
 )
 
-export default makeContentView()
+export default makeContentView.master()

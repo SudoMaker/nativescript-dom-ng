@@ -6,4 +6,4 @@ export const makeActivityIndicator = named(
 	_ => class ActivityIndicatorElement extends makeView(_) {}
 )
 
-export default makeActivityIndicator()
+export default makeActivityIndicator.master()

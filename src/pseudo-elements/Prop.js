@@ -88,7 +88,7 @@ export class PropBase extends PseudoBase {
 
 export default class Prop extends PropBase {
 	__dominative_onInsertChild(child, ref) {
-		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'Template') &&
+		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'ItemTemplate') &&
 			(!child.__dominative_isNative || (ref && !ref.__dominative_isNative))
 		) return super.__dominative_onInsertChild(child, ref)
 

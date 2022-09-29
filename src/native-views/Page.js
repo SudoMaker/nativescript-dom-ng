@@ -18,4 +18,4 @@ export const makePage = named(
 	}
 )
 
-export default makePage()
+export default makePage.master()

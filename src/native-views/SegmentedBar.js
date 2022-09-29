@@ -27,4 +27,4 @@ export const makeSegmentedBar = named(
 	}
 )
 
-export default makeSegmentedBar()
+export default makeSegmentedBar.master()

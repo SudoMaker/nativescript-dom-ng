@@ -7,4 +7,4 @@ export const makeRootLayout = named(
 	_ => class RootLayoutElement extends makeGridLayout(_) {}
 )
 
-export default makeRootLayout()
+export default makeRootLayout.master()
