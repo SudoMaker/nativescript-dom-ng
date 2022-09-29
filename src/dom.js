@@ -1,5 +1,6 @@
-import { createEnvironment, isNode } from '@utls/undom-ef'
-import { Observable } from '@nativescript/core'
+import { createEnvironment, createEvent } from '@utls/undom-ef'
+import { Frame } from './native-views'
+import { makeTweakable } from './utils.js'
 
 /*
 const NODE_TYPES = {
@@ -17,20 +18,23 @@ const NODE_TYPES = {
 
 const silent = process.env.NODE_ENV === 'production'
 
-const {scope, document, registerElement: registerDOMElement} = createEnvironment({
+const initDocument = (document) => {
+	document.documentElement = document.createElement('Page')
+	document.appendChild(document.documentElement)
+}
+
+const {scope, createDocument, createElement, registerElement: registerDOMElement} = createEnvironment({
 	silent,
-	createBasicElements: false,
+	initDocument,
 	preserveClassNameOnRegister: true,
+	commonAncestors: {
+		Document: makeTweakable(Frame)
+	},
 	onSetData(data) {
 		if (this.nodeType === 8) {
 			if (!silent) console.log('[DOMiNATIVE][DOM COMMENT]', data)
 		} else if (this.nodeType === 3 && this.parentNode && this.parentNode.__dominative_isNative && this.parentNode.__dominative_is_Text) {
 			this.parentNode.__dominative_updateText()
-		}
-	},
-	onCreateNode() {
-		if (this.nodeType === 1 && this.__dominative_isNative) {
-			Object.defineProperty(this, '__dominative_eventHandlers', { value: {} })
 		}
 	},
 	onInsertBefore(child, ref) {
@@ -151,10 +155,4 @@ const {scope, document, registerElement: registerDOMElement} = createEnvironment
 	}
 })
 
-const domImpl = {
-	Node: scope.Node,
-	document,
-	isNode
-}
-
-export { registerDOMElement, domImpl, document, scope }
+export { registerDOMElement, createDocument, createElement, createEvent, scope }

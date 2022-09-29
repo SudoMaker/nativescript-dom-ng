@@ -6,4 +6,4 @@ export const makeTextField = named(
 	_ => class TextFieldElement extends makeEditableText(_) {}
 )
 
-export default makeTextField()
+export default makeTextField.master()

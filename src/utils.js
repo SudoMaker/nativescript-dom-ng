@@ -21,7 +21,20 @@ const named = (name, baseClassName, baseClass, extender) => {
 
 		const extendedClass = extender(_, options)
 		Object.defineProperty(extendedClass.prototype, key, {
+			enumerable: false,
 			value: true
+		})
+
+		return extendedClass
+	}
+
+	maker.master = (...args) => {
+		const extendedClass = maker(...args)
+
+		Object.defineProperty(extendedClass, Symbol.hasInstance, {
+			value(instance) {
+				return instance[key]
+			}
 		})
 
 		return extendedClass
@@ -29,6 +42,67 @@ const named = (name, baseClassName, baseClass, extender) => {
 
 	return maker
 }
+
+const dummyFn = _ => _
+
+const makeTweakable = named(
+	'Tweakable', 'Object', Object,
+	(_) => {
+		const eventMap = {}
+		const eventOptionDefinition = {}
+
+		class Tweakable extends _ {
+			constructor(...args) {
+				super(...args)
+				for (let [type, def] of Object.entries(eventOptionDefinition)) {
+					if (def.bubbles || def.captures) this.addEventListener(type, dummyFn)
+				}
+			}
+
+			static getEventMap(fromEvent) {
+				return eventMap[fromEvent] || fromEvent
+			}
+
+			static getEventOption(type) {
+				return eventOptionDefinition[type]
+			}
+
+			static mapEvent(fromEvent, toEvent) {
+				if (process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] Mapping event '${fromEvent}' to '${toEvent}' on '${_.name}'. Will only affect newly registered event handlers, event handlers already registered will not be affected.
+		Do not rely on event mapping, use '${toEvent}' directly when possible. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
+				eventMap[fromEvent] = toEvent
+			}
+
+			static mapProp(fromProp, toProp) {
+				if (process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] Mapping property '${fromProp}' to '${toProp}' on '${_.name}'. Will affect all existing and future created nodes.
+		Do not rely on property mapping, use '${toProp}' directly when possible. See https://github.com/SudoMaker/DOMiNATIVE#hardcoding-in-frameworks for details.`)
+				Object.defineProperty(this.prototype, fromProp, {
+					enumerable: true,
+					get() {
+						return this[toProp]
+					},
+					set(val) {
+						this[toProp] = val
+					}
+				})
+			}
+
+			static defineEventOption(type, option) {
+
+				/** Event Option:
+				 *	{
+				 *		bubbles: boolean
+				 *		captures: boolean
+				 *		cancelable: boolean
+				 *	}
+				**/
+				eventOptionDefinition[type] = option
+			}
+		}
+
+		return Tweakable
+	}
+)
 
 const resolvePath = (pathStr, base) => {
 	const pathArr = pathStr.split('.')
@@ -78,6 +152,7 @@ const reAssignObject = (target, source) => {
 
 export {
 	named,
+	makeTweakable,
 	resolvePath,
 	addToArrayProp,
 	removeFromArrayProp,

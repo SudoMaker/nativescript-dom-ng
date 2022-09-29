@@ -6,4 +6,4 @@ export const makeStackLayout = named(
 	_ => class StackLayoutElement extends makeLayout(_) {}
 )
 
-export default makeStackLayout()
+export default makeStackLayout.master()

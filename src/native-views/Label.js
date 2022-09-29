@@ -6,4 +6,4 @@ export const makeLabel = named(
 	_ => class LabelElement extends makeText(_) {}
 )
 
-export default makeLabel()
+export default makeLabel.master()

@@ -7,4 +7,4 @@ export const makeNavigationButton = named(
 	_ => class NavigationButtonElement extends makeActionItem(_) {}
 )
 
-export default makeNavigationButton()
+export default makeNavigationButton.master()

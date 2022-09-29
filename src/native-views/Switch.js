@@ -6,4 +6,4 @@ export const makeSwitch = named(
 	_ => class SwitchElement extends makeView(_) {}
 )
 
-export default makeSwitch()
+export default makeSwitch.master()

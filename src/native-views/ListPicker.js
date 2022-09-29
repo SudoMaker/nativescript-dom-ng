@@ -6,4 +6,4 @@ export const makeListPicker = named(
 	_ => class ListPickerElement extends makeView(_) {}
 )
 
-export default makeListPicker()
+export default makeListPicker.master()

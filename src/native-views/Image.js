@@ -6,4 +6,4 @@ export const makeImage = named(
 	_ => class ImageElement extends makeView(_) {}
 )
 
-export default makeImage()
+export default makeImage.master()

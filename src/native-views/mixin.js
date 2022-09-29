@@ -10,6 +10,10 @@ const makeView = named(
 			super(...args)
 			this.__dominative_isNative = true
 			this.__dominative_role = 'View'
+			Object.defineProperty(this, '__dominative_eventHandlers', {
+				enumerable: false,
+				value: {}
+			})
 		}
 
 		__dominative_onInsertChild() {}

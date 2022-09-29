@@ -24,4 +24,4 @@ export const makeActionItem = named(
 	}
 )
 
-export default makeActionItem()
+export default makeActionItem.master()

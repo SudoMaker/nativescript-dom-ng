@@ -6,4 +6,4 @@ export const makeSlider = named(
 	_ => class SliderElement extends makeView(_) {}
 )
 
-export default makeSlider()
+export default makeSlider.master()

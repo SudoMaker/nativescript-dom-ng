@@ -6,4 +6,4 @@ export const makeProxyViewContainer = named(
 	_ => class ProxyViewContainerElement extends makeLayout(_) {}
 )
 
-export default makeProxyViewContainer()
+export default makeProxyViewContainer.master()

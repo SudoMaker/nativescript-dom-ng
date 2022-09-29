@@ -39,4 +39,4 @@ export const makeListView = named(
 	}
 )
 
-export default makeListView()
+export default makeListView.master()

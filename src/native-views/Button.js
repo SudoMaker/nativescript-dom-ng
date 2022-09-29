@@ -6,4 +6,4 @@ export const makeButton = named(
 	_ => class ButtonElement extends makeText(_) {}
 )
 
-export default makeButton()
+export default makeButton.master()

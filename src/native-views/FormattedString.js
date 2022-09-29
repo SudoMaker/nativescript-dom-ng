@@ -27,4 +27,4 @@ export const makeFormattedString = named(
 	}
 )
 
-export default makeFormattedString()
+export default makeFormattedString.master()

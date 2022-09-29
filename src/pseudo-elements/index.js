@@ -1,7 +1,7 @@
 import Prop from './Prop.js'
-import Template from './Template.js'
+import ItemTemplate from './ItemTemplate.js'
 
 export {
 	Prop,
-	Template
+	ItemTemplate
 }

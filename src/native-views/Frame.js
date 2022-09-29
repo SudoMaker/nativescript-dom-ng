@@ -26,4 +26,4 @@ export const makeFrame = named(
 	}
 )
 
-export default makeFrame()
+export default makeFrame.master()
