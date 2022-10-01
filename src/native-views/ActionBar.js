@@ -1,5 +1,5 @@
 import { ActionBar, ActionItem, NavigationButton } from '@nativescript/core'
-import { isNode } from '@utls/undom-ef'
+import { isNode } from 'undom-ng'
 import { named, makeView } from './mixin.js'
 
 export const makeActionBar = named(
