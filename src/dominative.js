@@ -3,7 +3,7 @@ import * as makers from './native-views/makers.js'
 import * as pseudoElements from './pseudo-elements/index.js'
 import { createDocument, registerDOMElement, scope } from './dom.js'
 import { makeTweakable } from './utils.js'
-import { isNode } from '@utls/undom-ef'
+import { isNode } from 'undom-ng'
 
 const registerElement = (key, val) => registerDOMElement(key, makeTweakable(makers.makeView(val)))
 const aliasTagName = (nameHandler) => {

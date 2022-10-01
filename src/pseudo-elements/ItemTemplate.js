@@ -1,5 +1,5 @@
 import { ContentView } from '@nativescript/core'
-import { isNode, isElement } from '@utls/undom-ef'
+import { isNode, isElement } from 'undom-ng'
 import { PropBase } from './Prop.js'
 import { createEvent } from '../dom.js'
 import { reAssignObject } from '../utils.js'

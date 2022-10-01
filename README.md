@@ -13,9 +13,9 @@
 
 Via npm:
 
-`npm install dominative @utls/undom-ef`
+`npm install dominative undom-ng`
 
-**Note:** `undom-ef` is now a peer dependency, you have to install it manually.
+**Note:** `undom-ng` is a peer dependency, you have to install it manually.
 
 
 ---
@@ -173,6 +173,19 @@ Confirmed working, just need a playground
 
 ---
 
+## Prepare global environment
+
+Automatically register `document`, `window` and related variables globally:
+
+```js
+import { register } from 'dominative'
+
+register(global)
+```
+
+
+---
+
 
 ## Register Elements
 
@@ -218,7 +231,7 @@ None.
 
 **\* `Template` was renamed to `ItemTemplate` to avoid conflict with HTML `template` tag.**
 
-A `ItemTemplate` element holds a template to be replicated later, or can create views programmatically.
+An `ItemTemplate` element holds a template to be replicated later, or can create views programmatically.
 
 **Attributes:**
 
@@ -291,7 +304,9 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 ## Tweaking
 
-### Element.defineEventOption(eventName: string, option: EventOption)
+All elements added with `registerElement` is automatically extended with tweaking ability.
+
+### Tweakable.defineEventOption(eventName: string, option: EventOption)
 
 Define how a event should be initialized. If an event is defined with `bubbles: true` or `captures: true`, they'll automatically be registered to native at element creation.
 
@@ -315,11 +330,11 @@ ButtonElement.defineEventOption('tap', {
 })
 ```
 
-### Element.mapEvent(fromEvent: string, toEvent: string)
+### Tweakable.mapEvent(fromEvent: string, toEvent: string)
 
 See [below](#hardcoded-events-and-props)
 
-### Element.mapProp(fromProp: string, toProp: string)
+### Tweakable.mapProp(fromProp: string, toProp: string)
 
 See [below](#hardcoded-events-and-props)
 

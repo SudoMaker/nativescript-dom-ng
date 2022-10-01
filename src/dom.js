@@ -1,4 +1,4 @@
-import { createEnvironment, createEvent } from '@utls/undom-ef'
+import { createEnvironment, createEvent } from 'undom-ng'
 import { Frame } from './native-views'
 import { makeTweakable } from './utils.js'
 
