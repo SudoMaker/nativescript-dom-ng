@@ -27,7 +27,8 @@ const domImpl = {
 	isNode
 }
 
-const register = (_global = this) => {
+// eslint-disable-next-line no-undef
+const register = (_global = globalThis) => {
 	if (!_global.window) _global.window = _global
 	if (!_global.document) _global.document = document
 	Object.assign(_global, scope)
