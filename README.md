@@ -82,12 +82,10 @@ Application.run({
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { register } from 'dominative'
+import { document } from 'dominative'
 import { browser, prop, setGlobalCtx, useTags, useElement, build } from 'singui'
 
-register(global)
-
-setGlobalCtx(browser())
+setGlobalCtx(browser(document))
 
 const tags = useTags(false)
 
@@ -101,14 +99,11 @@ const app = (target) =>
 
 		StackLayout(() => {
 			let count = 0
-			let setText = null
 
-			const updateText = () => {
-				setText(`You have tapped ${count} time${count === 1 && 's' || ''}`)
-			}
-
-			Label(() => {
-				setText = prop.$text
+			const {ret: updateText} = Label(() => {
+        return text().$textContent(
+          () => `You have tapped ${count} time${count === 1 ? '' : 's'}`
+        )
 			})
 
 			Button(() => {
@@ -196,6 +191,19 @@ const create = () => {
 
 Application.run({ create })
 
+```
+
+
+---
+
+## Prepare global environment
+
+Automatically register `document`, `window` and related variables globally:
+
+```js
+import { register } from 'dominative'
+
+register(global)
 ```
 
 
