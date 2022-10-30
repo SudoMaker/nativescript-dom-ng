@@ -88,11 +88,11 @@ const makeLayout = named(
 		}
 
 		__dominative_onRemoveChild(child) {
-			if (!child.__dominative_isNative) return
+			if (!(child instanceof ViewBase)) return
 
 			super.removeChild(child)
 
-			super.__dominative_onRemoveChild(child)
+			if (child.__dominative_isNative) super.__dominative_onRemoveChild(child)
 		}
 	}
 )
