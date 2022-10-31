@@ -7,6 +7,7 @@ export const makeContentView = named(
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
+			if (this.content && this.content.__dominative_isNative) this.content.remove()
 			this.content = child
 
 			super.__dominative_onInsertChild(child, ref)
