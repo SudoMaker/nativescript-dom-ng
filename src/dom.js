@@ -1,5 +1,5 @@
 import { createEnvironment, createEvent } from 'undom-ng'
-import { Frame } from './native-views'
+import { ContentView } from './native-views'
 import { makeTweakable } from './utils.js'
 
 /*
@@ -18,9 +18,21 @@ const NODE_TYPES = {
 
 const silent = process.env.NODE_ENV === 'production'
 
+class Document extends makeTweakable(ContentView) {
+	get documentElement() {
+		return this.content
+	}
+}
+
 const initDocument = (document) => {
-	document.documentElement = document.createElement('Page')
-	document.appendChild(document.documentElement)
+	const documentElement = document.createElement('Frame')
+	const body = document.createElement('Page')
+
+	body.actionBarHidden = true
+	documentElement.appendChild(body)
+
+	document.appendChild(documentElement)
+	document.body = body
 }
 
 const {scope, createDocument, createElement, registerElement: registerDOMElement} = createEnvironment({
@@ -28,7 +40,7 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 	initDocument,
 	preserveClassNameOnRegister: true,
 	commonAncestors: {
-		Document: makeTweakable(Frame)
+		Document
 	},
 	onSetData(data) {
 		if (this.nodeType === 8) {
