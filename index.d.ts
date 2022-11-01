@@ -2787,17 +2787,18 @@ declare module "dominative" {
 		isNode(node: any): boolean;
 	};
 	export function createDocument(): Document;
+	export function registerElement(name: string, element: HTMLElement): HTMLElement;
 	export function registerDOMElement(
 		name: string,
-		element: Element,
+		element: HTMLElement,
 		isSvg: boolean
-	): Element;
+	): HTMLElement;
 	export function register(global: any): void;
 	export function isElement(element: any): boolean;
 	export function createEvent(type: string): Event;
 	export function defaultDocumentInit(document: Document): void;
 	export function updateAttributeNS(
-		self: Element,
+		self: HTMLElement,
 		namespace: string,
 		type: string,
 		value: any
@@ -2854,7 +2855,58 @@ declare module "dominative" {
 	export const nativeViews: Omit<
 		HTMLElementTagNameMap,
 		"Prop" | "ItemTemplate"
-		>;
-	
-	
+	>;
+
+	export const makers: {
+		makeTweakable(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeText(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeEditableText(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeAbsoluteLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeActionBar(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeActionItem(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeActivityIndicator(
+			view: NativeViews.ViewBase,
+			options: any
+		): HTMLElement;
+		makeButton(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeContentView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeDatePicker(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeDockLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeFlexboxLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeFormattedString(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeFrame(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeGridLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeHtmlView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeImage(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeLabel(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeListPicker(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeListView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeNavigationButton(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makePage(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makePlaceholder(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeProgress(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeProxyViewContainer(
+			view: NativeViews.ViewBase,
+			options: any
+		): HTMLElement;
+		makeRootLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeScrollView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSearchBar(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSegmentedBar(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSegmentedBarItem(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSlider(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSpan(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeStackLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeSwitch(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTabView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTabViewItem(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTemplateReceiver(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTextField(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTextView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeTimePicker(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeWebView(view: NativeViews.ViewBase, options: any): HTMLElement;
+		makeWrapLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
+	};
 }
