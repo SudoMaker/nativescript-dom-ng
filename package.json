@@ -4,6 +4,7 @@
   "version": "0.0.6-alpha.1",
   "description": "Minimally viable DOM Document implementation for NativeScript.",
   "main": "src/dominative.js",
+  "types": "index.d.ts",
   "scripts": {},
   "keywords": [
     "dom",
