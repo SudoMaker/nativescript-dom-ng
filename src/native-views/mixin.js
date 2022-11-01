@@ -74,16 +74,6 @@ const makeLayout = named(
 			this.__dominative_role = 'Layout'
 		}
 
-		addChild(child) {
-			if (child.__dominative_isNative) return this.appendChild(child)
-			return super.addChild(child)
-		}
-
-		insertChild(child, refIndex) {
-			if (child.__dominative_isNative) return this.insertBefore(child, this.getChildAt(refIndex))
-			return super.insertChild(child, refIndex)
-		}
-
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return
 
