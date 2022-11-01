@@ -1,16 +1,17 @@
 {
-    "compilerOptions": {
-      "module": "esnext",
-      "target": "es2017",
-      "moduleResolution": "node",
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "resolveJsonModule": true,
-      "noEmitHelpers": true,
-      "noEmitOnError": true,
-      "skipLibCheck": true,
-      "lib": ["es2017", "dom"],
-      "baseUrl": ".",
-    },
-    "exclude": ["node_modules"]
-  }
+	"compilerOptions": {
+		"module": "esnext",
+		"target": "es2017",
+		"moduleResolution": "node",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"resolveJsonModule": true,
+		"noEmitHelpers": false,
+		"noEmitOnError": false,
+		"skipLibCheck": false,
+		"allowJs": true,
+		"lib": ["es2017"],
+		"baseUrl": "."
+	},
+	"exclude": ["node_modules"]
+}

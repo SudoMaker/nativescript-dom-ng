@@ -1,29 +1,80 @@
-Element;
+import * as NativeViews from "@nativescript/core";
+import { Style } from "@nativescript/core";
+
 declare module "dominative" {
-	import {
-		Page as NSPage,
-		Frame as NSFrame,
-		ViewBase,
-	} from "@nativescript/core";
-
-	export function isNode(node: any): boolean;
-	export function isElement(element: any): boolean;
-	export function createEvent(type: string): Event;
-	export function defaultDocumentInit(document: Document): void;
-	export function updateAttributeNS(
-		self: Element,
-		namespace: string,
-		type: string,
-		value: any
-	);
-
-	export interface NSElementTagNameMap {
-		Frame: Frame;
-		Page: Page;
+	interface ElementCreationOptions {
+		is?: string;
 	}
 
-	export interface Node {
-		constructor(public nodeType: number, public nodeName: string);
+	interface EventListener {
+		(evt: Event): void;
+	}
+
+	interface EventListenerObject {
+		handleEvent(object: Event): void;
+	}
+
+	type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
+
+	interface AddEventListenerOptions extends EventListenerOptions {
+		once?: boolean;
+		passive?: boolean;
+		//signal?: AbortSignal;
+	}
+
+	interface EventListenerOptions {
+		capture?: boolean;
+	}
+
+	type DOMHighResTimeStamp = number;
+
+	export interface Event {
+		/** Returns true or false depending on how event was initialized. True if event goes through its target's ancestors in reverse tree order, and false otherwise. */
+		readonly bubbles: boolean;
+		/** @deprecated */
+		cancelBubble: boolean;
+		/** Returns true or false depending on how event was initialized. Its return value does not always carry meaning, but true can indicate that part of the operation during which event was dispatched, can be canceled by invoking the preventDefault() method. */
+		readonly cancelable: boolean;
+		/** Returns true or false depending on how event was initialized. True if event invokes listeners past a ShadowRoot node that is the root of its target, and false otherwise. */
+		readonly composed: boolean;
+		/** Returns the object whose event listener's callback is currently being invoked. */
+		readonly currentTarget: EventTarget | null;
+		/** Returns true if preventDefault() was invoked successfully to indicate cancelation, and false otherwise. */
+		readonly defaultPrevented: boolean;
+		/** Returns the event's phase, which is one of NONE, CAPTURING_PHASE, AT_TARGET, and BUBBLING_PHASE. */
+		readonly eventPhase: number;
+		/** Returns true if event was dispatched by the user agent, and false otherwise. */
+		readonly isTrusted: boolean;
+		/** @deprecated */
+		returnValue: boolean;
+		/** @deprecated */
+		readonly srcElement: EventTarget | null;
+		/** Returns the object to which event is dispatched (its target). */
+		readonly target: EventTarget | null;
+		/** Returns the event's timestamp as the number of milliseconds measured relative to the time origin. */
+		readonly timeStamp: DOMHighResTimeStamp;
+		/** Returns the type of event, e.g. "click", "hashchange", or "submit". */
+		readonly type: string;
+		/** Returns the invocation target objects of event's path (objects on which listeners will be invoked), except for any nodes in shadow trees of which the shadow root's mode is "closed" that are not reachable from event's currentTarget. */
+		composedPath(): EventTarget[];
+		/** @deprecated */
+		initEvent(type: string, bubbles?: boolean, cancelable?: boolean): void;
+		/** If invoked when the cancelable attribute value is true, and while executing a listener for the event with passive set to false, signals to the operation that caused event to be dispatched that it needs to be canceled. */
+		preventDefault(): void;
+		/** Invoking this method prevents event from reaching any registered event listeners after the current one finishes running and, when dispatched in a tree, also prevents event from reaching any other objects. */
+		stopImmediatePropagation(): void;
+		/** When dispatched in a tree, invoking this method prevents event from reaching any objects other than the current object. */
+		stopPropagation(): void;
+		readonly AT_TARGET: number;
+		readonly BUBBLING_PHASE: number;
+		readonly CAPTURING_PHASE: number;
+		readonly NONE: number;
+	}
+
+	export class Node extends NativeViews.ViewBase {
+		constructor(nodeType: number, nodeName: string);
+		readonly nodeType: number;
+		readonly nodeName: string;
 		readonly tagName: string;
 		parentNode: ParentNode;
 		get nextSibling(): Node;
@@ -38,10 +89,11 @@ declare module "dominative" {
 		remove(): void;
 	}
 
+	//@ts-ignore
 	export interface Text extends Node {
 		constructor(text: string);
 		set textContent(value: string);
-		get textContent(value: string);
+		get textContent(): string;
 	}
 
 	export interface EventTarget {
@@ -75,17 +127,18 @@ declare module "dominative" {
 		): void;
 	}
 
-	export interface Element extends Node, EventTarget, ParentNode {
+	export class Element extends ParentNode implements EventTarget {
 		attributes: { namespace: string; name: string }[];
-		style: any;
+		style: Style;
 		localName: string;
+		//@ts-ignore
 		get className(): string;
 
 		set className(val: string);
 
 		get cssText(): string;
 		set cssText(val: string);
-
+		//@ts-ignore
 		get children(): Element[];
 
 		namespaceURI(): string;
@@ -96,13 +149,13 @@ declare module "dominative" {
 
 		get outerHTML(): string;
 
-		set outerHTML(): string;
+		set outerHTML(value: string);
 
 		get textContent(): string;
 
 		set textContent(value: string);
 
-		insertBefore(child: Node, ref: Node);
+		insertBefore(child: Node, ref: Node): Node;
 
 		setAttribute(qualifiedName: string, value: string): void;
 		getAttribute(qualifiedName: string): string | null;
@@ -118,6 +171,18 @@ declare module "dominative" {
 		): void;
 		/** Returns element's attribute whose namespace is namespace and local name is localName, and null if there is no such attribute otherwise. */
 		getAttributeNS(namespace: string | null, localName: string): string | null;
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		dispatchEvent(event: Event): boolean;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
 	}
 
 	export interface CharacterData extends Node {
@@ -136,16 +201,16 @@ declare module "dominative" {
 	}
 
 	export interface Comment extends CharacterData {
-		constructor(data: string);
+		constructor(data: string): void;
 	}
 
-	export interface ParentNode extends Node {
+	export class ParentNode extends Node {
 		childElementCount: number;
 		get firstElementChild(): Node;
 		get lastElementChild(): Node;
 		get children(): Node[];
 		get childNodes(): Node;
-		append(...nodes: Node[]);
+		append(...nodes: Node[]): void;
 		insertBefore(child: Node, ref: Node): Node;
 		replaceChild(child: Node, ref: Node): Node;
 		appendChild(child: Node): Node;
@@ -153,12 +218,6 @@ declare module "dominative" {
 		set textContent(value: string);
 		removeChild(child: Node): Node;
 	}
-
-	export interface DocumentFragment extends ParentNode {}
-
-	export interface SVGElement extends Element {}
-
-	export interface HTMLElement extends Element {}
 
 	export interface Scope {
 		Event: Event;
@@ -174,11 +233,13 @@ declare module "dominative" {
 		Document: Document;
 	}
 
+	export const scope: Scope;
+
 	export interface Document extends Element {
-		createElement<K extends keyof NSElementTagNameMap>(
+		createElement<K extends keyof HTMLElementTagNameMap>(
 			tagName: K,
 			options?: ElementCreationOptions
-		): NSElementTagNameMap[K];
+		): HTMLElementTagNameMap[K];
 		createElementNS(
 			namespace: string | null,
 			qualifiedName: string,
@@ -191,6 +252,2609 @@ declare module "dominative" {
 		get defaultView(): Scope;
 	}
 
-	export class Frame extends NSFrame implements Element {}
-	export class Page extends NSPage implements Element {}
+	export class DocumentFragment extends ParentNode {}
+
+	export class SVGElement extends Element {}
+
+	export class HTMLElement extends Element {}
+
+	export class Prop extends HTMLElement {
+		constructor(key: string, type: string);
+		get key(): string;
+		set key(key: string);
+		get class(): string;
+		set class(value: string);
+		get type(): string;
+		set type(type: string);
+		get value(): any;
+		set value(value: any);
+		//@ts-ignore
+		get parent(): ParentNode;
+	}
+
+	export class ItemTemplate extends Prop {
+		get content(): any;
+		set content(value: any);
+		patch(data: {
+			view: HTMLElement;
+			index: number;
+			item: any;
+			data: any;
+		}): HTMLElement;
+		createView(): HTMLElement;
+	}
+
+	export class Frame extends NativeViews.Frame implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Page extends NativeViews.Page implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class AbsoluteLayout
+		extends NativeViews.AbsoluteLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ActionBar extends NativeViews.ActionBar implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ActionItem
+		extends NativeViews.ActionItem
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ActivityIndicator
+		extends NativeViews.ActivityIndicator
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Button extends NativeViews.Button implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ContentView
+		extends NativeViews.ContentView
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class DatePicker
+		extends NativeViews.DatePicker
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class DockLayout
+		extends NativeViews.DockLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class FlexboxLayout
+		extends NativeViews.FlexboxLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class FormattedString
+		extends NativeViews.FormattedString
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class GridLayout
+		extends NativeViews.GridLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class HtmlView extends NativeViews.HtmlView implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Image extends NativeViews.Image implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Label extends NativeViews.Label implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ListPicker
+		extends NativeViews.ListPicker
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ListView extends NativeViews.ListView implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class NavigationButton
+		extends NativeViews.NavigationButton
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Placeholder
+		extends NativeViews.Placeholder
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Progress extends NativeViews.Progress implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ProxyViewContainer
+		extends NativeViews.ProxyViewContainer
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class RootLayout
+		extends NativeViews.RootLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class ScrollView
+		extends NativeViews.ScrollView
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class SearchBar extends NativeViews.SearchBar implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class SegmentedBar
+		extends NativeViews.SegmentedBar
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class SegmentedBarItem
+		extends NativeViews.SegmentedBarItem
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Slider extends NativeViews.Slider implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Span extends NativeViews.Span implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class StackLayout
+		extends NativeViews.StackLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class Switch extends NativeViews.Switch implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class TabView extends NativeViews.TabView implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class TabViewItem
+		extends NativeViews.TabViewItem
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class TextField extends NativeViews.TextField implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class TextView extends NativeViews.TextView implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class TimePicker
+		extends NativeViews.TimePicker
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class WebView extends NativeViews.WebView implements HTMLElement {
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export class WrapLayout
+		extends NativeViews.WrapLayout
+		implements HTMLElement
+	{
+		style: Style;
+		//@ts-ignore
+		get className(): string;
+		set className(val: string);
+		//@ts-ignore
+		addEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: string,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+		//@ts-ignore
+		parentNode: ParentNode;
+		attributes: { namespace: string; name: string }[];
+		localName: string;
+		get cssText(): string;
+		set cssText(val: string);
+		get children(): Element[];
+		namespaceURI(): string;
+		get innerHTML(): string;
+		set innerHTML(value: string);
+		get outerHTML(): string;
+		set outerHTML(value: string);
+		get textContent(): string;
+		set textContent(value: string);
+		insertBefore(child: Node, ref: Node): Node;
+		setAttribute(qualifiedName: string, value: string): void;
+		getAttribute(qualifiedName: string): string;
+		removeAttribute(qualifiedName: string): void;
+		removeAttributeNS(namespace: string, localName: string): void;
+		setAttributeNS(
+			namespace: string,
+			qualifiedName: string,
+			value: string
+		): void;
+		getAttributeNS(namespace: string, localName: string): string;
+		dispatchEvent(event: Event): boolean;
+		childElementCount: number;
+		get firstElementChild(): Node;
+		get lastElementChild(): Node;
+		get childNodes(): Node;
+		append(...nodes: Node[]): void;
+		replaceChild(child: Node, ref: Node): Node;
+		appendChild(child: Node): Node;
+		//@ts-ignore
+		removeChild(child: Node): Node;
+		nodeType: number;
+		nodeName: string;
+		tagName: string;
+		get nextSibling(): Node;
+		get previousSibling(): Node;
+		get firstChild(): Node;
+		get lastChild(): Node;
+		hasChildNodes(): boolean;
+		replaceWith(...nodes: Node[]): void;
+		cloneNode(deep: boolean): Node;
+		remove(): void;
+	}
+
+	export const document: Document;
+
+	export function aliasTagName(nameHnadler: (tag: string) => string): void;
+	export function isNode(node: any): boolean;
+	export const domImpl: {
+		Node: Node;
+		document: Document;
+		isNode(node: any): boolean;
+	};
+	export function createDocument(): Document;
+	export function registerDOMElement(
+		name: string,
+		element: Element,
+		isSvg: boolean
+	): Element;
+	export function register(global: any): void;
+	export function isElement(element: any): boolean;
+	export function createEvent(type: string): Event;
+	export function defaultDocumentInit(document: Document): void;
+	export function updateAttributeNS(
+		self: Element,
+		namespace: string,
+		type: string,
+		value: any
+	): void;
+
+	interface HTMLElementTagNameMap {
+		Frame: Frame;
+		Page: Page;
+		Prop: Prop;
+		ItemTemplate: ItemTemplate;
+		AbsoluteLayout: AbsoluteLayout;
+		ActionBar: ActionBar;
+		ActionItem: ActionItem;
+		ActivityIndicator: ActivityIndicator;
+		Button: Button;
+		ContentView: ContentView;
+		DatePicker: DatePicker;
+		DockLayout: DockLayout;
+		FlexboxLayout: FlexboxLayout;
+		FormattedString: FormattedString;
+		GridLayout: GridLayout;
+		HtmlView: HtmlView;
+		Image: Image;
+		Label: Label;
+		ListPicker: ListPicker;
+		ListView: ListView;
+		NavigationButton: NavigationButton;
+		Placeholder: Placeholder;
+		Progress: Progress;
+		ProxyViewContainer: ProxyViewContainer;
+		RootLayout: RootLayout;
+		ScrollView: ScrollView;
+		SearchBar: SearchBar;
+		SegmentedBar: SegmentedBar;
+		SegmentedBarItem: SegmentedBarItem;
+		Slider: Slider;
+		Span: Span;
+		StackLayout: StackLayout;
+		Switch: Switch;
+		TabView: TabView;
+		TabViewItem: TabViewItem;
+		TextField: TextField;
+		TextView: TextView;
+		TimePicker: TimePicker;
+		WebView: WebView;
+		WrapLayout: WrapLayout;
+	}
+
+	export const pseudoElements: {
+		Prop: Prop;
+		ItemTemplate: ItemTemplate;
+	};
+
+	export const nativeViews: Omit<
+		HTMLElementTagNameMap,
+		"Prop" | "ItemTemplate"
+		>;
+	
+	
 }
