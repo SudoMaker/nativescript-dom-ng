@@ -235,7 +235,7 @@ declare module "dominative" {
 
 	export const scope: Scope;
 
-	export interface Document extends Element {
+	export class Document extends Element {
 		createElement<K extends keyof HTMLElementTagNameMap>(
 			tagName: K,
 			//options?: ElementCreationOptions
@@ -2913,3 +2913,5 @@ declare module "dominative" {
 		makeWrapLayout(view: NativeViews.ViewBase, options: any): HTMLElement;
 	};
 }
+
+export {}
