@@ -238,12 +238,12 @@ declare module "dominative" {
 	export interface Document extends Element {
 		createElement<K extends keyof HTMLElementTagNameMap>(
 			tagName: K,
-			options?: ElementCreationOptions
+			//options?: ElementCreationOptions
 		): HTMLElementTagNameMap[K];
 		createElementNS(
 			namespace: string | null,
 			qualifiedName: string,
-			options?: ElementCreationOptions
+			//options?: ElementCreationOptions
 		): Element;
 		createTextNode(text: string): Text;
 		createDocumentFragment(): DocumentFragment;
@@ -2777,6 +2777,7 @@ declare module "dominative" {
 		remove(): void;
 	}
 
+
 	export const document: Document;
 
 	export function aliasTagName(nameHnadler: (tag: string) => string): void;
@@ -2803,6 +2804,8 @@ declare module "dominative" {
 		type: string,
 		value: any
 	): void;
+
+
 
 	interface HTMLElementTagNameMap {
 		Frame: Frame;
