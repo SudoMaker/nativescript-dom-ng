@@ -7,6 +7,7 @@ import {
 	ContentView,
 	DatePicker,
 	DockLayout,
+	EditableTextBase,
 	FlexboxLayout,
 	FormattedString,
 	Frame,
@@ -14,6 +15,7 @@ import {
 	HtmlView,
 	Image,
 	Label,
+	LayoutBase,
 	ListPicker,
 	ListView,
 	NavigationButton,
@@ -33,6 +35,7 @@ import {
 	Switch,
 	TabView,
 	TabViewItem,
+	TextBase,
 	TextField,
 	TextView,
 	TimePicker,
@@ -73,6 +76,8 @@ declare module "dominative" {
 		readonly bubbles: boolean;
 		/** Returns true or false depending on how event was initialized. Its return value does not always carry meaning, but true can indicate that part of the operation during which event was dispatched, can be canceled by invoking the preventDefault() method. */
 		readonly cancelable: boolean;
+		/** Returns the object who triggeres the event. */
+		readonly target: EventTarget | null;
 		/** Returns the object whose event listener's callback is currently being invoked. */
 		readonly currentTarget: EventTarget | null;
 		/** Returns true if preventDefault() was invoked successfully to indicate cancelation, and false otherwise. */
@@ -104,13 +109,6 @@ declare module "dominative" {
 		replaceWith(...nodes: Node[]): void;
 		cloneNode(deep: boolean): Node;
 		remove(): void;
-	}
-
-	//@ts-ignore
-	export interface Text extends Node {
-		constructor(text: string);
-		set textContent(value: string);
-		get textContent(): string;
 	}
 
 	export interface EventTarget {
@@ -221,6 +219,13 @@ declare module "dominative" {
 		constructor(data: string): void;
 	}
 
+	//@ts-ignore
+	export interface Text extends Node {
+		constructor(text: string);
+		set textContent(value: string);
+		get textContent(): string;
+	}
+
 	export class ParentNode extends Node {
 		childElementCount: number;
 		get firstElementChild(): Node;
@@ -252,7 +257,15 @@ declare module "dominative" {
 
 	export const scope: Scope;
 
-	export class Document extends Element {
+	export class DocumentFragment extends ParentNode {}
+
+	export class SVGElement extends Element {}
+
+	export class HTMLElement<T = ViewBase> extends Element {
+		style: Style;
+	}
+
+	class _Document<T> extends ParentNode {
 		createElement<K extends keyof HTMLElementTagNameMap>(
 			tagName: K
 		): //options?: ElementCreationOptions
@@ -269,12 +282,22 @@ declare module "dominative" {
 		get defaultView(): Scope;
 	}
 
-	export class DocumentFragment extends ParentNode {}
+	export type Document = _Document<Tweakable<DominativeExtended<ContentView>>>
 
-	export class SVGElement extends Element {}
+	export class DominativeExtended<T = ViewBase> {}
 
-	export class HTMLElement<T = ViewBase> extends Element {
-		style: Style;
+	export interface EventOption {
+		bubbles: boolean
+		captures: boolean
+		cancelable: boolean
+	}
+
+	export class Tweakable<T = Object> {
+		static getEventMap(fromEvent: string);
+		static getEventOption(type: string);
+		static mapEvent(fromEvent: string, toEvent: string);
+		static mapProp(fromProp: string, toProp: string);
+		static defineEventOption(type: string, option: EventOption);
 	}
 
 	export class Prop extends HTMLElement {
@@ -306,7 +329,6 @@ declare module "dominative" {
 	export const document: Document;
 
 	export function aliasTagName(nameHnadler: (tag: string) => string): void;
-	export function isNode(node: any): boolean;
 	export const domImpl: {
 		Node: Node;
 		document: Document;
@@ -315,23 +337,14 @@ declare module "dominative" {
 	export function createDocument(): Document;
 	export function registerElement(
 		name: string,
-		element: HTMLElement
+		element: ViewBase
 	): HTMLElement;
 	export function registerDOMElement(
 		name: string,
-		element: HTMLElement,
-		isSvg: boolean
+		element?: any,
+		isSvg?: boolean
 	): HTMLElement;
 	export function register(global: any): void;
-	export function isElement(element: any): boolean;
-	export function createEvent(type: string): Event;
-	export function defaultDocumentInit(document: Document): void;
-	export function updateAttributeNS(
-		self: HTMLElement,
-		namespace: string,
-		type: string,
-		value: any
-	): void;
 
 	interface NSComponentsMap {
 		Frame: Frame;
@@ -376,8 +389,16 @@ declare module "dominative" {
 		WrapLayout: WrapLayout;
 	}
 
+	type DominativeExtendedMap = {
+		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>
+	}
+
+	type TweakableMap = {
+		[K in keyof DominativeExtendedMap]: Tweakable<DominativeExtendedMap[K]>
+	}
+
 	type HTMLElementTagNameMap = {
-		[K in keyof NSComponentsMap]: HTMLElement<NSComponentsMap[K]>;
+		[K in keyof NSComponentsMap]: HTMLElement<TweakableMap[K]>;
 	};
 
 	export const pseudoElements: {
@@ -391,50 +412,49 @@ declare module "dominative" {
 	>;
 
 	export const makers: {
-		makeTweakable(view: ViewBase, options: any): HTMLElement;
-		makeView(view: ViewBase, options: any): HTMLElement;
-		makeLayout(view: ViewBase, options: any): HTMLElement;
-		makeText(view: ViewBase, options: any): HTMLElement;
-		makeEditableText(view: ViewBase, options: any): HTMLElement;
-		makeAbsoluteLayout(view: ViewBase, options: any): HTMLElement;
-		makeActionBar(view: ViewBase, options: any): HTMLElement;
-		makeActionItem(view: ViewBase, options: any): HTMLElement;
-		makeActivityIndicator(view: ViewBase, options: any): HTMLElement;
-		makeButton(view: ViewBase, options: any): HTMLElement;
-		makeContentView(view: ViewBase, options: any): HTMLElement;
-		makeDatePicker(view: ViewBase, options: any): HTMLElement;
-		makeDockLayout(view: ViewBase, options: any): HTMLElement;
-		makeFlexboxLayout(view: ViewBase, options: any): HTMLElement;
-		makeFormattedString(view: ViewBase, options: any): HTMLElement;
-		makeFrame(view: ViewBase, options: any): HTMLElement;
-		makeGridLayout(view: ViewBase, options: any): HTMLElement;
-		makeHtmlView(view: ViewBase, options: any): HTMLElement;
-		makeImage(view: ViewBase, options: any): HTMLElement;
-		makeLabel(view: ViewBase, options: any): HTMLElement;
-		makeListPicker(view: ViewBase, options: any): HTMLElement;
-		makeListView(view: ViewBase, options: any): HTMLElement;
-		makeNavigationButton(view: ViewBase, options: any): HTMLElement;
-		makePage(view: ViewBase, options: any): HTMLElement;
-		makePlaceholder(view: ViewBase, options: any): HTMLElement;
-		makeProgress(view: ViewBase, options: any): HTMLElement;
-		makeProxyViewContainer(view: ViewBase, options: any): HTMLElement;
-		makeRootLayout(view: ViewBase, options: any): HTMLElement;
-		makeScrollView(view: ViewBase, options: any): HTMLElement;
-		makeSearchBar(view: ViewBase, options: any): HTMLElement;
-		makeSegmentedBar(view: ViewBase, options: any): HTMLElement;
-		makeSegmentedBarItem(view: ViewBase, options: any): HTMLElement;
-		makeSlider(view: ViewBase, options: any): HTMLElement;
-		makeSpan(view: ViewBase, options: any): HTMLElement;
-		makeStackLayout(view: ViewBase, options: any): HTMLElement;
-		makeSwitch(view: ViewBase, options: any): HTMLElement;
-		makeTabView(view: ViewBase, options: any): HTMLElement;
-		makeTabViewItem(view: ViewBase, options: any): HTMLElement;
-		makeTemplateReceiver(view: ViewBase, options: any): HTMLElement;
-		makeTextField(view: ViewBase, options: any): HTMLElement;
-		makeTextView(view: ViewBase, options: any): HTMLElement;
-		makeTimePicker(view: ViewBase, options: any): HTMLElement;
-		makeWebView(view: ViewBase, options: any): HTMLElement;
-		makeWrapLayout(view: ViewBase, options: any): HTMLElement;
+		makeTweakable<T = Object>(obj: T, options: any): Tweakable<T>;
+		makeView<T = ViewBase>(view: T, options: any): DominativeExtended<T>;
+		makeLayout<T = LayoutBase>(view: T, options: any): DominativeExtended<T>;
+		makeText<T = TextBase>(view: T, options: any): DominativeExtended<T>;
+		makeEditableText<T = EditableTextBase>(view: T, options: any): DominativeExtended<T>;
+		makeAbsoluteLayout<T = AbsoluteLayout>(view: T, options: any): DominativeExtended<T>;
+		makeActionBar<T = ActionBar>(view: T, options: any): DominativeExtended<T>;
+		makeActionItem<T = ActionItem>(view: T, options: any): DominativeExtended<T>;
+		makeActivityIndicator<T = ActivityIndicator>(view: T, options: any): DominativeExtended<T>;
+		makeButton<T = Button>(view: T, options: any): DominativeExtended<T>;
+		makeContentView<T = ContentView>(view: T, options: any): DominativeExtended<T>;
+		makeDatePicker<T = DatePicker>(view: T, options: any): DominativeExtended<T>;
+		makeDockLayout<T = DockLayout>(view: T, options: any): DominativeExtended<T>;
+		makeFlexboxLayout<T = FlexboxLayout>(view: T, options: any): DominativeExtended<T>;
+		makeFormattedString<T = FormattedString>(view: T, options: any): DominativeExtended<T>;
+		makeFrame<T = Frame>(view: T, options: any): DominativeExtended<T>;
+		makeGridLayout<T = GridLayout>(view: T, options: any): DominativeExtended<T>;
+		makeHtmlView<T = HtmlView>(view: T, options: any): DominativeExtended<T>;
+		makeImage<T = Image>(view: T, options: any): DominativeExtended<T>;
+		makeLabel<T = Label>(view: T, options: any): DominativeExtended<T>;
+		makeListPicker<T = ListPicker>(view: T, options: any): DominativeExtended<T>;
+		makeListView<T = ListView>(view: T, options: any): DominativeExtended<T>;
+		makeNavigationButton<T = NavigationButton>(view: T, options: any): DominativeExtended<T>;
+		makePage<T = Page>(view: T, options: any): DominativeExtended<T>;
+		makePlaceholder<T = Placeholder>(view: T, options: any): DominativeExtended<T>;
+		makeProgress<T = Progress>(view: T, options: any): DominativeExtended<T>;
+		makeProxyViewContainer<T = ProxyViewContainer>(view: T, options: any): DominativeExtended<T>;
+		makeRootLayout<T = RootLayout>(view: T, options: any): DominativeExtended<T>;
+		makeScrollView<T = ScrollView>(view: T, options: any): DominativeExtended<T>;
+		makeSearchBar<T = SearchBar>(view: T, options: any): DominativeExtended<T>;
+		makeSegmentedBar<T = SegmentedBar>(view: T, options: any): DominativeExtended<T>;
+		makeSegmentedBarItem<T = SegmentedBarItem>(view: T, options: any): DominativeExtended<T>;
+		makeSlider<T = Slider>(view: T, options: any): DominativeExtended<T>;
+		makeSpan<T = Span>(view: T, options: any): DominativeExtended<T>;
+		makeStackLayout<T = StackLayout>(view: T, options: any): DominativeExtended<T>;
+		makeSwitch<T = Switch>(view: T, options: any): DominativeExtended<T>;
+		makeTabView<T = TabView>(view: T, options: any): DominativeExtended<T>;
+		makeTemplateReceiver<T = ViewBase>(view: T, options: any): DominativeExtended<T>;
+		makeTextField<T = TextField>(view: T, options: any): DominativeExtended<T>;
+		makeTextView<T = TextView>(view: T, options: any): DominativeExtended<T>;
+		makeTimePicker<T = TimePicker>(view: T, options: any): DominativeExtended<T>;
+		makeWebView<T = WebView>(view: T, options: any): DominativeExtended<T>;
+		makeWrapLayout<T = WrapLayout>(view: T, options: any): DominativeExtended<T>;
 	};
 }
 
