@@ -261,7 +261,7 @@ declare module "dominative" {
 
 	export class SVGElement extends Element {}
 
-	export class HTMLElement<T = ViewBase> extends Element {
+	export class HTMLElement<T = any> extends Element {
 		style: Style;
 	}
 
@@ -287,17 +287,17 @@ declare module "dominative" {
 	export class DominativeExtended<T = ViewBase> {}
 
 	export interface EventOption {
-		bubbles: boolean
-		captures: boolean
-		cancelable: boolean
+		bubbles?: boolean
+		captures?: boolean
+		cancelable?: boolean
 	}
 
 	export class Tweakable<T = Object> {
-		static getEventMap(fromEvent: string);
-		static getEventOption(type: string);
-		static mapEvent(fromEvent: string, toEvent: string);
-		static mapProp(fromProp: string, toProp: string);
-		static defineEventOption(type: string, option: EventOption);
+		static getEventMap(fromEvent: string): string;
+		static getEventOption(type: string): EventOption | void;
+		static mapEvent(fromEvent: string, toEvent: string): void;
+		static mapProp(fromProp: string, toProp: string): void;
+		static defineEventOption(type: string, option: EventOption): void;
 	}
 
 	export class Prop extends HTMLElement {
@@ -335,10 +335,10 @@ declare module "dominative" {
 		isNode(node: any): boolean;
 	};
 	export function createDocument(): Document;
-	export function registerElement(
+	export function registerElement<T = ViewBase>(
 		name: string,
-		element: ViewBase
-	): HTMLElement;
+		element: T
+	): HTMLElement<Tweakable<DominativeExtended<T>>>;
 	export function registerDOMElement(
 		name: string,
 		element?: any,
