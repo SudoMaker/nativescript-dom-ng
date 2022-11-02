@@ -1,7 +1,7 @@
 {
   "name": "dominative",
   "amdName": "dominative",
-  "version": "0.0.6-alpha.3",
+  "version": "0.0.6-alpha.4",
   "description": "Minimally viable DOM Document implementation for NativeScript.",
   "main": "src/dominative.js",
   "types": "index.d.ts",
@@ -19,10 +19,7 @@
   "bugs": "https://github.com/SudoMaker/dominative/issues",
   "homepage": "https://github.com/SudoMaker/dominative",
   "peerDependencies": {
-    "undom-ng": "^1.0.2",
-    "@nativescript/core": "^8.3.5"
-  },
-  "devDependencies": {
-    "typescript": "4.8.4"
+    "@nativescript/core": "^8.3.5",
+    "undom-ng": "^1.0.2"
   }
 }
