@@ -4,6 +4,7 @@
   "version": "0.0.6-alpha.2",
   "description": "Minimally viable DOM Document implementation for NativeScript.",
   "main": "src/dominative.js",
+  "types": "index.d.ts",
   "scripts": {},
   "keywords": [
     "dom",
@@ -20,5 +21,8 @@
   "peerDependencies": {
     "undom-ng": "^1.0.2",
     "@nativescript/core": "^8.3.5"
+  },
+  "devDependencies": {
+    "typescript": "4.8.4"
   }
 }
