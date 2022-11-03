@@ -43,7 +43,6 @@ import {
 	WebView,
 	WrapLayout,
 } from "@nativescript/core";
-import { View, ViewCommon } from "@nativescript/core/ui/core/view";
 
 declare module "dominative" {
 	export const NSComponentsWithTypeOfMap: {
@@ -374,7 +373,10 @@ declare module "dominative" {
 		get defaultView(): Scope;
 	}
 
-	export type Document = _Document<Tweakable<DominativeExtended<ContentView>>>;
+	export type Document = _Document<Tweakable<DominativeExtended<ContentView>>> & {
+		documentElement: HTMLElementTagNameMap["Frame"];
+		body: HTMLElementTagNameMap["Page"];
+	};
 
 	export class DominativeExtended<T = ViewBase> {}
 
