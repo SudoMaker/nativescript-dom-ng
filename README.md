@@ -30,7 +30,7 @@ app.js
 import { Application } from '@nativescript/core'
 import { document } from 'dominative'
 
-const page = document.documentElement
+const page = document.body
 const actionBar = document.createElement('ActionBar')
 
 actionBar.title = 'Hello World!'
@@ -68,7 +68,7 @@ import App from 'App.eft'
 setDOMImpl(domImpl)
 
 const app = new App()
-app.$mount({target: document.documentElement})
+app.$mount({target: document.body})
 
 Application.run({
 	create: () => document
@@ -120,9 +120,10 @@ const app = (target) =>
 		attach(target)
 	})
 
+app(document.body)
+
 Application.run({
 	create: () => {
-		app(document.documentElement)
 		return document
 	},
 })
@@ -142,21 +143,12 @@ Application.run({
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { registerComponents } from 'dominative-vue'
-import { document } from 'dominative'
-import { createApp } from 'vue'
+import { createApp } from '@dominative/vue'
 import App from './App.vue'
 
 const app = createApp(App)
 
-registerComponents(app)
-
-Application.run({
-	create: () => {
-		app.mount(document.documentElement)
-		return document
-	}
-})
+app.$run()
 
 ```
 
@@ -167,7 +159,7 @@ Application.run({
 app.jsx
 ```jsx
 import { Application } from "@nativescript/core"
-import { render } from "dominative-solid"
+import { render } from "@dominative/solid"
 import { createSignal } from "solid-js"
 
 const App = () => {
@@ -184,26 +176,12 @@ const App = () => {
 	</>
 }
 
-const create = () => {
-	render(App, document.documentElement)
-	return document
-}
+render(App, document.body)
+
+const create = () => document
 
 Application.run({ create })
 
-```
-
-
----
-
-## Prepare global environment
-
-Automatically register `document`, `window` and related variables globally:
-
-```js
-import { register } from 'dominative'
-
-register(global)
 ```
 
 
