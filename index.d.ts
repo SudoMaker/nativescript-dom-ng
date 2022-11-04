@@ -7,8 +7,7 @@ import {
 	ContentView,
 	DatePicker,
 	DockLayout,
-	EditableTextBase,
-	FlexboxLayout,
+	EditableTextBase, FlexboxLayout,
 	FormattedString,
 	Frame,
 	GridLayout,
@@ -41,7 +40,7 @@ import {
 	TimePicker,
 	ViewBase,
 	WebView,
-	WrapLayout,
+	WrapLayout
 } from "@nativescript/core";
 
 declare module "dominative" {
@@ -133,7 +132,7 @@ declare module "dominative" {
 
 	export type ExtractEventNames<T> = {
 		[K in keyof T]: K extends `${infer Name}Event` ? Name : never;
-	}[keyof T];
+	}[keyof T] | ({} & string)
 
 	interface ElementCreationOptions {
 		is?: string;
@@ -351,9 +350,11 @@ declare module "dominative" {
 
 	export class SVGElement extends Element {}
 
-	export class HTMLElement<T = any> extends Element {
+	export class _HTMLElement<T = any> extends Element {
 		style: Style;
 	}
+
+	export type HTMLElement<T = any> = _HTMLElement<T> & T;
 
 	class _Document<T> extends ParentNode {
 		createElement<K extends keyof HTMLElementTagNameMap | (string & {})>(
@@ -378,7 +379,33 @@ declare module "dominative" {
 		body: HTMLElementTagNameMap["Page"];
 	};
 
-	export class DominativeExtended<T = ViewBase> {}
+	export interface EventData<T> {
+		/**
+		 * The name of the event.
+		 */
+		eventName: string;
+		/**
+		 * The Observable instance that has raised the event.
+		 */
+		object: T;
+	}
+
+	export type DominativeExtended<T = ViewBase> =  {} & T
+
+	export interface ExtendWithEvents<T,C> {
+		on(eventNames: ExtractEventNames<T>, callback: (data: EventListenerOrEventListenerObject) => void, thisArg?: any):void;
+		off(event:  ExtractEventNames<T>, callback: (args: EventListenerOrEventListenerObject) => void, thisArg?: any):void;
+		addEventListener(
+			type: ExtractEventNames<T>,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: ExtractEventNames<T>,
+			callback: EventListenerOrEventListenerObject,
+			options?: boolean | EventListenerOptions
+		): void;
+	}
 
 	export interface EventOption {
 		bubbles?: boolean;
@@ -386,7 +413,7 @@ declare module "dominative" {
 		cancelable?: boolean;
 	}
 
-	export class Tweakable<T = Object> {
+	export class _Tweakable<T = Object> {
 		static getEventMap(fromEvent: string): string;
 		static getEventOption(type: string): EventOption | void;
 		static mapEvent(fromEvent: string, toEvent: string): void;
@@ -394,7 +421,10 @@ declare module "dominative" {
 		static defineEventOption(type: string, option: EventOption): void;
 	}
 
-	export class Prop extends HTMLElement {
+	export type Tweakable<T> = _Tweakable<T> & T;
+
+
+	export class Prop extends _HTMLElement {
 		constructor(key: string, type: string);
 		get key(): string;
 		set key(key: string);
@@ -441,7 +471,7 @@ declare module "dominative" {
 	export function register(global: any): void;
 
 	type DominativeExtendedMap = {
-		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>;
+		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>
 	};
 
 	type TweakableMap = {
@@ -449,7 +479,7 @@ declare module "dominative" {
 	};
 
 	type HTMLElementTagNameMap = {
-		[K in keyof NSComponentsMap]: HTMLElement<TweakableMap[K]>;
+		[K in keyof NSComponentsMap]: HTMLElement<TweakableMap[K]> & ExtendWithEvents<typeof NSComponentsWithTypeOfMap[K], NSComponentsMap[K]>;
 	};
 
 	export const pseudoElements: {
