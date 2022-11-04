@@ -45,7 +45,9 @@ import {
 } from "@nativescript/core";
 
 declare module "dominative" {
-	export const NSComponentsWithTypeOfMap: {
+	export interface NSCustomComponentsMap {}
+
+	interface NSTypeofComponents {
 		Frame: Frame & typeof Frame;
 		Page: Page & typeof Page;
 		Prop: Prop & typeof Prop;
@@ -86,7 +88,9 @@ declare module "dominative" {
 		TimePicker: TimePicker & typeof TimePicker;
 		WebView: WebView & typeof WebView;
 		WrapLayout: WrapLayout & typeof WrapLayout;
-	};
+	}
+
+	export const NSComponentsWithTypeOfMap: NSTypeofComponents;
 
 	interface NSComponentsMap {
 		Frame: Frame;
@@ -202,6 +206,7 @@ declare module "dominative" {
 	export interface DOMEvent<T> extends Event<T> {}
 
 	export type ExtendWithCustomEventHandlers<T, C> = {
+		eventNames: ExtractEventNames<T>
 		on(
 			eventNames: ExtractEventNames<T>,
 			callback: (event: EventListenerOrEventListenerObject<C>) => void,
@@ -497,7 +502,10 @@ declare module "dominative" {
 			typeof NSComponentsWithTypeOfMap[K],
 			HTMLElement<TweakableMap[K]>
 		>;
-	};
+	} & {
+		[K in keyof NSCustomComponentsMap]: _HTMLElement<NSCustomComponentsMap[K]> & NSCustomComponentsMap[K] & _Tweakable<NSCustomComponentsMap[K]>
+		
+	}
 
 	export const pseudoElements: {
 		Prop: Prop;
