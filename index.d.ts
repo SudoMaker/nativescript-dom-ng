@@ -7,7 +7,8 @@ import {
 	ContentView,
 	DatePicker,
 	DockLayout,
-	EditableTextBase, FlexboxLayout,
+	EditableTextBase,
+	FlexboxLayout,
 	FormattedString,
 	Frame,
 	GridLayout,
@@ -40,7 +41,7 @@ import {
 	TimePicker,
 	ViewBase,
 	WebView,
-	WrapLayout
+	WrapLayout,
 } from "@nativescript/core";
 
 declare module "dominative" {
@@ -130,23 +131,31 @@ declare module "dominative" {
 		WrapLayout: WrapLayout;
 	}
 
+	export type ExtractEventNamesWithDefault<T> =
+		| {
+				[K in keyof T]: K extends `${infer Name}Event` ? Name : never;
+		  }[keyof T]
+		| ({} & string);
+
 	export type ExtractEventNames<T> = {
 		[K in keyof T]: K extends `${infer Name}Event` ? Name : never;
-	}[keyof T] | ({} & string)
+	}[keyof T];
 
 	interface ElementCreationOptions {
 		is?: string;
 	}
 
-	interface EventListener {
-		(evt: Event): void;
+	interface EventListener<T = HTMLViewBaseElement> {
+		(event: Event<T>): void;
 	}
 
-	interface EventListenerObject {
-		handleEvent(object: Event): void;
+	interface EventListenerObject<T = HTMLViewBaseElement> {
+		handleEvent(event: Event<T>): void;
 	}
 
-	type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
+	type EventListenerOrEventListenerObject<T = HTMLViewBaseElement> =
+		| EventListener<T>
+		| EventListenerObject<T>;
 
 	interface AddEventListenerOptions extends EventListenerOptions {
 		once?: boolean;
@@ -160,15 +169,23 @@ declare module "dominative" {
 
 	type DOMHighResTimeStamp = number;
 
-	export interface Event {
+	export interface EventOption {
+		bubbles?: boolean;
+		captures?: boolean;
+		cancelable?: boolean;
+	}
+
+	export interface Event<T = HTMLViewBaseElement> {
 		/** Returns true or false depending on how event was initialized. True if event goes through its target's ancestors in reverse tree order, and false otherwise. */
 		readonly bubbles: boolean;
 		/** Returns true or false depending on how event was initialized. Its return value does not always carry meaning, but true can indicate that part of the operation during which event was dispatched, can be canceled by invoking the preventDefault() method. */
 		readonly cancelable: boolean;
 		/** Returns the object who triggeres the event. */
-		readonly target: EventTarget | null;
+		readonly target: (EventTarget<T> & T) | null;
 		/** Returns the object whose event listener's callback is currently being invoked. */
-		readonly currentTarget: EventTarget | null;
+		readonly currentTarget: (EventTarget<T> & T) | null;
+
+		readonly object: (EventTarget<T> & T) | null;
 		/** Returns true if preventDefault() was invoked successfully to indicate cancelation, and false otherwise. */
 		readonly defaultPrevented: boolean;
 		/** Returns the type of event, e.g. "click", "hashchange", or "submit". */
@@ -181,6 +198,36 @@ declare module "dominative" {
 		/** When dispatched in a tree, invoking this method prevents event from reaching any objects other than the current object. */
 		stopPropagation(): void;
 	}
+
+	export interface DOMEvent<T> extends Event<T> {}
+
+	export type ExtendWithCustomEventHandlers<T, C> = {
+		on(
+			eventNames: ExtractEventNames<T>,
+			callback: (event: EventListenerOrEventListenerObject<C>) => void,
+			thisArg?: any
+		): void;
+		off(
+			event: ExtractEventNames<T>,
+			callback: (event: EventListenerOrEventListenerObject<C>) => void,
+			thisArg?: any
+		): void;
+		addEventListener(
+			type: ExtractEventNames<T>,
+			callback: EventListenerOrEventListenerObject<C>,
+			options?: boolean | AddEventListenerOptions
+		): void;
+		removeEventListener(
+			type: ExtractEventNames<T>,
+			callback: EventListenerOrEventListenerObject<C>,
+			options?: boolean | EventListenerOptions
+		): void;
+	} & C;
+
+	type HTMLViewBaseElement = ExtendWithCustomEventHandlers<
+		typeof ViewBase,
+		HTMLElement<ViewBase>
+	>;
 
 	export class Node extends ViewBase {
 		constructor(nodeType: number, nodeName: string);
@@ -200,7 +247,7 @@ declare module "dominative" {
 		remove(): void;
 	}
 
-	export interface EventTarget {
+	export interface EventTarget<T = HTMLViewBaseElement> {
 		/**
 		 * Appends an event listener for events whose type attribute value is type. The callback argument sets the callback that will be invoked when the event is dispatched.
 		 *
@@ -218,7 +265,7 @@ declare module "dominative" {
 		 */
 		addEventListener(
 			type: string,
-			callback: EventListenerOrEventListenerObject | null,
+			callback: EventListenerOrEventListenerObject<T> | null,
 			options?: AddEventListenerOptions | boolean
 		): void;
 		/** Dispatches a synthetic event event to target and returns true if either event's cancelable attribute value is false or its preventDefault() method was not invoked, and false otherwise. */
@@ -226,7 +273,7 @@ declare module "dominative" {
 		/** Removes the event listener in target's event listener list with the same type, callback, and options. */
 		removeEventListener(
 			type: string,
-			callback: EventListenerOrEventListenerObject | null,
+			callback: EventListenerOrEventListenerObject<T> | null,
 			options?: EventListenerOptions | boolean
 		): void;
 	}
@@ -344,76 +391,19 @@ declare module "dominative" {
 		Document: Document;
 	}
 
-	export const scope: Scope;
-
 	export class DocumentFragment extends ParentNode {}
 
 	export class SVGElement extends Element {}
 
-	export class _HTMLElement<T = any> extends Element {
+	class _HTMLElement<T = any> extends Element {
 		style: Style;
 	}
 
-	export type HTMLElement<T = any> = _HTMLElement<T> & T;
+	export type HTMLElement<T = any> = Omit<_HTMLElement<T> & T, "on" | "off">;
 
-	class _Document<T> extends ParentNode {
-		createElement<K extends keyof HTMLElementTagNameMap | (string & {})>(
-			tagName: K
-		): //options?: ElementCreationOptions
-		//@ts-ignore
-		HTMLElementTagNameMap[K];
-		createElementNS<K extends keyof HTMLElementTagNameMap | (string & {})>(
-			namespace: string | null,
-			qualifiedName: K
-		): //options?: ElementCreationOptions
-		Element;
-		createTextNode(text: string): Text;
-		createDocumentFragment(): DocumentFragment;
-		createEvent(type: string): Event;
-		createComment(data: string): Comment;
-		get defaultView(): Scope;
-	}
+	export type DominativeExtended<T = ViewBase> = {} & T;
 
-	export type Document = _Document<Tweakable<DominativeExtended<ContentView>>> & {
-		documentElement: HTMLElementTagNameMap["Frame"];
-		body: HTMLElementTagNameMap["Page"];
-	};
-
-	export interface EventData<T> {
-		/**
-		 * The name of the event.
-		 */
-		eventName: string;
-		/**
-		 * The Observable instance that has raised the event.
-		 */
-		object: T;
-	}
-
-	export type DominativeExtended<T = ViewBase> =  {} & T
-
-	export interface ExtendWithEvents<T,C> {
-		on(eventNames: ExtractEventNames<T>, callback: (data: EventListenerOrEventListenerObject) => void, thisArg?: any):void;
-		off(event:  ExtractEventNames<T>, callback: (args: EventListenerOrEventListenerObject) => void, thisArg?: any):void;
-		addEventListener(
-			type: ExtractEventNames<T>,
-			callback: EventListenerOrEventListenerObject,
-			options?: boolean | AddEventListenerOptions
-		): void;
-		removeEventListener(
-			type: ExtractEventNames<T>,
-			callback: EventListenerOrEventListenerObject,
-			options?: boolean | EventListenerOptions
-		): void;
-	}
-
-	export interface EventOption {
-		bubbles?: boolean;
-		captures?: boolean;
-		cancelable?: boolean;
-	}
-
-	export class _Tweakable<T = Object> {
+	class _Tweakable<T = Object> {
 		static getEventMap(fromEvent: string): string;
 		static getEventOption(type: string): EventOption | void;
 		static mapEvent(fromEvent: string, toEvent: string): void;
@@ -422,7 +412,6 @@ declare module "dominative" {
 	}
 
 	export type Tweakable<T> = _Tweakable<T> & T;
-
 
 	export class Prop extends _HTMLElement {
 		constructor(key: string, type: string);
@@ -450,8 +439,33 @@ declare module "dominative" {
 		createView(): HTMLElement;
 	}
 
-	export const document: Document;
+	class _Document<T> extends ParentNode {
+		createElement<K extends keyof HTMLElementTagNameMap | (string & {})>(
+			tagName: K
+		): //options?: ElementCreationOptions
+		//@ts-ignore
+		HTMLElementTagNameMap[K];
+		createElementNS<K extends keyof HTMLElementTagNameMap | (string & {})>(
+			namespace: string | null,
+			qualifiedName: K
+		): //options?: ElementCreationOptions
+		Element;
+		createTextNode(text: string): Text;
+		createDocumentFragment(): DocumentFragment;
+		createEvent(type: string): Event;
+		createComment(data: string): Comment;
+		get defaultView(): Scope;
+	}
 
+	export type Document = _Document<
+		Tweakable<DominativeExtended<ContentView>>
+	> & {
+		documentElement: HTMLElementTagNameMap["Frame"];
+		body: HTMLElementTagNameMap["Page"];
+	} & HTMLElementTagNameMap["ContentView"];
+
+	export const document: Document;
+	export const scope: Scope;
 	export function aliasTagName(nameHnadler: (tag: string) => string): void;
 	export const domImpl: {
 		Node: Node;
@@ -471,7 +485,7 @@ declare module "dominative" {
 	export function register(global: any): void;
 
 	type DominativeExtendedMap = {
-		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>
+		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>;
 	};
 
 	type TweakableMap = {
@@ -479,7 +493,10 @@ declare module "dominative" {
 	};
 
 	type HTMLElementTagNameMap = {
-		[K in keyof NSComponentsMap]: HTMLElement<TweakableMap[K]> & ExtendWithEvents<typeof NSComponentsWithTypeOfMap[K], NSComponentsMap[K]>;
+		[K in keyof NSComponentsMap]: ExtendWithCustomEventHandlers<
+			typeof NSComponentsWithTypeOfMap[K],
+			HTMLElement<TweakableMap[K]>
+		>;
 	};
 
 	export const pseudoElements: {
