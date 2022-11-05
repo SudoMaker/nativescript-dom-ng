@@ -45,7 +45,9 @@ import {
 } from "@nativescript/core";
 
 declare module "dominative" {
-	export const NSComponentsWithTypeOfMap: {
+	export interface NSCustomComponentsMap {}
+
+	interface NSTypeofComponents {
 		Frame: Frame & typeof Frame;
 		Page: Page & typeof Page;
 		Prop: Prop & typeof Prop;
@@ -86,7 +88,9 @@ declare module "dominative" {
 		TimePicker: TimePicker & typeof TimePicker;
 		WebView: WebView & typeof WebView;
 		WrapLayout: WrapLayout & typeof WrapLayout;
-	};
+	}
+
+	export const NSComponentsWithTypeOfMap: NSTypeofComponents;
 
 	interface NSComponentsMap {
 		Frame: Frame;
@@ -202,6 +206,7 @@ declare module "dominative" {
 	export interface DOMEvent<T> extends Event<T> {}
 
 	export type ExtendWithCustomEventHandlers<T, C> = {
+		eventNames: ExtractEventNames<T>
 		on(
 			eventNames: ExtractEventNames<T>,
 			callback: (event: EventListenerOrEventListenerObject<C>) => void,
@@ -395,15 +400,15 @@ declare module "dominative" {
 
 	export class SVGElement extends Element {}
 
-	class _HTMLElement<T = any> extends Element {
+	class HTMLElementBase extends Element {
 		style: Style;
 	}
 
-	export type HTMLElement<T = any> = Omit<_HTMLElement<T> & T, "on" | "off">;
+	export type HTMLElement<T = any> = Omit<HTMLElementBase & T, "on" | "off">;
 
-	export type DominativeExtended<T = ViewBase> = {} & T;
+	export type DominativeExtended<T = ViewBase> = T & {};
 
-	class _Tweakable<T = Object> {
+	class TweakableBase {
 		static getEventMap(fromEvent: string): string;
 		static getEventOption(type: string): EventOption | void;
 		static mapEvent(fromEvent: string, toEvent: string): void;
@@ -411,9 +416,9 @@ declare module "dominative" {
 		static defineEventOption(type: string, option: EventOption): void;
 	}
 
-	export type Tweakable<T> = _Tweakable<T> & T;
+	export type Tweakable<T> = TweakableBase & T;
 
-	export class Prop extends _HTMLElement {
+	export class Prop extends HTMLElementBase {
 		constructor(key: string, type: string);
 		get key(): string;
 		set key(key: string);
@@ -439,7 +444,7 @@ declare module "dominative" {
 		createView(): HTMLElement;
 	}
 
-	class _Document<T> extends ParentNode {
+	class DocumentBase extends ParentNode {
 		createElement<K extends keyof HTMLElementTagNameMap | (string & {})>(
 			tagName: K
 		): //options?: ElementCreationOptions
@@ -457,12 +462,10 @@ declare module "dominative" {
 		get defaultView(): Scope;
 	}
 
-	export type Document = _Document<
-		Tweakable<DominativeExtended<ContentView>>
-	> & {
+	export type Document = DocumentBase & Tweakable<DominativeExtended<ContentView>> & {
 		documentElement: HTMLElementTagNameMap["Frame"];
 		body: HTMLElementTagNameMap["Page"];
-	} & HTMLElementTagNameMap["ContentView"];
+	}
 
 	export const document: Document;
 	export const scope: Scope;
@@ -497,7 +500,9 @@ declare module "dominative" {
 			typeof NSComponentsWithTypeOfMap[K],
 			HTMLElement<TweakableMap[K]>
 		>;
-	};
+	} & {
+		[K in keyof NSCustomComponentsMap]: HTMLElement<Tweakable<DominativeExtended<NSCustomComponentsMap[K]>>>
+	}
 
 	export const pseudoElements: {
 		Prop: Prop;
