@@ -467,7 +467,7 @@ declare module "dominative" {
 	> & {
 		documentElement: HTMLElementTagNameMap["Frame"];
 		body: HTMLElementTagNameMap["Page"];
-	} & HTMLElementTagNameMap["ContentView"];
+	}
 
 	export const document: Document;
 	export const scope: Scope;
@@ -504,7 +504,6 @@ declare module "dominative" {
 		>;
 	} & {
 		[K in keyof NSCustomComponentsMap]: _HTMLElement<NSCustomComponentsMap[K]> & NSCustomComponentsMap[K] & _Tweakable<NSCustomComponentsMap[K]>
-		
 	}
 
 	export const pseudoElements: {
