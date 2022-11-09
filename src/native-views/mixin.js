@@ -88,6 +88,8 @@ const makeLayout = named(
 		}
 
 		__dominative_onRemoveChild(child) {
+			if (child.nodeType === 3) return
+
 			super.removeChild(child)
 
 			if (child.__dominative_isNative) super.__dominative_onRemoveChild(child)
