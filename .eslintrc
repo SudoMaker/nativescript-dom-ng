@@ -267,10 +267,7 @@
                 "words": false
             }
         ],
-        "spaced-comment": [
-            "error",
-            "always"
-        ],
+        "spaced-comment": "off",
         "strict": "off",
         "symbol-description": "error",
         "template-curly-spacing": [

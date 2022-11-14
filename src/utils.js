@@ -19,7 +19,7 @@ const named = (name, baseClassName, baseClass, extender) => {
 			else if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(`[DOMiNATIVE] ${name} element must be subclass of ${baseClassName}, but got ${_.name}.`)
 		}
 
-		const extendedClass = extender(_, options)
+		const extendedClass = /*#__PURE__*/extender(_, options)
 		Object.defineProperty(extendedClass.prototype, key, {
 			enumerable: false,
 			value: true
@@ -29,7 +29,7 @@ const named = (name, baseClassName, baseClass, extender) => {
 	}
 
 	maker.master = (...args) => {
-		const extendedClass = maker(...args)
+		const extendedClass = /*#__PURE__*/maker(...args)
 
 		Object.defineProperty(extendedClass, Symbol.hasInstance, {
 			value(instance) {
@@ -45,7 +45,7 @@ const named = (name, baseClassName, baseClass, extender) => {
 
 const dummyFn = _ => _
 
-const makeTweakable = named(
+const makeTweakable = /*#__PURE__*/named(
 	'Tweakable', 'Object', Object,
 	(_) => {
 		const eventMap = {}

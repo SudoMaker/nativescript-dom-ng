@@ -2,9 +2,9 @@ import { TabView, TabViewItem } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export const makeTabView = named(
+export const makeTabView = /*#__PURE__*/named(
 	'TabView', 'TabView', TabView,
-	_ => class TabViewElement extends makeView(_) {
+	_ => class TabViewElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 			if (!(child instanceof TabViewItem)) return
@@ -27,4 +27,4 @@ export const makeTabView = named(
 	}
 )
 
-export default makeTabView.master()
+export default /*#__PURE__*/makeTabView.master()

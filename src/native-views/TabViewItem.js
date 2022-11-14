@@ -2,9 +2,9 @@ import { TabViewItem } from '@nativescript/core'
 import { isNode } from 'undom-ng'
 import { named, makeView } from './mixin.js'
 
-export const makeTabViewItem = named(
+export const makeTabViewItem = /*#__PURE__*/named(
 	'TabViewItem', 'TabViewItem', TabViewItem,
-	_ => class TabViewItemElement extends makeView(_) {
+	_ => class TabViewItemElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative) return super.__dominative_onInsertChild(child, ref)
 			if (this.view && isNode(this.view)) this.view.remove()
@@ -14,4 +14,4 @@ export const makeTabViewItem = named(
 	}
 )
 
-export default makeTabViewItem.master()
+export default /*#__PURE__*/makeTabViewItem.master()

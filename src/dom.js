@@ -1,6 +1,11 @@
 import { createEnvironment, createEvent } from 'undom-ng'
-import { ContentView } from './native-views'
+import { makeView } from './native-views/mixin.js'
 import { makeTweakable } from './utils.js'
+
+import * as pseudoElements from './pseudo-elements/index.js'
+import ContentView from './native-views/ContentView.js'
+import Frame from './native-views/Frame.js'
+import Page from './native-views/Page.js'
 
 /*
 const NODE_TYPES = {
@@ -167,4 +172,22 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 	}
 })
 
-export { registerDOMElement, createDocument, createElement, createEvent, scope }
+registerDOMElement('Frame', makeTweakable(Frame))
+registerDOMElement('Page', makeTweakable(Page))
+
+for (let [key, val] of Object.entries(pseudoElements)) {
+	registerDOMElement(key, makeTweakable(val))
+}
+
+const registerElement = (key, val) => {
+	if (scope[key]) {
+		if (!process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] '${key}'' is already registered, skipping!`)
+		return scope[key]
+	}
+	return registerDOMElement(key, makeTweakable(makeView(val)))
+}
+const aliasTagName = (nameHandler) => {
+	for (let key of Object.keys(scope)) scope[nameHandler(key)] = scope[key]
+}
+
+export { registerElement, registerDOMElement, aliasTagName, createDocument, createElement, createEvent, scope }

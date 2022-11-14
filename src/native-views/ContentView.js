@@ -1,9 +1,9 @@
 import { ContentView } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeContentView = named(
+export const makeContentView = /*#__PURE__*/named(
 	'ContentView', 'ContentView', ContentView,
-	_ => class ContentViewElement extends makeView(_) {
+	_ => class ContentViewElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
@@ -23,4 +23,4 @@ export const makeContentView = named(
 	}
 )
 
-export default makeContentView.master()
+export default /*#__PURE__*/makeContentView.master()

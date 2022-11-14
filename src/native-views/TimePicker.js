@@ -1,9 +1,9 @@
 import { TimePicker } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeTimePicker = named(
+export const makeTimePicker = /*#__PURE__*/named(
 	'TimePicker', 'TimePicker', TimePicker,
-	_ => class TimePickerElement extends makeView(_) {}
+	_ => class TimePickerElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeTimePicker.master()
+export default /*#__PURE__*/makeTimePicker.master()

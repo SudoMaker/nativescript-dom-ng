@@ -3,9 +3,9 @@ import { named, makeView } from './mixin.js'
 import { defaultItemTemplate, makeTemplateReceiver } from './TemplateReceiver.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export const makeListView = named(
+export const makeListView = /*#__PURE__*/named(
 	'ListView', 'ListView', ListView,
-	_ => class ListViewElement extends makeTemplateReceiver(makeView(_), {
+	_ => class ListViewElement extends /*#__PURE__*/makeTemplateReceiver(/*#__PURE__*/makeView(_), {
 		templateProps: ['itemTemplate'],
 		loadingEvents: [ListView.itemLoadingEvent]
 	}) {
@@ -39,4 +39,4 @@ export const makeListView = named(
 	}
 )
 
-export default makeListView.master()
+export default /*#__PURE__*/makeListView.master()

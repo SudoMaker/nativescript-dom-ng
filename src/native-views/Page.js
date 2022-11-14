@@ -1,9 +1,9 @@
 import { Page, ActionBar } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makePage = named(
+export const makePage = /*#__PURE__*/named(
 	'Page', 'Page', Page,
-	_ => class PageElement extends makeView(_) {
+	_ => class PageElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
@@ -18,4 +18,4 @@ export const makePage = named(
 	}
 )
 
-export default makePage.master()
+export default /*#__PURE__*/makePage.master()

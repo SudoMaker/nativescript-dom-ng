@@ -1,9 +1,9 @@
 import { Progress } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeProgress = named(
+export const makeProgress = /*#__PURE__*/named(
 	'Progress', 'Progress', Progress,
-	_ => class ProgressElement extends makeView(_) {}
+	_ => class ProgressElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeProgress.master()
+export default /*#__PURE__*/makeProgress.master()

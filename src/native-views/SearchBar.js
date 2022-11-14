@@ -1,9 +1,9 @@
 import { SearchBar } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeSearchBar = named(
+export const makeSearchBar = /*#__PURE__*/named(
 	'SearchBar', 'SearchBar', SearchBar,
-	_ => class SearchBarElement extends makeView(_) {}
+	_ => class SearchBarElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeSearchBar.master()
+export default /*#__PURE__*/makeSearchBar.master()

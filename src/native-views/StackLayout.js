@@ -1,9 +1,9 @@
 import { StackLayout } from '@nativescript/core'
 import { named, makeLayout } from './mixin.js'
 
-export const makeStackLayout = named(
+export const makeStackLayout = /*#__PURE__*/named(
 	'StackLayout', 'StackLayout', StackLayout,
-	_ => class StackLayoutElement extends makeLayout(_) {}
+	_ => class StackLayoutElement extends /*#__PURE__*/makeLayout(_) {}
 )
 
-export default makeStackLayout.master()
+export default /*#__PURE__*/makeStackLayout.master()
