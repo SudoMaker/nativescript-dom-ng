@@ -4,8 +4,6 @@
 
 ### **Minimally viable DOM Document implementation for NativeScript**
 
-**NOTE** THIS IS STILL EXPERIMENTAL.
-
 ---
 
 
@@ -28,7 +26,9 @@ Via npm:
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { document } from 'dominative'
+import { document, registerAllElements } from 'dominative'
+
+registerAllElements()
 
 const page = document.body
 const actionBar = document.createElement('ActionBar')
@@ -61,9 +61,11 @@ App.eft
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { domImpl, document } from 'dominative'
+import { domImpl, document, registerAllElements } from 'dominative'
 import { setDOMImpl } from 'ef-core'
 import App from 'App.eft'
+
+registerAllElements()
 
 setDOMImpl(domImpl)
 
@@ -82,8 +84,10 @@ Application.run({
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { document } from 'dominative'
+import { document, registerAllElements } from 'dominative'
 import { browser, prop, setGlobalCtx, useTags, useElement, build } from 'singui'
+
+registerAllElements()
 
 setGlobalCtx(browser(document))
 
@@ -101,9 +105,9 @@ const app = (target) =>
 			let count = 0
 
 			const {ret: updateText} = Label(() => {
-        return text().$textContent(
-          () => `You have tapped ${count} time${count === 1 ? '' : 's'}`
-        )
+				return text().$textContent(
+					() => `You have tapped ${count} time${count === 1 ? '' : 's'}`
+				)
 			})
 
 			Button(() => {
@@ -192,9 +196,9 @@ Application.run({ create })
 Automatically register `document`, `window` and related variables globally:
 
 ```js
-import { register } from 'dominative'
+import { globalRegister } from 'dominative'
 
-register(global)
+globalRegister(global)
 ```
 
 
@@ -206,12 +210,12 @@ register(global)
 ```js
 import { RadSideDrawer } from 'nativescript-ui-sidedrawer'
 import { RadListView } from 'nativescript-ui-listview'
-import { registerElement, makers } from 'dominative'
+import { registerElement, makeListView } from 'dominative'
 
 // If you cannot determin what the component is based on, you can register it directly.
 registerElement('RadSideDrawer', RadSideDrawer)
 // Register with a specific type by using a pre-defined maker. Usually we check for inheritance, but with force we can make magic happen
-registerElement('RadListView', makers.makeListView(RadListView, {force: true}))
+registerElement('RadListView', makeListView(RadListView, {force: true}))
 ```
 
 ---
@@ -300,9 +304,9 @@ Example:
 
 ```js
 import { RadListView } from 'nativescript-ui-listview'
-import { registerElement, makers } from 'dominative'
+import { registerElement, makeTemplateReceiver } from 'dominative'
 
-registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
+registerElement('RadListView', makeTemplateReceiver(RadListView, {
 	templateProps: ['itemTemplate'],
 	loadingEvents: ['itemLoading']
 }))
@@ -312,6 +316,55 @@ registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
 
+
+---
+
+## Tree shaking
+
+Tree shaking is off by default, but if you want a smaller bundle size, you can enable it manually by setting `__UI_USE_EXTERNAL_RENDERER__` global variable to true in your project's webpack config. For example:
+
+```js
+const { merge } = require('webpack-merge');
+
+module.exports = (env) => {
+	webpack.init(env);
+
+	webpack.chainWebpack((config) => {
+		config.plugin('DefinePlugin').tap((args) => {
+			args[0] = merge(args[0], {
+				__UI_USE_EXTERNAL_RENDERER__: true, // Set true to enable tree shaking
+				__UI_USE_XML_PARSER__: false, // Usually XML parser isn't needed as well, so disabling it as well
+			});
+
+			return args;
+		});
+	});
+
+	return webpack.resolveConfig();
+};
+
+```
+
+But, **PLEASD NOTICE**, after tree shaking is enabled, you'll need to register {N} core componts manually, otherwise they won't be available as elements. For example:
+
+```js
+import { AbsoluteLayout, StackLayout, Label, Button, registerElement } from 'dominative'
+
+registerElement('AbsoluteLayout', AbsoluteLayout)
+registerElement('StackLayout', StackLayout)
+registerElement('Label', Label)
+registerElement('Button', Button)
+```
+
+or you can just register them all with `registerAllElements`, although it's pointless when tree shaking is enabled:
+
+```js
+import { registerAllElements } from 'dominative'
+
+registerAllElements()
+````
+
+`Frame`, `Page` and `ContentView` are registered by default.
 
 ---
 

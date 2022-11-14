@@ -1,9 +1,9 @@
 import { DatePicker } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeDatePicker = named(
+export const makeDatePicker = /*#__PURE__*/named(
 	'DatePicker', 'DatePicker', DatePicker,
-	_ => class DatePickerElement extends makeView(_) {}
+	_ => class DatePickerElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeDatePicker.master()
+export default /*#__PURE__*/makeDatePicker.master()

@@ -1,9 +1,9 @@
 import { HtmlView } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeHtmlView = named(
+export const makeHtmlView = /*#__PURE__*/named(
 	'HtmlView', 'HtmlView', HtmlView,
-	_ => class HtmlViewElement extends makeView(_) {}
+	_ => class HtmlViewElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeHtmlView.master()
+export default /*#__PURE__*/makeHtmlView.master()

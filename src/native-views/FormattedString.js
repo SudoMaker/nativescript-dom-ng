@@ -2,9 +2,9 @@ import { FormattedString, Span } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export const makeFormattedString = named(
+export const makeFormattedString = /*#__PURE__*/named(
 	'FormattedString', 'FormattedString', FormattedString,
-	_ => class FormattedStringElement extends makeView(_) {
+	_ => class FormattedStringElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
@@ -27,4 +27,4 @@ export const makeFormattedString = named(
 	}
 )
 
-export default makeFormattedString.master()
+export default /*#__PURE__*/makeFormattedString.master()

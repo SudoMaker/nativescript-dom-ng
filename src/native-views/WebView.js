@@ -1,9 +1,9 @@
 import { WebView } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeWebView = named(
+export const makeWebView = /*#__PURE__*/named(
 	'WebView', 'WebView', WebView,
-	_ => class WebViewElement extends makeView(_) {}
+	_ => class WebViewElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeWebView.master()
+export default /*#__PURE__*/makeWebView.master()

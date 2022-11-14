@@ -1,9 +1,9 @@
 import { PageBase, Frame } from '@nativescript/core'
 import { named, makeView } from "./mixin.js"
 
-export const makeFrame = named(
+export const makeFrame = /*#__PURE__*/named(
 	'Frame', 'Frame', Frame,
-	_ => class FrameElement extends makeView(_) {
+	_ => class FrameElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onSetAttributeNS(ns, key, val) {
 			if (ns) return
 			if (key.toLowerCase() === "defaultpage" && val) {
@@ -26,4 +26,4 @@ export const makeFrame = named(
 	}
 )
 
-export default makeFrame.master()
+export default /*#__PURE__*/makeFrame.master()

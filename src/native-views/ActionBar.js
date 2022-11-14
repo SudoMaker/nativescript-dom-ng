@@ -2,9 +2,9 @@ import { ActionBar, ActionItem, NavigationButton } from '@nativescript/core'
 import { isNode } from 'undom-ng'
 import { named, makeView } from './mixin.js'
 
-export const makeActionBar = named(
+export const makeActionBar = /*#__PURE__*/named(
 	'ActionBar', 'ActionBar', ActionBar,
-	_ => class ActionBarElement extends makeView(_) {
+	_ => class ActionBarElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
@@ -46,4 +46,4 @@ export const makeActionBar = named(
 	}
 )
 
-export default makeActionBar.master()
+export default /*#__PURE__*/makeActionBar.master()

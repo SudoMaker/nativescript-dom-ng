@@ -1,9 +1,9 @@
 import { AbsoluteLayout } from '@nativescript/core'
 import { named, makeLayout } from "./mixin.js"
 
-export const makeAbsoluteLayout = named(
+export const makeAbsoluteLayout = /*#__PURE__*/named(
 	'AbsoluteLayout', 'AbsoluteLayout', AbsoluteLayout,
-	_ => class AbsoluteLayoutElement extends makeLayout(_) {}
+	_ => class AbsoluteLayoutElement extends /*#__PURE__*/makeLayout(_) {}
 )
 
-export default makeAbsoluteLayout.master()
+export default /*#__PURE__*/makeAbsoluteLayout.master()

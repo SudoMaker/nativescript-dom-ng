@@ -1,9 +1,9 @@
 import { ActionItem, ViewBase } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeActionItem = named(
+export const makeActionItem = /*#__PURE__*/named(
 	'ActionItem', 'ActionItem', ActionItem,
-	_ => class ActionItemElement extends makeView(_) {
+	_ => class ActionItemElement extends /*#__PURE__*/makeView(_) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
@@ -24,4 +24,4 @@ export const makeActionItem = named(
 	}
 )
 
-export default makeActionItem.master()
+export default /*#__PURE__*/makeActionItem.master()

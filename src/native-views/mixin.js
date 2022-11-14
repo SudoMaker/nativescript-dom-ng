@@ -2,7 +2,9 @@ import { ViewBase, LayoutBase, TextBase, EditableTextBase, FormattedString } fro
 import { isAndroid, isIOS } from '@nativescript/core/platform'
 import { named, resolvePath } from '../utils.js'
 
-const makeView = named(
+/* eslint-disable spaced-comment */
+
+const makeView = /*#__PURE__*/named(
 	'View', 'ViewBase', ViewBase,
 	_ => class SubView extends _ {
 		/* eslint-disable class-methods-use-this, no-empty-function */
@@ -66,9 +68,9 @@ const makeView = named(
 	}
 )
 
-const makeLayout = named(
+const makeLayout = /*#__PURE__*/named(
 	'Layout', 'LayoutBase', LayoutBase,
-	_ => class SubLayout extends makeView(_) {
+	_ => class SubLayout extends /*#__PURE__*/makeView(_) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'Layout'
@@ -97,9 +99,9 @@ const makeLayout = named(
 	}
 )
 
-const makeText = named(
+const makeText = /*#__PURE__*/named(
 	'Text', 'TextBase', TextBase,
-	_ => class SubText extends makeView(_) {
+	_ => class SubText extends /*#__PURE__*/makeView(_) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'Text'
@@ -130,9 +132,9 @@ const makeText = named(
 	}
 )
 
-const makeEditableText = named(
+const makeEditableText = /*#__PURE__*/named(
 	'EditableText', 'EditableTextBase', EditableTextBase,
-	_ => class SubEditableText extends makeText(_) {
+	_ => class SubEditableText extends /*#__PURE__*/makeText(_) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'EditableText'

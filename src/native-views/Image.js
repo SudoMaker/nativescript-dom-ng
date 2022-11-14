@@ -1,9 +1,9 @@
 import { Image } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeImage = named(
+export const makeImage = /*#__PURE__*/named(
 	'Image', 'Image', Image,
-	_ => class ImageElement extends makeView(_) {}
+	_ => class ImageElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeImage.master()
+export default /*#__PURE__*/makeImage.master()
