@@ -1,9 +1,9 @@
 import { Slider } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makeSlider = named(
+export const makeSlider = /*#__PURE__*/named(
 	'Slider', 'Slider', Slider,
-	_ => class SliderElement extends makeView(_) {}
+	_ => class SliderElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makeSlider.master()
+export default /*#__PURE__*/makeSlider.master()

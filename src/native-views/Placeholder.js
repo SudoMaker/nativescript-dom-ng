@@ -1,9 +1,9 @@
 import { Placeholder } from '@nativescript/core'
 import { named, makeView } from './mixin.js'
 
-export const makePlaceholder = named(
+export const makePlaceholder = /*#__PURE__*/named(
 	'Placeholder', 'Placeholder', Placeholder,
-	_ => class PlaceholderElement extends makeView(_) {}
+	_ => class PlaceholderElement extends /*#__PURE__*/makeView(_) {}
 )
 
-export default makePlaceholder.master()
+export default /*#__PURE__*/makePlaceholder.master()

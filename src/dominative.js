@@ -19,9 +19,13 @@ const globalRegister = (_global = globalThis) => {
 	Object.assign(_global, scope)
 }
 
-// Register all elements if not explicitly marked tree shaken
-// eslint-disable-next-line no-undef
-if (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RENDERER__) registerAllElements()
+// Register all elements if tree shaking is not enabled explicitly
+// eslint-disable-next-line no-negated-condition, no-undef
+if (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RENDERER__) {
+	registerAllElements()
+} else if (process.env.NODE_ENV !== 'production') {
+	console.warn('[DOMiNATIVE] Tree shaking is enabled! Make sure to register {N} core elements manually!')
+}
 
 export { domImpl, document, createDocument, registerElement, aliasTagName, registerDOMElement, registerAllElements, scope, globalRegister, makeTweakable }
 export * from './native-views/makers.js'

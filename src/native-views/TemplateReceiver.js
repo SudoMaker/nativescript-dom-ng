@@ -36,7 +36,7 @@ const handleItemLoading = (self, data) => {
 	}
 }
 
-export const makeTemplateReceiver = named(
+export const makeTemplateReceiver = /*#__PURE__*/named(
 	'TemplateReceiver', 'ViewBase', ViewBase,
 	(_, {
 		templateProps = [],

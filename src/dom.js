@@ -179,7 +179,13 @@ for (let [key, val] of Object.entries(pseudoElements)) {
 	registerDOMElement(key, makeTweakable(val))
 }
 
-const registerElement = (key, val) => registerDOMElement(key, makeTweakable(makeView(val)))
+const registerElement = (key, val) => {
+	if (scope[key]) {
+		if (!process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] '${key}'' is already registered, skipping!`)
+		return scope[key]
+	}
+	return registerDOMElement(key, makeTweakable(makeView(val)))
+}
 const aliasTagName = (nameHandler) => {
 	for (let key of Object.keys(scope)) scope[nameHandler(key)] = scope[key]
 }
