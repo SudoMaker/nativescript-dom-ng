@@ -4,8 +4,6 @@
 
 ### **Minimally viable DOM Document implementation for NativeScript**
 
-**NOTE** THIS IS STILL EXPERIMENTAL.
-
 ---
 
 
@@ -28,7 +26,9 @@ Via npm:
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { document } from 'dominative'
+import { document, registerAllElements } from 'dominative'
+
+registerAllElements()
 
 const page = document.body
 const actionBar = document.createElement('ActionBar')
@@ -61,9 +61,11 @@ App.eft
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { domImpl, document } from 'dominative'
+import { domImpl, document, registerAllElements } from 'dominative'
 import { setDOMImpl } from 'ef-core'
 import App from 'App.eft'
+
+registerAllElements()
 
 setDOMImpl(domImpl)
 
@@ -82,8 +84,10 @@ Application.run({
 app.js
 ```js
 import { Application } from '@nativescript/core'
-import { document } from 'dominative'
+import { document, registerAllElements } from 'dominative'
 import { browser, prop, setGlobalCtx, useTags, useElement, build } from 'singui'
+
+registerAllElements()
 
 setGlobalCtx(browser(document))
 
@@ -192,9 +196,9 @@ Application.run({ create })
 Automatically register `document`, `window` and related variables globally:
 
 ```js
-import { register } from 'dominative'
+import { globalRegister } from 'dominative'
 
-register(global)
+globalRegister(global)
 ```
 
 
@@ -206,12 +210,12 @@ register(global)
 ```js
 import { RadSideDrawer } from 'nativescript-ui-sidedrawer'
 import { RadListView } from 'nativescript-ui-listview'
-import { registerElement, makers } from 'dominative'
+import { registerElement, makeListView } from 'dominative'
 
 // If you cannot determin what the component is based on, you can register it directly.
 registerElement('RadSideDrawer', RadSideDrawer)
 // Register with a specific type by using a pre-defined maker. Usually we check for inheritance, but with force we can make magic happen
-registerElement('RadListView', makers.makeListView(RadListView, {force: true}))
+registerElement('RadListView', makeListView(RadListView, {force: true}))
 ```
 
 ---
@@ -300,9 +304,9 @@ Example:
 
 ```js
 import { RadListView } from 'nativescript-ui-listview'
-import { registerElement, makers } from 'dominative'
+import { registerElement, makeTemplateReceiver } from 'dominative'
 
-registerElement('RadListView', makers.makeTemplateReceiver(RadListView, {
+registerElement('RadListView', makeTemplateReceiver(RadListView, {
 	templateProps: ['itemTemplate'],
 	loadingEvents: ['itemLoading']
 }))
