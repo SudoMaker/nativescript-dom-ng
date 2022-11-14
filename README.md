@@ -105,9 +105,9 @@ const app = (target) =>
 			let count = 0
 
 			const {ret: updateText} = Label(() => {
-        return text().$textContent(
-          () => `You have tapped ${count} time${count === 1 ? '' : 's'}`
-        )
+				return text().$textContent(
+					() => `You have tapped ${count} time${count === 1 ? '' : 's'}`
+				)
 			})
 
 			Button(() => {
@@ -316,6 +316,55 @@ registerElement('RadListView', makeTemplateReceiver(RadListView, {
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
 
+
+---
+
+## Tree shaking
+
+Tree shaking is off by default, but if you want a smaller bundle size, you can enable it manually by setting `__UI_USE_EXTERNAL_RENDERER__` global variable to true in your project's webpack config. For example:
+
+```js
+const { merge } = require('webpack-merge');
+
+module.exports = (env) => {
+	webpack.init(env);
+
+	webpack.chainWebpack((config) => {
+		config.plugin('DefinePlugin').tap((args) => {
+			args[0] = merge(args[0], {
+				__UI_USE_EXTERNAL_RENDERER__: true, // Set true to enable tree shaking
+				__UI_USE_XML_PARSER__: false, // Usually XML parser isn't needed as well, so disabling it as well
+			});
+
+			return args;
+		});
+	});
+
+	return webpack.resolveConfig();
+};
+
+```
+
+But, **PLEASD NOTICE**, after tree shaking is enabled, you'll need to register {N} core componts manually, otherwise they won't be available as elements. For example:
+
+```js
+import { AbsoluteLayout, StackLayout, Label, Button, registerElement } from 'dominative'
+
+registerElement('AbsoluteLayout', AbsoluteLayout)
+registerElement('StackLayout', StackLayout)
+registerElement('Label', Label)
+registerElement('Button', Button)
+```
+
+or you can just register them all with `registerAllElements`, although it's pointless when tree shaking is enabled:
+
+```js
+import { registerAllElements } from 'dominative'
+
+registerAllElements()
+````
+
+`Frame`, `Page` and `ContentView` are registered by default.
 
 ---
 

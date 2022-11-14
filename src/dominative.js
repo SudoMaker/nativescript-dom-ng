@@ -24,7 +24,7 @@ const globalRegister = (_global = globalThis) => {
 if (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RENDERER__) {
 	registerAllElements()
 } else if (process.env.NODE_ENV !== 'production') {
-	console.warn('[DOMiNATIVE] Tree shaking is enabled! Make sure to register {N} core elements manually!')
+	console.warn('[DOMiNATIVE] Tree shaking is enabled! Make sure to register {N} core elements manually! See https://github.com/SudoMaker/DOMiNATIVE#tree-shaking for details.')
 }
 
 export { domImpl, document, createDocument, registerElement, aliasTagName, registerDOMElement, registerAllElements, scope, globalRegister, makeTweakable }
