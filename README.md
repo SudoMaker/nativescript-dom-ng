@@ -379,7 +379,7 @@ module.exports = (env) => {
 
 ```
 
-But, **PLEASE NOTICE**, after tree shaking is enabled, you'll need to register {N} core componts manually, otherwise they won't be available as elements. For example:
+But, **PLEASE NOTICE**, after tree shaking is enabled, you'll need to register {N} core components manually, otherwise they won't be available as elements. For example:
 
 ```js
 import { AbsoluteLayout, StackLayout, Label, Button, registerElement } from 'dominative'
