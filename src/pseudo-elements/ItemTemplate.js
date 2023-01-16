@@ -66,8 +66,9 @@ const defaultCreateView = (self) => {
 
 export default class ItemTemplate extends PropBase {
 	/* eslint-disable class-methods-use-this */
-	constructor(key) {
+	constructor(key = 'itemTemplate') {
 		super(key)
+		this.__type = 'key'
 		this.__dominative_role = 'ItemTemplate'
 		this.__value = () => this.createView()
 	}
