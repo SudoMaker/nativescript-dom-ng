@@ -7,6 +7,8 @@ declare module "dominative" {
 		Frame: NS.Frame & typeof NS.Frame;
 		Page: NS.Page & typeof NS.Page;
 		Prop: Prop & typeof Prop;
+		KeyProp: KeyProp & typeof KeyProp;
+		ArrayProp: ArrayProp & typeof ArrayProp;
 		ItemTemplate: ItemTemplate & typeof ItemTemplate;
 		AbsoluteLayout: NS.AbsoluteLayout & typeof NS.AbsoluteLayout;
 		ActionBar: NS.ActionBar & typeof NS.ActionBar;
@@ -52,6 +54,8 @@ declare module "dominative" {
 		Frame: NS.Frame;
 		Page: NS.Page;
 		Prop: Prop;
+		KeyProp: KeyProp;
+		ArrayProp: ArrayProp;
 		ItemTemplate: ItemTemplate;
 		AbsoluteLayout: NS.AbsoluteLayout;
 		ActionBar: NS.ActionBar;
@@ -386,6 +390,14 @@ declare module "dominative" {
 		set value(value: any);
 		//@ts-ignore
 		get parent(): ParentNode;
+	}
+
+	export class KeyProp extends Prop {
+		constructor(key: string);
+	}
+
+	export class ArrayProp extends Prop {
+		constructor(key: string);
 	}
 
 	export class ItemTemplate extends Prop {
