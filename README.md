@@ -140,7 +140,7 @@ Application.run({
 
 **Note:** This demo might have some issues with Chrome. Use Firefox if necessary.
 
-### with [Vue 3](https://vuejs.org/) + runtime-dom + [DOMiNATIVE-Vue](https://github.com/SudoMaker/DOMiNATIVE-Vue)
+### with [Vue 3](https://vuejs.org/) + runtime-dom + [DOMiNATIVE-Vue](https://github.com/nativescript-community/vue)
 
 [Playground](https://stackblitz.com/edit/nativescript-dominative-vue-3?file=app/App.vue)
 
@@ -156,7 +156,7 @@ app.$run()
 
 ```
 
-### with [SolidJS](https://www.solidjs.com/) + [DOMiNATIVE-Solid](https://github.com/SudoMaker/DOMiNATIVE-Solid)
+### with [SolidJS](https://www.solidjs.com/) + [DOMiNATIVE-Solid](https://github.com/nativescript-community/solid-js)
 
 [Playground](https://stackblitz.com/edit/nativescript-dominative-solid?file=app/Fapp.jsx)
 
@@ -233,7 +233,7 @@ Helper to put it's child/children to it's parent node's property by key
 
 `key: String`: **RW** The prop name to set on parent.
 
-`type: <'array'|'single'>`: **RW** Property type, could be an array prop or a single object prop.
+`type: <'array'|'key'>`: **RW** Property type, could be an array prop or a single object prop. Once set, this prop couldn't be changed.
 
 `value: any`: **RW** Value to be set to parent. Usually children of this current node. Don't touch unless you know what you're doing.
 
@@ -245,6 +245,14 @@ Helper to put it's child/children to it's parent node's property by key
 
 None.
 
+### KeyProp
+
+`Prop` but `type` already set to `key`.
+
+### ArrayProp
+
+`Prop` but `type` already set to `array`.
+
 ### ItemTemplate
 
 **\* `Template` was renamed to `ItemTemplate` to avoid conflict with HTML `template` tag.**
@@ -255,7 +263,7 @@ An `ItemTemplate` element holds a template to be replicated later, or can create
 
 Share mostly from `Prop`. Differences are listed below:
 
-`key: String`: **RW** Same form `Prop`, also serves the key name of a `KeyedTemplate`
+`key: String`: **RW** Same form `Prop`, also serves the key name of a `KeyedTemplate`. Default to `itemTemplate`.
 
 `type: 'single'`: **R** Should not be able to set `type` on a `ItemTemplate`.
 
