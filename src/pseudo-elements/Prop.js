@@ -26,15 +26,18 @@ export class PropBase extends PseudoBase {
 	}
 	set class(val) {
 		const [key, type] = val.split(':')
-		if (key) this.key = key
 		if (type) this.type = type
+		if (key) this.key = key
 	}
 
 	get type() {
-		return this.__type || 'single'
+		return this.__type || 'key'
 	}
 	set type(val) {
-		if (this.__type) return
+		if (this.__type || this.__value) {
+			if (process.ENV.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Prop type cannot be changed once set or when children exists!')
+			return
+		}
 		if (val !== 'array') return
 		this.__type = val
 
@@ -86,7 +89,7 @@ export class PropBase extends PseudoBase {
 	}
 }
 
-export default class Prop extends PropBase {
+export class Prop extends PropBase {
 	__dominative_onInsertChild(child, ref) {
 		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'ItemTemplate') &&
 			(!child.__dominative_isNative || (ref && !ref.__dominative_isNative))
@@ -111,5 +114,17 @@ export default class Prop extends PropBase {
 		} else if (this.value === child) this.value = null
 
 		super.__dominative_onRemoveChild(child)
+	}
+}
+
+export class KeyProp extends Prop {
+	constructor(key) {
+		super(key, 'key')
+	}
+}
+
+export class ArrayProp extends Prop {
+	constructor(key) {
+		super(key, 'array')
 	}
 }
