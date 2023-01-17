@@ -6,10 +6,6 @@ declare module "dominative" {
 	interface NSTypeofComponents {
 		Frame: NS.Frame & typeof NS.Frame;
 		Page: NS.Page & typeof NS.Page;
-		Prop: Prop & typeof Prop;
-		KeyProp: KeyProp & typeof KeyProp;
-		ArrayProp: ArrayProp & typeof ArrayProp;
-		ItemTemplate: ItemTemplate & typeof ItemTemplate;
 		AbsoluteLayout: NS.AbsoluteLayout & typeof NS.AbsoluteLayout;
 		ActionBar: NS.ActionBar & typeof NS.ActionBar;
 		ActionItem: NS.ActionItem & typeof NS.ActionItem;
@@ -44,19 +40,31 @@ declare module "dominative" {
 		TextField: NS.TextField & typeof NS.TextField;
 		TextView: NS.TextView & typeof NS.TextView;
 		TimePicker: NS.TimePicker & typeof NS.TimePicker;
-		WebView:NS. WebView & typeof NS.WebView;
+		WebView: NS.WebView & typeof NS.WebView;
 		WrapLayout: NS.WrapLayout & typeof NS.WrapLayout;
 	}
 
 	export const NSComponentsWithTypeOfMap: NSTypeofComponents;
 
-	interface NSComponentsMap {
-		Frame: NS.Frame;
-		Page: NS.Page;
+	interface TypeofPseudoElements {
+		Prop: Prop & typeof Prop;
+		KeyProp: KeyProp & typeof KeyProp;
+		ArrayProp: ArrayProp & typeof ArrayProp;
+		ItemTemplate: ItemTemplate & typeof ItemTemplate;
+	}
+
+	export const PseudoElementsWithTypeofMap: TypeofPseudoElements;
+
+	interface PseudoElementsMap {
 		Prop: Prop;
 		KeyProp: KeyProp;
 		ArrayProp: ArrayProp;
 		ItemTemplate: ItemTemplate;
+	}
+
+	interface NSComponentsMap {
+		Frame: NS.Frame;
+		Page: NS.Page;
 		AbsoluteLayout: NS.AbsoluteLayout;
 		ActionBar: NS.ActionBar;
 		ActionItem: NS.ActionItem;
@@ -166,7 +174,7 @@ declare module "dominative" {
 	export interface DOMEvent<T> extends Event<T> {}
 
 	export type ExtendWithCustomEventHandlers<T, C> = {
-		eventNames: ExtractEventNames<T>
+		eventNames: ExtractEventNames<T>;
 		on(
 			eventNames: ExtractEventNames<T>,
 			callback: (event: EventListenerOrEventListenerObject<C>) => void,
@@ -401,6 +409,8 @@ declare module "dominative" {
 	}
 
 	export class ItemTemplate extends Prop {
+		public static createViewEvent: string;
+		public static itemLoadingEvent: string;
 		get content(): any;
 		set content(value: any);
 		patch(data: {
@@ -432,10 +442,14 @@ declare module "dominative" {
 
 	type DominativeExtendedMap = {
 		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>;
+	} & {
+		[K in keyof PseudoElementsMap]: DominativeExtended<PseudoElementsMap[K]>;
 	};
 
 	type TweakableMap = {
 		[K in keyof NSComponentsMap]: Tweakable<DominativeExtendedMap[K]>;
+	} & {
+		[K in keyof PseudoElementsMap]: Tweakable<DominativeExtendedMap[K]>;
 	};
 
 	type HTMLElementTagNameMap = {
@@ -444,13 +458,21 @@ declare module "dominative" {
 			HTMLElement<TweakableMap[K]>
 		>;
 	} & {
-		[K in keyof NSCustomComponentsMap]: HTMLElement<Tweakable<DominativeExtended<NSCustomComponentsMap[K]>>>
-	}
+		[K in keyof NSCustomComponentsMap]: HTMLElement<
+			Tweakable<DominativeExtended<NSCustomComponentsMap[K]>>
+		>;
+	} & {
+		[K in keyof PseudoElementsMap]: ExtendWithCustomEventHandlers<
+			typeof PseudoElementsWithTypeofMap[K],
+			HTMLElement<TweakableMap[K]>
+		>;
+	};
 
-	export type Document = DocumentBase & Tweakable<DominativeExtended<NS.ContentView>> & {
-		documentElement: HTMLElementTagNameMap["Frame"];
-		body: HTMLElementTagNameMap["Page"];
-	}
+	export type Document = DocumentBase &
+		Tweakable<DominativeExtended<NS.ContentView>> & {
+			documentElement: HTMLElementTagNameMap["Frame"];
+			body: HTMLElementTagNameMap["Page"];
+		};
 
 	export const document: Document;
 	export const scope: Scope;
@@ -471,7 +493,9 @@ declare module "dominative" {
 	 *
 	 * @param      {Document}  initDocument  Method to initialize the document
 	 */
-	export function createDocument(initDocument?: (document: Document) => void): Document;
+	export function createDocument(
+		initDocument?: (document: Document) => void
+	): Document;
 	/**
 	 * Register a NativeScript view to be a DOM element
 	 *
@@ -507,84 +531,210 @@ declare module "dominative" {
 	export function globalRegister(global: any): void;
 
 	export function makeTweakable<T = Object>(obj: T, options: any): Tweakable<T>;
-	export function makeView<T = NS.ViewBase>(view: T, options: any): DominativeExtended<T>;
-	export function makeLayout<T = NS.LayoutBase>(view: T, options: any): DominativeExtended<T>;
-	export function makeText<T = NS.TextBase>(view: T, options: any): DominativeExtended<T>;
-	export function makeEditableText<T = NS.EditableTextBase>(view: T, options: any): DominativeExtended<T>;
-	export function makeAbsoluteLayout<T = NS.AbsoluteLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeActionBar<T = NS.ActionBar>(view: T, options: any): DominativeExtended<T>;
-	export function makeActionItem<T = NS.ActionItem>(view: T, options: any): DominativeExtended<T>;
-	export function makeActivityIndicator<T = NS.ActivityIndicator>(view: T, options: any): DominativeExtended<T>;
-	export function makeButton<T = NS.Button>(view: T, options: any): DominativeExtended<T>;
-	export function makeContentView<T = NS.ContentView>(view: T, options: any): DominativeExtended<T>;
-	export function makeDatePicker<T = NS.DatePicker>(view: T, options: any): DominativeExtended<T>;
-	export function makeDockLayout<T = NS.DockLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeFlexboxLayout<T = NS.FlexboxLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeFormattedString<T = NS.FormattedString>(view: T, options: any): DominativeExtended<T>;
-	export function makeFrame<T = NS.Frame>(view: T, options: any): DominativeExtended<T>;
-	export function makeGridLayout<T = NS.GridLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeHtmlView<T = NS.HtmlView>(view: T, options: any): DominativeExtended<T>;
-	export function makeImage<T = NS.Image>(view: T, options: any): DominativeExtended<T>;
-	export function makeLabel<T = NS.Label>(view: T, options: any): DominativeExtended<T>;
-	export function makeListPicker<T = NS.ListPicker>(view: T, options: any): DominativeExtended<T>;
-	export function makeListView<T = NS.ListView>(view: T, options: any): DominativeExtended<T>;
-	export function makeNavigationButton<T = NS.NavigationButton>(view: T, options: any): DominativeExtended<T>;
-	export function makePage<T = NS.Page>(view: T, options: any): DominativeExtended<T>;
-	export function makePlaceholder<T = NS.Placeholder>(view: T, options: any): DominativeExtended<T>;
-	export function makeProgress<T = NS.Progress>(view: T, options: any): DominativeExtended<T>;
-	export function makeProxyViewContainer<T = NS.ProxyViewContainer>(view: T, options: any): DominativeExtended<T>;
-	export function makeRootLayout<T = NS.RootLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeScrollView<T = NS.ScrollView>(view: T, options: any): DominativeExtended<T>;
-	export function makeSearchBar<T = NS.SearchBar>(view: T, options: any): DominativeExtended<T>;
-	export function makeSegmentedBar<T = NS.SegmentedBar>(view: T, options: any): DominativeExtended<T>;
-	export function makeSegmentedBarItem<T = NS.SegmentedBarItem>(view: T, options: any): DominativeExtended<T>;
-	export function makeSlider<T = NS.Slider>(view: T, options: any): DominativeExtended<T>;
-	export function makeSpan<T = NS.Span>(view: T, options: any): DominativeExtended<T>;
-	export function makeStackLayout<T = NS.StackLayout>(view: T, options: any): DominativeExtended<T>;
-	export function makeSwitch<T = NS.Switch>(view: T, options: any): DominativeExtended<T>;
-	export function makeTabView<T = NS.TabView>(view: T, options: any): DominativeExtended<T>;
-	export function makeTemplateReceiver<T = NS.ViewBase>(view: T, options: any): DominativeExtended<T>;
-	export function makeTextField<T = NS.TextField>(view: T, options: any): DominativeExtended<T>;
-	export function makeTextView<T = NS.TextView>(view: T, options: any): DominativeExtended<T>;
-	export function makeTimePicker<T = NS.TimePicker>(view: T, options: any): DominativeExtended<T>;
-	export function makeWebView<T = NS.WebView>(view: T, options: any): DominativeExtended<T>;
-	export function makeWrapLayout<T = NS.WrapLayout>(view: T, options: any): DominativeExtended<T>;
+	export function makeView<T = NS.ViewBase>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeLayout<T = NS.LayoutBase>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeText<T = NS.TextBase>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeEditableText<T = NS.EditableTextBase>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeAbsoluteLayout<T = NS.AbsoluteLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeActionBar<T = NS.ActionBar>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeActionItem<T = NS.ActionItem>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeActivityIndicator<T = NS.ActivityIndicator>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeButton<T = NS.Button>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeContentView<T = NS.ContentView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeDatePicker<T = NS.DatePicker>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeDockLayout<T = NS.DockLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeFlexboxLayout<T = NS.FlexboxLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeFormattedString<T = NS.FormattedString>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeFrame<T = NS.Frame>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeGridLayout<T = NS.GridLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeHtmlView<T = NS.HtmlView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeImage<T = NS.Image>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeLabel<T = NS.Label>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeListPicker<T = NS.ListPicker>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeListView<T = NS.ListView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeNavigationButton<T = NS.NavigationButton>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makePage<T = NS.Page>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makePlaceholder<T = NS.Placeholder>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeProgress<T = NS.Progress>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeProxyViewContainer<T = NS.ProxyViewContainer>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeRootLayout<T = NS.RootLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeScrollView<T = NS.ScrollView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSearchBar<T = NS.SearchBar>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSegmentedBar<T = NS.SegmentedBar>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSegmentedBarItem<T = NS.SegmentedBarItem>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSlider<T = NS.Slider>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSpan<T = NS.Span>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeStackLayout<T = NS.StackLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeSwitch<T = NS.Switch>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeTabView<T = NS.TabView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeTemplateReceiver<T = NS.ViewBase>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeTextField<T = NS.TextField>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeTextView<T = NS.TextView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeTimePicker<T = NS.TimePicker>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeWebView<T = NS.WebView>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
+	export function makeWrapLayout<T = NS.WrapLayout>(
+		view: T,
+		options: any
+	): DominativeExtended<T>;
 
-	export const AbsoluteLayout: DominativeExtendedMap['AbsoluteLayout'];
-	export const ActionBar: DominativeExtendedMap['ActionBar'];
-	export const ActionItem: DominativeExtendedMap['ActionItem'];
-	export const ActivityIndicator: DominativeExtendedMap['ActivityIndicator'];
-	export const Button: DominativeExtendedMap['Button'];
-	export const ContentView: DominativeExtendedMap['ContentView'];
-	export const DatePicker: DominativeExtendedMap['DatePicker'];
-	export const DockLayout: DominativeExtendedMap['DockLayout'];
-	export const FlexboxLayout: DominativeExtendedMap['FlexboxLayout'];
-	export const FormattedString: DominativeExtendedMap['FormattedString'];
-	export const Frame: DominativeExtendedMap['Frame'];
-	export const GridLayout: DominativeExtendedMap['GridLayout'];
-	export const HtmlView: DominativeExtendedMap['HtmlView'];
-	export const Image: DominativeExtendedMap['Image'];
-	export const Label: DominativeExtendedMap['Label'];
-	export const ListPicker: DominativeExtendedMap['ListPicker'];
-	export const ListView: DominativeExtendedMap['ListView'];
-	export const NavigationButton: DominativeExtendedMap['NavigationButton'];
-	export const Page: DominativeExtendedMap['Page'];
-	export const Placeholder: DominativeExtendedMap['Placeholder'];
-	export const Progress: DominativeExtendedMap['Progress'];
-	export const ProxyViewContainer: DominativeExtendedMap['ProxyViewContainer'];
-	export const RootLayout: DominativeExtendedMap['RootLayout'];
-	export const ScrollView: DominativeExtendedMap['ScrollView'];
-	export const SearchBar: DominativeExtendedMap['SearchBar'];
-	export const SegmentedBar: DominativeExtendedMap['SegmentedBar'];
-	export const SegmentedBarItem: DominativeExtendedMap['SegmentedBarItem'];
-	export const Slider: DominativeExtendedMap['Slider'];
-	export const Span: DominativeExtendedMap['Span'];
-	export const StackLayout: DominativeExtendedMap['StackLayout'];
-	export const Switch: DominativeExtendedMap['Switch'];
-	export const TabView: DominativeExtendedMap['TabView'];
-	export const TextField: DominativeExtendedMap['TextField'];
-	export const TextView: DominativeExtendedMap['TextView'];
-	export const TimePicker: DominativeExtendedMap['TimePicker'];
-	export const WebView: DominativeExtendedMap['WebView'];
-	export const WrapLayout: DominativeExtendedMap['WrapLayout'];
+	export const AbsoluteLayout: DominativeExtendedMap["AbsoluteLayout"];
+	export const ActionBar: DominativeExtendedMap["ActionBar"];
+	export const ActionItem: DominativeExtendedMap["ActionItem"];
+	export const ActivityIndicator: DominativeExtendedMap["ActivityIndicator"];
+	export const Button: DominativeExtendedMap["Button"];
+	export const ContentView: DominativeExtendedMap["ContentView"];
+	export const DatePicker: DominativeExtendedMap["DatePicker"];
+	export const DockLayout: DominativeExtendedMap["DockLayout"];
+	export const FlexboxLayout: DominativeExtendedMap["FlexboxLayout"];
+	export const FormattedString: DominativeExtendedMap["FormattedString"];
+	export const Frame: DominativeExtendedMap["Frame"];
+	export const GridLayout: DominativeExtendedMap["GridLayout"];
+	export const HtmlView: DominativeExtendedMap["HtmlView"];
+	export const Image: DominativeExtendedMap["Image"];
+	export const Label: DominativeExtendedMap["Label"];
+	export const ListPicker: DominativeExtendedMap["ListPicker"];
+	export const ListView: DominativeExtendedMap["ListView"];
+	export const NavigationButton: DominativeExtendedMap["NavigationButton"];
+	export const Page: DominativeExtendedMap["Page"];
+	export const Placeholder: DominativeExtendedMap["Placeholder"];
+	export const Progress: DominativeExtendedMap["Progress"];
+	export const ProxyViewContainer: DominativeExtendedMap["ProxyViewContainer"];
+	export const RootLayout: DominativeExtendedMap["RootLayout"];
+	export const ScrollView: DominativeExtendedMap["ScrollView"];
+	export const SearchBar: DominativeExtendedMap["SearchBar"];
+	export const SegmentedBar: DominativeExtendedMap["SegmentedBar"];
+	export const SegmentedBarItem: DominativeExtendedMap["SegmentedBarItem"];
+	export const Slider: DominativeExtendedMap["Slider"];
+	export const Span: DominativeExtendedMap["Span"];
+	export const StackLayout: DominativeExtendedMap["StackLayout"];
+	export const Switch: DominativeExtendedMap["Switch"];
+	export const TabView: DominativeExtendedMap["TabView"];
+	export const TextField: DominativeExtendedMap["TextField"];
+	export const TextView: DominativeExtendedMap["TextView"];
+	export const TimePicker: DominativeExtendedMap["TimePicker"];
+	export const WebView: DominativeExtendedMap["WebView"];
+	export const WrapLayout: DominativeExtendedMap["WrapLayout"];
 }
