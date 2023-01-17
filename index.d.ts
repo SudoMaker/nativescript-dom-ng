@@ -401,6 +401,8 @@ declare module "dominative" {
 	}
 
 	export class ItemTemplate extends Prop {
+		public static createViewEvent:string;
+		public static itemLoadingEvent:string;
 		get content(): any;
 		set content(value: any);
 		patch(data: {
