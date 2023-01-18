@@ -4,7 +4,7 @@ import { makeGridLayout } from './GridLayout.js'
 
 export const makeRootLayout = /*#__PURE__*/named(
 	'RootLayout', 'RootLayout', RootLayout,
-	_ => class RootLayoutElement extends /*#__PURE__*/makeGridLayout(_) {}
+	(_, options) => class RootLayoutElement extends /*#__PURE__*/makeGridLayout(_, options) {}
 )
 
 export default /*#__PURE__*/makeRootLayout.master()

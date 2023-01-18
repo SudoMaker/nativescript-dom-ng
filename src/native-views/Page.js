@@ -3,7 +3,7 @@ import { named, makeView } from './mixin.js'
 
 export const makePage = /*#__PURE__*/named(
 	'Page', 'Page', Page,
-	_ => class PageElement extends /*#__PURE__*/makeView(_) {
+	(_, options) => class PageElement extends /*#__PURE__*/makeView(_, options) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 

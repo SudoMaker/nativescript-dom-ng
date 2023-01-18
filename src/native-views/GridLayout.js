@@ -3,7 +3,7 @@ import { named, makeLayout } from "./mixin.js"
 
 export const makeGridLayout = /*#__PURE__*/named(
 	'GridLayout', 'GridLayout', GridLayout,
-	_ => class GridLayoutElement extends /*#__PURE__*/makeLayout(_) {}
+	(_, options) => class GridLayoutElement extends /*#__PURE__*/makeLayout(_, options) {}
 )
 
 export default /*#__PURE__*/makeGridLayout.master()

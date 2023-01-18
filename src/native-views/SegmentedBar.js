@@ -4,7 +4,7 @@ import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
 export const makeSegmentedBar = /*#__PURE__*/named(
 	'SegmentedBar', 'SegmentedBar', SegmentedBar,
-	_ => class SegmentedBarElement extends /*#__PURE__*/makeView(_) {
+	(_, options) => class SegmentedBarElement extends /*#__PURE__*/makeView(_, options) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 			if (!(child instanceof SegmentedBarItem)) return
