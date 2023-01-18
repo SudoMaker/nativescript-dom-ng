@@ -3,7 +3,7 @@ import { named, makeView } from './mixin.js'
 
 export const makeTimePicker = /*#__PURE__*/named(
 	'TimePicker', 'TimePicker', TimePicker,
-	_ => class TimePickerElement extends /*#__PURE__*/makeView(_) {}
+	(_, options) => class TimePickerElement extends /*#__PURE__*/makeView(_, options) {}
 )
 
 export default /*#__PURE__*/makeTimePicker.master()

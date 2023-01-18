@@ -3,7 +3,7 @@ import { named, makeView } from './mixin.js'
 
 export const makeListPicker = /*#__PURE__*/named(
 	'ListPicker', 'ListPicker', ListPicker,
-	_ => class ListPickerElement extends /*#__PURE__*/makeView(_) {}
+	(_, options) => class ListPickerElement extends /*#__PURE__*/makeView(_, options) {}
 )
 
 export default /*#__PURE__*/makeListPicker.master()
