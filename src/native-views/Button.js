@@ -3,7 +3,7 @@ import { named, makeText } from './mixin.js'
 
 export const makeButton = /*#__PURE__*/named(
 	'Button', 'Button', Button,
-	_ => class ButtonElement extends /*#__PURE__*/makeText(_) {}
+	(_, options) => class ButtonElement extends /*#__PURE__*/makeText(_, options) {}
 )
 
 export default /*#__PURE__*/makeButton.master()

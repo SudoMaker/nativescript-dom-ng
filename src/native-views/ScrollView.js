@@ -4,7 +4,7 @@ import { makeContentView } from './ContentView.js'
 
 export const makeScrollView = /*#__PURE__*/named(
 	'ScrollView', 'ScrollView', ScrollView,
-	_ => class ScrollViewElement extends /*#__PURE__*/makeContentView(_) {}
+	(_, options) => class ScrollViewElement extends /*#__PURE__*/makeContentView(_, options) {}
 )
 
 export default /*#__PURE__*/makeScrollView.master()

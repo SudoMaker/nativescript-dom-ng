@@ -3,7 +3,7 @@ import { named, makeView } from "./mixin.js"
 
 export const makeFrame = /*#__PURE__*/named(
 	'Frame', 'Frame', Frame,
-	_ => class FrameElement extends /*#__PURE__*/makeView(_) {
+	(_, options) => class FrameElement extends /*#__PURE__*/makeView(_, options) {
 		__dominative_onSetAttributeNS(ns, key, val) {
 			if (ns) return
 			if (key.toLowerCase() === "defaultpage" && val) {

@@ -3,7 +3,7 @@ import { named, makeLayout } from "./mixin.js"
 
 export const makeAbsoluteLayout = /*#__PURE__*/named(
 	'AbsoluteLayout', 'AbsoluteLayout', AbsoluteLayout,
-	_ => class AbsoluteLayoutElement extends /*#__PURE__*/makeLayout(_) {}
+	(_, options) => class AbsoluteLayoutElement extends /*#__PURE__*/makeLayout(_, options) {}
 )
 
 export default /*#__PURE__*/makeAbsoluteLayout.master()

@@ -3,7 +3,7 @@ import { named, makeText } from './mixin.js'
 
 export const makeLabel = /*#__PURE__*/named(
 	'Label', 'Label', Label,
-	_ => class LabelElement extends /*#__PURE__*/makeText(_) {}
+	(_, options) => class LabelElement extends /*#__PURE__*/makeText(_, options) {}
 )
 
 export default /*#__PURE__*/makeLabel.master()

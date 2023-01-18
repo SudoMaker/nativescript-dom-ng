@@ -3,7 +3,7 @@ import { named, makeView } from './mixin.js'
 
 export const makeSlider = /*#__PURE__*/named(
 	'Slider', 'Slider', Slider,
-	_ => class SliderElement extends /*#__PURE__*/makeView(_) {}
+	(_, options) => class SliderElement extends /*#__PURE__*/makeView(_, options) {}
 )
 
 export default /*#__PURE__*/makeSlider.master()

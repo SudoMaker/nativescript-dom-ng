@@ -70,7 +70,7 @@ const makeView = /*#__PURE__*/named(
 
 const makeLayout = /*#__PURE__*/named(
 	'Layout', 'LayoutBase', LayoutBase,
-	_ => class SubLayout extends /*#__PURE__*/makeView(_) {
+	(_, options) => class SubLayout extends /*#__PURE__*/makeView(_, options) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'Layout'
@@ -101,7 +101,7 @@ const makeLayout = /*#__PURE__*/named(
 
 const makeText = /*#__PURE__*/named(
 	'Text', 'TextBase', TextBase,
-	_ => class SubText extends /*#__PURE__*/makeView(_) {
+	(_, options) => class SubText extends /*#__PURE__*/makeView(_, options) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'Text'
@@ -134,7 +134,7 @@ const makeText = /*#__PURE__*/named(
 
 const makeEditableText = /*#__PURE__*/named(
 	'EditableText', 'EditableTextBase', EditableTextBase,
-	_ => class SubEditableText extends /*#__PURE__*/makeText(_) {
+	(_, options) => class SubEditableText extends /*#__PURE__*/makeText(_, options) {
 		constructor(...args) {
 			super(...args)
 			this.__dominative_role = 'EditableText'

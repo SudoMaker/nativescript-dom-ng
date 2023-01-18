@@ -3,7 +3,7 @@ import { named, makeView } from './mixin.js'
 
 export const makeActionItem = /*#__PURE__*/named(
 	'ActionItem', 'ActionItem', ActionItem,
-	_ => class ActionItemElement extends /*#__PURE__*/makeView(_) {
+	(_, options) => class ActionItemElement extends /*#__PURE__*/makeView(_, options) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 
