@@ -1,5 +1,6 @@
+/* global __IOS__ __ANDROID__ */
+
 import { ViewBase, LayoutBase, TextBase, EditableTextBase, FormattedString } from '@nativescript/core'
-import { isAndroid, isIOS } from '@nativescript/core/platform'
 import { named, resolvePath } from '../utils.js'
 
 /* eslint-disable spaced-comment */
@@ -40,8 +41,8 @@ const makeView = /*#__PURE__*/named(
 
 		__dominative_onSetAttributeNS(ns, name, value) {
 			if (ns) return
-			if (isAndroid && name.startsWith('ios.')) return
-			if (isIOS && name.startsWith('android.')) return
+			if (__ANDROID__ && name.startsWith('ios.')) return
+			if (__IOS__ && name.startsWith('android.')) return
 
 			if (name === 'class') {
 				super.className = value
