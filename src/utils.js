@@ -1,5 +1,7 @@
 import { ObservableArray } from '@nativescript/core'
 
+const mergeProps = (...args) => Object.assign({}, ...args)
+
 // eslint-disable-next-line max-params
 const named = (name, baseClassName, baseClass, extender) => {
 	const key = `__dominative_is_${name}`
@@ -19,11 +21,16 @@ const named = (name, baseClassName, baseClass, extender) => {
 			else if ((allowSelf ? (_ !== baseClass) : true) && !(_.prototype instanceof baseClass)) throw new Error(`[DOMiNATIVE] ${name} element must be subclass of ${baseClassName}, but got ${_.name}.`)
 		}
 
-		const extendedClass = /*#__PURE__*/extender(_, options)
+		const extendedClass = /*#__PURE__*/extender(_, mergeProps(options, {name: null}))
 		Object.defineProperty(extendedClass.prototype, key, {
 			enumerable: false,
 			value: true
 		})
+
+		if (options && options.name) {
+			Object.defineProperty(extendedClass, '__class_type', { value: extendedClass.name, enumerable: false })
+			Object.defineProperty(extendedClass, 'name', { value: options.name })
+		}
 
 		return extendedClass
 	}
@@ -151,6 +158,7 @@ const reAssignObject = (target, source) => {
 }
 
 export {
+	mergeProps,
 	named,
 	makeTweakable,
 	resolvePath,
