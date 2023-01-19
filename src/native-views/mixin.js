@@ -48,7 +48,7 @@ const makeView = /*#__PURE__*/named(
 				super.className = value
 				return
 			}
-			const [base, key] = resolvePath(name, this)
+			const [base, key] = resolvePath(name.replace(/(android|ios)[:.]/, ''), this)
 			base[key] = value
 		}
 
