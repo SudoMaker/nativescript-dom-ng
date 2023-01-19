@@ -40,14 +40,14 @@ const makeView = /*#__PURE__*/named(
 
 		__dominative_onSetAttributeNS(ns, name, value) {
 			if (ns) return
-			if (isAndroid && name.startsWith('ios.')) return
-			if (isIOS && name.startsWith('android.')) return
+			if (__ANDROID__ && name.startsWith('ios')) return
+			if (__IOS__ && name.startsWith('android')) return
 
 			if (name === 'class') {
 				super.className = value
 				return
 			}
-			const [base, key] = resolvePath(name, this)
+			const [base, key] = resolvePath(name.replace(/(android|ios)[:.]/, ''), this)
 			base[key] = value
 		}
 
