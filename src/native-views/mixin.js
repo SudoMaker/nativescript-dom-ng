@@ -41,8 +41,8 @@ const makeView = /*#__PURE__*/named(
 
 		__dominative_onSetAttributeNS(ns, name, value) {
 			if (ns) return
-			if (__ANDROID__ && name.startsWith('ios.')) return
-			if (__IOS__ && name.startsWith('android.')) return
+			if (__ANDROID__ && name.startsWith('ios') && (name[3] === '.' || name[3] === ':')) return
+			if (__IOS__ && name.startsWith('android') && (name[7] === '.' || name[7] === ':')) return
 
 			if (name === 'class') {
 				super.className = value
