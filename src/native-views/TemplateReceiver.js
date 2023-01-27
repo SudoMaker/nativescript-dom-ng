@@ -10,22 +10,25 @@ const handleItemLoading = (self, data) => {
 	const itemIndex = data.index
 	const wrapper = data.view || data.object
 
-	if (!(wrapper instanceof TemplateWrapperView)) return
+	if (!(wrapper && wrapper.__dominative_template)) return
 
-	let item = null
-	if (self.items.getItem) item = self.items.getItem(itemIndex)
-	else item = self.items[itemIndex]
+	let item = data.bindingContext
+
+	if (!item) {
+		if (self.items.getItem) item = self.items.getItem(itemIndex)
+		else item = self.items[itemIndex]
+	}
 
 	if (wrapper.__dominative_template) {
-		const oldView = wrapper.content
-		const newView = wrapper.__dominative_template.patch({
-			view: oldView,
+		const template = wrapper.__dominative_template
+		const newView = wrapper._batchUpdate(() => template.patch({
+			view: wrapper,
 			index: itemIndex,
 			item,
 			data
-		})
+		}))
 
-		if (oldView !== newView) wrapper.content = newView
+		if (wrapper !== newView) event.view = newView
 
 		return
 	}
