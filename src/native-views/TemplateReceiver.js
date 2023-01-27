@@ -17,13 +17,14 @@ const handleItemLoading = (self, data) => {
 	else item = self.items[itemIndex]
 
 	if (wrapper.__dominative_template) {
+		const template = wrapper.__dominative_template
 		const oldView = wrapper.content
-		const newView = wrapper.__dominative_template.patch({
+		const newView = wrapper._batchUpdate(() => template.patch({
 			view: oldView,
 			index: itemIndex,
 			item,
 			data
-		})
+		}))
 
 		if (oldView !== newView) wrapper.content = newView
 
