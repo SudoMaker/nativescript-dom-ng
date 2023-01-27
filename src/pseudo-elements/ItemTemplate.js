@@ -5,11 +5,10 @@ import { createEvent } from '../dom.js'
 import { reAssignObject } from '../utils.js'
 
 export class TemplateWrapperView extends ContentView {
-	constructor(template) {
+	constructor() {
 		super()
 		this.style.padding = '0, 0, 0, 0'
 		this.style.margin = '0, 0, 0, 0'
-		this.__dominative_template = template
 	}
 }
 
@@ -106,16 +105,22 @@ export default class ItemTemplate extends PropBase {
 	}
 
 	createView() {
-		const wrapper = new TemplateWrapperView(this)
+		let createdView = null
 
-		if (this.__content) wrapper.content = defaultCreateView(this)
+		if (this.__content) createdView = defaultCreateView(this)
 		else {
 			const event = createEvent('createView')
 			this.dispatchEvent(event)
-			wrapper.content = event.view || null
+
+			createdView = event.view
+			if (!createdView) {
+				createdView = new TemplateWrapperView()
+			}
 		}
 
-		return wrapper
+		createdView.__dominative_template = this
+
+		return createdView
 	}
 
 	__dominative_onInsertChild(child, ref) {
