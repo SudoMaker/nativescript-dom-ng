@@ -2,7 +2,6 @@ import { createEnvironment, createEvent } from 'undom-ng'
 import { makeView } from './native-views/mixin.js'
 import { makeTweakable } from './utils.js'
 
-import * as pseudoElements from './pseudo-elements/index.js'
 import ContentView from './native-views/ContentView.js'
 import Frame from './native-views/Frame.js'
 import Page from './native-views/Page.js'
@@ -174,10 +173,7 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 
 registerDOMElement('Frame', makeTweakable(Frame))
 registerDOMElement('Page', makeTweakable(Page))
-
-for (let [key, val] of Object.entries(pseudoElements)) {
-	registerDOMElement(key, makeTweakable(val))
-}
+registerDOMElement('ContentView', makeTweakable(ContentView))
 
 const registerElement = (key, val) => {
 	if (scope[key]) {

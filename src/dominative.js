@@ -1,5 +1,6 @@
 import { createDocument, registerElement, registerDOMElement, aliasTagName, scope } from './dom.js'
 import { makeTweakable } from './utils.js'
+import { globals } from './globals.js'
 import { isNode } from 'undom-ng'
 
 import registerAllElements from './register-all.js'
@@ -11,6 +12,10 @@ const domImpl = {
 	document,
 	isNode
 }
+
+globals.domImpl = domImpl
+globals.document = document
+globals.scope = scope
 
 // eslint-disable-next-line no-undef
 const globalRegister = (_global = globalThis) => {
