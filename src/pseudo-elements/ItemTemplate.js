@@ -1,16 +1,8 @@
-import { ContentView } from '@nativescript/core'
 import { isNode, isElement } from 'undom-ng'
 import { PropBase } from './Prop.js'
 import { createEvent } from '../dom.js'
 import { reAssignObject } from '../utils.js'
-
-export class TemplateWrapperView extends ContentView {
-	constructor() {
-		super()
-		this.style.padding = '0, 0, 0, 0'
-		this.style.margin = '0, 0, 0, 0'
-	}
-}
+import { globals } from '../globals.js'
 
 const hydrate = (source, target) => {
 	if (process.env.NODE_ENV !== 'production') {
@@ -70,6 +62,8 @@ export default class ItemTemplate extends PropBase {
 		this.__type = 'key'
 		this.__dominative_role = 'ItemTemplate'
 		this.__value = () => this.createView()
+
+		this.defaultWrapper = 'ContentView'
 	}
 
 	set type(val) {
@@ -114,7 +108,8 @@ export default class ItemTemplate extends PropBase {
 
 			createdView = event.view
 			if (!createdView) {
-				createdView = new TemplateWrapperView()
+				if (this.defaultWrapper.call) createdView = this.defaultWrapper()
+				else createdView = globals.document.createElement(this.defaultWrapper || 'ContentView')
 			}
 		}
 
