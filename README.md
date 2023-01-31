@@ -215,9 +215,9 @@ registerElement('RadListView', makeListView(RadListView, {force: true}))
 ---
 
 
-## Pseudo Elements
+## Virtual Elements
 
-Pseudo elements are not real elements, but they appear as DOM elements to help organizing composition.
+Virtual elements are not real elements, but they appear as DOM elements to help organizing composition.
 
 ### Prop
 

@@ -22,7 +22,9 @@ const NODE_TYPES = {
 
 const silent = process.env.NODE_ENV === 'production'
 
-class Document extends makeTweakable(ContentView) {
+const TweakableContentView = makeTweakable(ContentView)
+
+class Document extends TweakableContentView {
 	get documentElement() {
 		return this.content
 	}
@@ -55,7 +57,7 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 	},
 	onInsertBefore(child, ref) {
 		if (child.nodeType === 11 || child.nodeType === 8) return
-		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		if (!(this.__dominative_isNative || this.__dominative_isVirtualElement)) return
 
 		while (ref && !ref.__dominative_isNative) {
 			ref = ref.nextElementSibling
@@ -63,13 +65,13 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 		if (!ref) ref = null
 
 		this.__dominative_onInsertChild(child, ref)
-		if (child.__dominative_isPseudoElement) child.__dominative_onBeingInserted(this)
+		if (child.__dominative_isVirtualElement) child.__dominative_onBeingInserted(this)
 	},
 	onRemoveChild(child) {
 		if (child.nodeType === 11 || child.nodeType === 8) return
-		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		if (!(this.__dominative_isNative || this.__dominative_isVirtualElement)) return
 		this.__dominative_onRemoveChild(child)
-		if (child.__dominative_isPseudoElement) child.__dominative_onBeingRemoved(this)
+		if (child.__dominative_isVirtualElement) child.__dominative_onBeingRemoved(this)
 	},
 	onSetTextContent(val) {
 		if (!this.__dominative_isNative) return
@@ -80,15 +82,15 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 		return this.__dominative_onGetTextContent()
 	},
 	onSetAttributeNS(ns, name, value) {
-		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		if (!(this.__dominative_isNative || this.__dominative_isVirtualElement)) return
 		this.__dominative_onSetAttributeNS(ns, name, value)
 	},
 	onGetAttributeNS(ns, name, updateValue) {
-		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		if (!(this.__dominative_isNative || this.__dominative_isVirtualElement)) return
 		this.__dominative_onGetAttributeNS(ns, name, updateValue)
 	},
 	onRemoveAttributeNS(ns, name) {
-		if (!(this.__dominative_isNative || this.__dominative_isPseudoElement)) return
+		if (!(this.__dominative_isNative || this.__dominative_isVirtualElement)) return
 		this.__dominative_onRemoveAttributeNS(ns, name)
 	},
 	onAddEventListener(...args) {
@@ -173,7 +175,7 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 
 registerDOMElement('Frame', makeTweakable(Frame))
 registerDOMElement('Page', makeTweakable(Page))
-registerDOMElement('ContentView', makeTweakable(ContentView))
+registerDOMElement('ContentView', TweakableContentView)
 
 const registerElement = (key, val) => {
 	if (scope[key]) {
@@ -182,6 +184,7 @@ const registerElement = (key, val) => {
 	}
 	return registerDOMElement(key, makeTweakable(makeView(val)))
 }
+
 const aliasTagName = (nameHandler) => {
 	for (let key of Object.keys(scope)) scope[nameHandler(key)] = scope[key]
 }

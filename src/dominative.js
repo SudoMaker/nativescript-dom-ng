@@ -35,4 +35,4 @@ if (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RE
 export { domImpl, document, createDocument, registerElement, aliasTagName, registerDOMElement, registerAllElements, scope, globalRegister, makeTweakable }
 export * from './native-views/makers.js'
 export * from './native-views'
-export * from './pseudo-elements'
+export * from './virtual-elements'
