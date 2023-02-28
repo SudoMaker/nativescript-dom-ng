@@ -1,8 +1,8 @@
 import { ObservableArray } from '@nativescript/core'
-import { PseudoBase } from './base.js'
+import { VirtualBase } from './base.js'
 import { addToArrayProp, removeFromArrayProp } from '../utils.js'
 
-export class PropBase extends PseudoBase {
+export class PropBase extends VirtualBase {
 	constructor(key, type) {
 		super()
 		if (key) this.key = key
@@ -91,7 +91,7 @@ export class PropBase extends PseudoBase {
 
 export class Prop extends PropBase {
 	__dominative_onInsertChild(child, ref) {
-		if (!(child.__dominative_isPseudoElement && child.__dominative_role === 'ItemTemplate') &&
+		if (!(child.__dominative_isVirtualElement && child.__dominative_role === 'ItemTemplate') &&
 			(!child.__dominative_isNative || (ref && !ref.__dominative_isNative))
 		) return super.__dominative_onInsertChild(child, ref)
 

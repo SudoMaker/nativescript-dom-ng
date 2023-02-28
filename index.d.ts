@@ -46,16 +46,16 @@ declare module "dominative" {
 
 	export const NSComponentsWithTypeOfMap: NSTypeofComponents;
 
-	interface TypeofPseudoElements {
+	interface TypeofVirtualElements {
 		Prop: Prop & typeof Prop;
 		KeyProp: KeyProp & typeof KeyProp;
 		ArrayProp: ArrayProp & typeof ArrayProp;
 		ItemTemplate: ItemTemplate & typeof ItemTemplate;
 	}
 
-	export const PseudoElementsWithTypeofMap: TypeofPseudoElements;
+	export const VirtualElementsWithTypeofMap: TypeofVirtualElements;
 
-	interface PseudoElementsMap {
+	interface VirtualElementsMap {
 		Prop: Prop;
 		KeyProp: KeyProp;
 		ArrayProp: ArrayProp;
@@ -443,13 +443,13 @@ declare module "dominative" {
 	type DominativeExtendedMap = {
 		[K in keyof NSComponentsMap]: DominativeExtended<NSComponentsMap[K]>;
 	} & {
-		[K in keyof PseudoElementsMap]: DominativeExtended<PseudoElementsMap[K]>;
+		[K in keyof VirtualElementsMap]: DominativeExtended<VirtualElementsMap[K]>;
 	};
 
 	type TweakableMap = {
 		[K in keyof NSComponentsMap]: Tweakable<DominativeExtendedMap[K]>;
 	} & {
-		[K in keyof PseudoElementsMap]: Tweakable<DominativeExtendedMap[K]>;
+		[K in keyof VirtualElementsMap]: Tweakable<DominativeExtendedMap[K]>;
 	};
 
 	type HTMLElementTagNameMap = {
@@ -462,8 +462,8 @@ declare module "dominative" {
 			Tweakable<DominativeExtended<NSCustomComponentsMap[K]>>
 		>;
 	} & {
-		[K in keyof PseudoElementsMap]: ExtendWithCustomEventHandlers<
-			typeof PseudoElementsWithTypeofMap[K],
+		[K in keyof VirtualElementsMap]: ExtendWithCustomEventHandlers<
+			typeof VirtualElementsWithTypeofMap[K],
 			HTMLElement<TweakableMap[K]>
 		>;
 	};

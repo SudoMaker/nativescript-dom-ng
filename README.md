@@ -215,9 +215,9 @@ registerElement('RadListView', makeListView(RadListView, {force: true}))
 ---
 
 
-## Pseudo Elements
+## Virtual Elements
 
-Pseudo elements are not real elements, but they appear as DOM elements to help organizing composition.
+Virtual elements are not real elements, but they appear as DOM elements to help organizing composition.
 
 ### Prop
 
@@ -317,6 +317,8 @@ registerElement('RadListView', makeTemplateReceiver(RadListView, {
 `templateProps: Array<String>`: Props that accepts a template. Do not write keyed template props.
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
+
+`itemEvents: Array<String>`: Custom events that will fire on the component referencing to an item.
 
 
 ---

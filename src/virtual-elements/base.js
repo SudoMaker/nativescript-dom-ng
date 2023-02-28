@@ -1,9 +1,9 @@
 import { resolvePath } from '../utils.js'
 
-export class PseudoBase {
+export class VirtualBase {
 	/* eslint-disable class-methods-use-this, no-empty-function */
 	constructor() {
-		this.__dominative_isPseudoElement = true
+		this.__dominative_isVirtualElement = true
 	}
 
 	__dominative_onInsertChild() {}
