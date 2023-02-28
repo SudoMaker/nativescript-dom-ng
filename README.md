@@ -318,6 +318,8 @@ registerElement('RadListView', makeTemplateReceiver(RadListView, {
 
 `loadingEvents: Array<String>`: Events that will fire on the component when items loading.
 
+`itemEvents: Array<String>`: Custom events that will fire on the component referencing to an item.
+
 
 ---
 

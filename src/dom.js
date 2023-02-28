@@ -50,7 +50,7 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 	},
 	onSetData(data) {
 		if (this.nodeType === 8) {
-			if (!silent) console.log('[DOMiNATIVE][DOM COMMENT]', data)
+			if (!silent) console.log('[DOMiNATIVE][COMMENT]', data)
 		} else if (this.nodeType === 3 && this.parentNode && this.parentNode.__dominative_isNative && this.parentNode.__dominative_is_Text) {
 			this.parentNode.__dominative_updateText()
 		}
@@ -179,7 +179,7 @@ registerDOMElement('ContentView', TweakableContentView)
 
 const registerElement = (key, val) => {
 	if (scope[key]) {
-		if (!process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] '${key}'' is already registered, skipping!`)
+		if (!process.env.NODE_ENV !== 'production') console.warn(`[DOMiNATIVE] '${key}' is already registered, skipping!`)
 		return scope[key]
 	}
 	return registerDOMElement(key, makeTweakable(makeView(val)))

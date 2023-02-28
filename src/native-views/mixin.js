@@ -103,7 +103,9 @@ const makeView = /*#__PURE__*/named(
 									} else {
 										this.addChild(child)
 									}
-								}
+								},
+								configurable: true,
+								writable: true
 							},
 							__dominative_onRemoveChild: {
 								value(child) {
@@ -111,7 +113,9 @@ const makeView = /*#__PURE__*/named(
 									if (child.nodeType === 3) return
 
 									this.__dominative_native_removeChild(child)
-								}
+								},
+								configurable: true,
+								writable: true
 							}
 						})
 
@@ -125,14 +129,18 @@ const makeView = /*#__PURE__*/named(
 
 									if (this.content && this.content.__dominative_isNative) this.content.remove()
 									this.content = child
-								}
+								},
+								configurable: true,
+								writable: true
 							},
 							__dominative_onRemoveChild: {
 								value(child) {
 									if (!child.__dominative_isNative) return
 
 									this.content = null
-								}
+								},
+								configurable: true,
+								writable: true
 							}
 						})
 
@@ -144,13 +152,17 @@ const makeView = /*#__PURE__*/named(
 								value(child) {
 									if (!child.__dominative_isNative) return
 									if (child.nodeType === 1) this._addChildFromBuilder(child.constructor.name, child)
-								}
+								},
+								configurable: true,
+								writable: true
 							},
 							__dominative_onRemoveChild: {
 								value(child) {
 									if (!child.__dominative_isNative) return
 									if (child.nodeType === 1) this._removeView(child)
-								}
+								},
+								configurable: true,
+								writable: true
 							}
 						})
 
@@ -160,10 +172,18 @@ const makeView = /*#__PURE__*/named(
 						const { insertion, removal } = childrenPolicy
 
 						if (insertion) {
-							Object.defineProperty(proto, '__dominative_onInsertChild', { value: insertion })
+							Object.defineProperty(proto, '__dominative_onInsertChild', {
+								value: insertion,
+								configurable: true,
+								writable: true
+							})
 						}
 						if (removal) {
-							Object.defineProperty(proto, '__dominative_onRemoveChild', { value: removal })
+							Object.defineProperty(proto, '__dominative_onRemoveChild', {
+								value: removal,
+								configurable: true,
+								writable: true
+							})
 						}
 
 						break
