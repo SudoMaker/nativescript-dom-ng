@@ -40,7 +40,7 @@ const named = (name, baseClassName, baseClass, extender) => {
 
 		Object.defineProperty(extendedClass, Symbol.hasInstance, {
 			value(instance) {
-				return instance[key]
+				return instance && instance[key]
 			}
 		})
 
