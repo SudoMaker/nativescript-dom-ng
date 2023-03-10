@@ -26,7 +26,7 @@ const globalRegister = (_global = globalThis) => {
 
 // Register all elements if tree shaking is not enabled explicitly
 // eslint-disable-next-line no-negated-condition, no-undef
-if (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RENDERER__) {
+if (typeof __UI_USE_EXTERNAL_RENDERER__ === 'undefined' || (typeof __UI_USE_EXTERNAL_RENDERER__ !== 'undefined' && !__UI_USE_EXTERNAL_RENDERER__)) {
 	registerAllElements()
 } else if (process.env.NODE_ENV !== 'production') {
 	console.warn('[DOMiNATIVE] Tree shaking is enabled! Make sure to register {N} core elements manually! See https://github.com/SudoMaker/DOMiNATIVE#tree-shaking for details.')
