@@ -8,6 +8,7 @@ export const makeTabView = /*#__PURE__*/named(
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative || (ref && !ref.__dominative_isNative)) return super.__dominative_onInsertChild(child, ref)
 			if (!(child instanceof TabViewItem)) return
+			if (!child.firstElementChild) return
 
 			if (ref && !(ref instanceof TabViewItem)) ref = null
 
@@ -19,6 +20,7 @@ export const makeTabView = /*#__PURE__*/named(
 		__dominative_onRemoveChild(child) {
 			if (!child.__dominative_isNative) return
 			if (!(child instanceof TabViewItem)) return super.__dominative_onRemoveChild(child)
+			if (!child.firstElementChild) return
 
 			removeFromArrayProp(this, 'items', child)
 
