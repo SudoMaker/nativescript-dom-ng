@@ -20,6 +20,6 @@
   "homepage": "https://github.com/SudoMaker/dominative",
   "peerDependencies": {
     "@nativescript/core": "^8.4.7",
-    "undom-ng": "^1.0.7"
+    "undom-ng": "^1.0.10"
   }
 }
