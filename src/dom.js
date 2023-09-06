@@ -48,6 +48,9 @@ const {scope, createDocument, createElement, registerElement: registerDOMElement
 	commonAncestors: {
 		Document
 	},
+	onCreateNode() {
+		if (this.__dominative_is_Tweakable) this.constructor.initTweaks(this)
+	},
 	onSetData(data) {
 		if (this.nodeType === 8) {
 			if (!silent) console.log('[DOMiNATIVE][COMMENT]', data)
