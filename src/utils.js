@@ -59,10 +59,9 @@ const makeTweakable = /*#__PURE__*/named(
 		const eventOptionDefinition = {}
 
 		class Tweakable extends _ {
-			constructor(...args) {
-				super(...args)
+			static initTweaks(self) {
 				for (let [type, def] of Object.entries(eventOptionDefinition)) {
-					if (def.bubbles || def.captures) this.addEventListener(type, dummyFn)
+					if (def.bubbles || def.captures) self.addEventListener(type, dummyFn)
 				}
 			}
 
