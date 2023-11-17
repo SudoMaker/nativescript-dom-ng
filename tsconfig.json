@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "esnext",
-		"target": "es2017",
+		"target": "es2018",
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
@@ -9,7 +9,7 @@
 		"noEmitHelpers": false,
 		"noEmitOnError": false,
 		"skipLibCheck": false,
-		"lib": ["es2017"],
+		"lib": ["es2018"],
 		"baseUrl": "."
 	},
 	"exclude": ["node_modules"]
