@@ -4,14 +4,14 @@ import { named, makeView } from './mixin.js'
 
 export const makeTabViewItem = /*#__PURE__*/named(
 	'TabViewItem', 'TabViewItem', TabViewItem,
-	(_, {parentView = TabView, ...options}) => class TabViewItemElement extends /*#__PURE__*/makeView(_, options) {
+	(_, {parentView = TabView, contentProp = 'view', ...options}) => class TabViewItemElement extends /*#__PURE__*/makeView(_, options) {
 		__dominative_onInsertChild(child, ref) {
 			if (!child.__dominative_isNative) return super.__dominative_onInsertChild(child, ref)
 
-			const oldView = this.view
+			const oldView = this[contentProp]
 
 			if (oldView && isNode(oldView)) oldView.remove()
-			this.view = child
+			this[contentProp] = child
 
 			if (!oldView) {
 				if (this.parentNode && this.parentNode instanceof parentView) {
