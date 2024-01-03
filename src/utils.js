@@ -110,6 +110,12 @@ const makeTweakable = /*#__PURE__*/named(
 	}
 )
 
+const ignoreOwnerDocument = _ => class extends _ {
+	constructor(ownerDocument, ...args) {
+		super(...args)
+	}
+}
+
 const resolvePath = (pathStr, base) => {
 	const pathArr = pathStr.split('.')
 	const key = pathArr.pop()
@@ -160,6 +166,7 @@ export {
 	mergeProps,
 	named,
 	makeTweakable,
+	ignoreOwnerDocument,
 	resolvePath,
 	addToArrayProp,
 	removeFromArrayProp,
