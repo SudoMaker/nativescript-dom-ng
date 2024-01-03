@@ -1,11 +1,11 @@
 import * as nativeViews from './native-views'
 import * as virtualElements from './virtual-elements/index.js'
-import { makeTweakable } from './utils.js'
+import { makeTweakable, ignoreOwnerDocument } from './utils.js'
 
 import { scope, registerDOMElement } from './dom.js'
 
 for (let [key, val] of Object.entries(virtualElements)) {
-	registerDOMElement(key, makeTweakable(val))
+	registerDOMElement(key, makeTweakable(ignoreOwnerDocument(val)))
 }
 
 const registerAllElements = () => {

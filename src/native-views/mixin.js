@@ -10,7 +10,8 @@ const makeView = /*#__PURE__*/named(
 	(_, options) => {
 		class SubView extends _ {
 			/* eslint-disable class-methods-use-this, no-empty-function */
-			constructor(...args) {
+			constructor(ownerDocument, ...args) {
+				// ownerDocument does nothing for now, ignore
 				super(...args)
 				this.__dominative_isNative = true
 				this.__dominative_role = 'View'

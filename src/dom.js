@@ -31,13 +31,11 @@ class Document extends TweakableContentView {
 }
 
 const initDocument = (document) => {
-	const documentElement = document.createElement('Frame')
 	const body = document.createElement('Page')
 
 	body.actionBarHidden = true
-	documentElement.appendChild(body)
+	document.documentElement.appendChild(body)
 
-	document.appendChild(documentElement)
 	document.body = body
 }
 

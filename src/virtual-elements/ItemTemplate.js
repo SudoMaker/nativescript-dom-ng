@@ -66,11 +66,13 @@ export default class ItemTemplate extends PropBase {
 		this.defaultWrapper = 'ContentView'
 	}
 
+	// eslint-disable-next-line accessor-pairs
 	set type(val) {
 		if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Cannot set type of a Template.')
 		return
 	}
 
+	// eslint-disable-next-line accessor-pairs
 	set value(val) {
 		if (process.env.NODE_ENV !== 'production') console.warn('[DOMiNATIVE] Cannot set value of a Template.')
 		return
