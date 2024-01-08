@@ -2,7 +2,7 @@
 
 [![NPM](https://img.shields.io/npm/v/dominative.svg?style=flat)](https://www.npmjs.org/package/dominative)
 
-### **Minimally viable DOM Document implementation for NativeScript**
+The Next Gen, Minimally viable DOM Document implementation for NativeScript, built for performance
 
 ---
 
@@ -17,6 +17,10 @@ Via npm:
 
 
 ---
+
+## WARNING
+
+This implementation does not contain `innerHTML` support by default. Unlike in browsers, setting `innerHTML` can have XML parsed with native code, DOM tree generated in native as well which can be very fast, but as an JS emulated DOM, setting `innerHTML` is a very expensive operation which require parsing XML string in JS and generating corresponding tags which result in creating real instances of corresponding native views recursively in JS, which can be much slower than calling `createElement` directly.
 
 
 ## Usage
