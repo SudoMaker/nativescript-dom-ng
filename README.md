@@ -6,6 +6,21 @@ The Next Gen, Minimally viable DOM Document implementation for NativeScript, bui
 
 ---
 
+## Disclaimer
+
+*A lack of maintenance does not imply that the project is obsolete. Rather, it suggests that the code is of such high quality that ongoing maintenance isn't necessary.*
+
+
+## WARNING
+
+This project, being focused on performance, does not include `innerHTML` support in its standard implementation. In browsers, `innerHTML` allows for efficient XML parsing and DOM tree generation through native code, which is significantly faster. However, in a JavaScript-simulated DOM, utilizing `innerHTML` becomes a costly process. It involves parsing the XML string in JavaScript and creating the associated tags, leading to the recursive creation of actual instances of native views in JavaScript. This process is considerably slower compared to directly using `createElement`.
+
+For those who need to use `innerHTML` for specific reasons, further information is available in the section titled "innerHTML" [here](#innerhtml).
+
+I suggest that framework developers think about incorporating methods for node creation that don't depend on `innerHTML` or `cloneNode`. This recommendation is particularly relevant considering that the same DOM implementation ([undom-ng](https://github.com/ClassicOldSong/undom-ng)) might be utilized in diverse environments, such as embedded devices with limited resources — specifically, those with less than 8MB of available memory and a CPU frequency under 500MHz. In such contexts, integrating an XML parser may not be the most efficient approach.
+
+---
+
 
 ## Installation
 
@@ -15,12 +30,10 @@ Via npm:
 
 **Note:** `undom-ng` is a peer dependency, you have to install it manually.
 
+**Note:** The package name is `dominative`, not `nativescript-dom-ng`. Please install `dominative`.
+
 
 ---
-
-## WARNING
-
-This implementation does not contain `innerHTML` support by default. Unlike in browsers, setting `innerHTML` can have XML parsed with native code, DOM tree generated in native as well which can be very fast, but as an JS emulated DOM, setting `innerHTML` is a very expensive operation which require parsing XML string in JS and generating corresponding tags which result in creating real instances of corresponding native views recursively in JS, which can be much slower than calling `createElement` directly.
 
 
 ## Usage
@@ -163,6 +176,8 @@ app.jsx
 import { Application } from "@nativescript/core"
 import { render } from "@dominative/solid"
 import { createSignal } from "solid-js"
+
+document.body.actionbarHidden = false
 
 const App = () => {
 	const [count, setCount] = createSignal(0)
@@ -419,15 +434,43 @@ registerAllElements()
 
 ## Caveats
 
+### innerHTML
+
+As highlighted in the initial warning, using `innerHTML` on a DOM created in JavaScript is quite resource-intensive. However, it's still possible to implement this feature on your own. To do this, ensure that your base class includes a setter method named `innerHTML` before you proceed with the registration of this element.
+
+For example:
+
+```js
+import { StackLayout, registerElement } from 'dominative'
+
+const StackLayoutWithInnerHTML = class extends StackLayout {
+	// only setter is needed
+	set innerHTML(val) {
+		if (val === '') {
+			// clear all children
+		}
+
+		const parsed = parseXML(val)
+		createElementRecursively(this, parsed)
+	}
+}
+
+registerElement('StackLayout', StackLayoutWithInnerHTML)
+```
+
+### cloneNode
+
+While this method works as expected in most time, be aware that deep cloning might result in the loss of properties that are not set by attributes. Therefore, this approach is not generally recommended, akin to the advice regarding the use of `innerHTML`.
+
 ### Hardcoding in Frameworks
 
-Frameworks are great, but they're not great when it comes to hardcoded things. We have to invest methods to counter the harm done by those hardcodings.
+Frameworks are useful tools, yet their effectiveness diminishes when dealing with hardcoded elements. It's important to develop strategies to mitigate the negative impact of such hardcoded aspects.
 
-**Hardcoding is harmful, please do not hardcode.**
+**Please avoid hardcoding as it can be detrimental.**
 
 #### Always lowercased tag names
 
-Sometimes frameworks are just too thoughtful for you, they translate all your tag names to lowercase when compiling, which means your camelCase or PascalCase tag names won't work as intended.
+Sometimes frameworks are just too thoughtful for you, they translate all your tag names to lowercase and no way to alter this behavior, which means your camelCase or PascalCase tag names won't work as intended.
 
 We can alias our tag names to lowercase if you like:
 
