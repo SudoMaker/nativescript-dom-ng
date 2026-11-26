@@ -11,7 +11,7 @@ export const makeFrame = /*#__PURE__*/named(
 				this.navigate({ create: () => page})
 				return
 			}
-			super.__dominative_onSetAttributeNS(key, val)
+			super.__dominative_onSetAttributeNS(ns, key, val)
 		}
 
 		__dominative_onInsertChild(child, ref) {
